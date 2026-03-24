@@ -1,48 +1,102 @@
 #!/bin/bash
-# Convert Shipwise skills to formats compatible with other AI coding agents
-# Supports: Codex, Cursor, Gemini CLI, and generic markdown
-set -e
+# Convert shipwise skills to other agent formats
+# Usage: bash scripts/convert.sh [format] [output-dir]
+#
+# Supported formats:
+#   cursor    — Convert to Cursor rules format (.cursorrules)
+#   codex     — Convert to OpenAI Codex format
+#   gemini    — Convert to Gemini CLI format
+#   windsurf  — Convert to Windsurf format
+#   generic   — Convert to generic AGENTS.md format
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
-SKILLS_DIR="$PLUGIN_DIR/skills"
-OUTPUT_DIR="${1:-$PLUGIN_DIR/dist}"
+set -euo pipefail
 
+FORMAT="${1:-generic}"
+OUTPUT_DIR="${2:-dist/$FORMAT}"
+
+echo "Converting shipwise skills to $FORMAT format..."
 mkdir -p "$OUTPUT_DIR"
 
-echo "Converting Shipwise skills for multi-agent compatibility..."
+# Find all SKILL.md files
+SKILLS=$(find skills -name "SKILL.md" | sort)
 
-# Concatenate all skills into a single knowledge file
-echo "# Shipwise — Launch Lifecycle Knowledge Base" > "$OUTPUT_DIR/shipwise-knowledge.md"
-echo "" >> "$OUTPUT_DIR/shipwise-knowledge.md"
-echo "This file contains all Shipwise domain knowledge for use with any AI coding agent." >> "$OUTPUT_DIR/shipwise-knowledge.md"
-echo "" >> "$OUTPUT_DIR/shipwise-knowledge.md"
+case "$FORMAT" in
+  cursor)
+    echo "# Shipwise Launch Lifecycle Rules" > "$OUTPUT_DIR/.cursorrules"
+    echo "" >> "$OUTPUT_DIR/.cursorrules"
+    echo "These rules guide you through the webapp launch lifecycle." >> "$OUTPUT_DIR/.cursorrules"
+    echo "" >> "$OUTPUT_DIR/.cursorrules"
+    for skill in $SKILLS; do
+      # Extract skill name from frontmatter
+      name=$(grep "^name:" "$skill" | head -1 | sed 's/name: //')
+      echo "## $name" >> "$OUTPUT_DIR/.cursorrules"
+      # Strip frontmatter and append
+      sed '/^---$/,/^---$/d' "$skill" >> "$OUTPUT_DIR/.cursorrules"
+      echo "" >> "$OUTPUT_DIR/.cursorrules"
+    done
+    echo "Created $OUTPUT_DIR/.cursorrules"
+    ;;
 
-for skill_dir in "$SKILLS_DIR"/*/; do
-  skill_file="$skill_dir/SKILL.md"
-  if [ -f "$skill_file" ]; then
-    echo "---" >> "$OUTPUT_DIR/shipwise-knowledge.md"
-    echo "" >> "$OUTPUT_DIR/shipwise-knowledge.md"
-    cat "$skill_file" >> "$OUTPUT_DIR/shipwise-knowledge.md"
-    echo "" >> "$OUTPUT_DIR/shipwise-knowledge.md"
-  fi
-done
+  codex)
+    for skill in $SKILLS; do
+      dir=$(dirname "$skill")
+      skill_name=$(basename "$dir")
+      # Convert SKILL.md to codex instruction format
+      mkdir -p "$OUTPUT_DIR/$skill_name"
+      {
+        echo "# Instructions"
+        echo ""
+        sed '/^---$/,/^---$/d' "$skill"
+      } > "$OUTPUT_DIR/$skill_name/AGENTS.md"
+      # Copy references if they exist
+      if [ -d "$dir/references" ]; then
+        cp -r "$dir/references" "$OUTPUT_DIR/$skill_name/"
+      fi
+    done
+    echo "Created Codex-compatible structure in $OUTPUT_DIR/"
+    ;;
 
-echo "Generated: $OUTPUT_DIR/shipwise-knowledge.md"
+  gemini)
+    echo "# Shipwise Launch Lifecycle" > "$OUTPUT_DIR/GEMINI.md"
+    echo "" >> "$OUTPUT_DIR/GEMINI.md"
+    for skill in $SKILLS; do
+      sed '/^---$/,/^---$/d' "$skill" >> "$OUTPUT_DIR/GEMINI.md"
+      echo "" >> "$OUTPUT_DIR/GEMINI.md"
+      echo "---" >> "$OUTPUT_DIR/GEMINI.md"
+      echo "" >> "$OUTPUT_DIR/GEMINI.md"
+    done
+    echo "Created $OUTPUT_DIR/GEMINI.md"
+    ;;
 
-# Generate Cursor rules file
-echo "# Shipwise Launch Lifecycle Rules" > "$OUTPUT_DIR/.cursorrules"
-echo "When working on this project, consider the launch readiness checklist." >> "$OUTPUT_DIR/.cursorrules"
-echo "Check .claude/shipwise-state.json for current status if it exists." >> "$OUTPUT_DIR/.cursorrules"
-echo "" >> "$OUTPUT_DIR/.cursorrules"
-echo "Key principles:" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Always add error handling to API routes" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Include input validation on all endpoints" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Set security headers (CSP, HSTS, X-Frame-Options)" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Use environment variables for secrets (never hardcode)" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Add health check endpoints" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Include structured logging" >> "$OUTPUT_DIR/.cursorrules"
-echo "- Write tests for business logic" >> "$OUTPUT_DIR/.cursorrules"
+  windsurf)
+    for skill in $SKILLS; do
+      dir=$(dirname "$skill")
+      skill_name=$(basename "$dir")
+      mkdir -p "$OUTPUT_DIR/.windsurf/rules"
+      {
+        sed '/^---$/,/^---$/d' "$skill"
+      } > "$OUTPUT_DIR/.windsurf/rules/$skill_name.md"
+    done
+    echo "Created Windsurf rules in $OUTPUT_DIR/.windsurf/rules/"
+    ;;
 
-echo "Generated: $OUTPUT_DIR/.cursorrules"
-echo "Done!"
+  generic)
+    echo "# Shipwise Launch Lifecycle" > "$OUTPUT_DIR/AGENTS.md"
+    echo "" >> "$OUTPUT_DIR/AGENTS.md"
+    echo "Webapp launch lifecycle knowledge base. Use these as context for any AI coding assistant." >> "$OUTPUT_DIR/AGENTS.md"
+    echo "" >> "$OUTPUT_DIR/AGENTS.md"
+    for skill in $SKILLS; do
+      sed '/^---$/,/^---$/d' "$skill" >> "$OUTPUT_DIR/AGENTS.md"
+      echo "" >> "$OUTPUT_DIR/AGENTS.md"
+    done
+    echo "Created $OUTPUT_DIR/AGENTS.md"
+    ;;
+
+  *)
+    echo "Unknown format: $FORMAT"
+    echo "Supported: cursor, codex, gemini, windsurf, generic"
+    exit 1
+    ;;
+esac
+
+echo "Done! Files written to $OUTPUT_DIR/"

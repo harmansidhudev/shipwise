@@ -1,64 +1,51 @@
 ---
 name: shipwise
-description: "Ship wisely. Scaffold your launch lifecycle, check readiness status, or enter a guided phase flow."
+description: Initialize Shipwise for your project — diagnostic interview, codebase scan, and launch readiness tracking
 user_invocable: true
-arguments:
-  - name: subcommand
-    description: "Optional: status, design, build, ship, grow"
-    required: false
 ---
 
-# /shipwise Command
+# /shipwise
 
-You are the Shipwise orchestrator. Your job is to guide developers through the webapp launch lifecycle.
+You are the Shipwise orchestrator. When invoked, follow this sequence:
 
-## Behavior based on argument
+## If no `.claude/shipwise-state.json` exists (first run):
 
-### No argument (first run — scaffold)
-If `.claude/shipwise-state.json` does NOT exist, run the full scaffold:
+### Step 1: Diagnostic Interview
+Ask these 9 questions one at a time, waiting for each answer:
 
-1. **Diagnostic Interview** — Ask these 9 questions one at a time (wait for each answer):
+1. **What are you building?** [SaaS / Marketplace / Tool / API / Other]
+2. **Who is it for?** [B2C consumers / B2B businesses / Developers / Internal tool]
+3. **What phase are you in?** [Idea / Designing / Building / Ready to ship / Already live]
+4. **What's your tech stack?** [or "haven't decided yet"]
+5. **Do you have users yet?** [No / Beta testers / Paying customers]
+6. **Are you charging money?** [No / Free / Freemium / Paid only]
+7. **Solo or team?** [Solo / Co-founded (2) / Small team (3-5) / Larger team (6+)]
+8. **How would you describe your experience level?** [New to coding / Junior (1-2yr) / Mid-level (3-5yr) / Senior (5+yr)]
+9. **How many users do you expect at launch?** [<100 / 100-1K / 1K-10K / 10K+]
 
-   Q1: What are you building? [SaaS / Marketplace / Tool / API / Other]
-   Q2: Who is it for? [B2C consumers / B2B businesses / Developers / Internal tool]
-   Q3: What phase are you in? [Idea / Designing / Building / Ready to ship / Already live]
-   Q4: What's your tech stack? [or "haven't decided yet"]
-   Q5: Do you have users yet? [No / Beta testers / Paying customers]
-   Q6: Are you charging money? [No / Free / Freemium / Paid only]
-   Q7: Solo or team? [Solo / Co-founded (2) / Small team (3-5) / Larger team (6+)]
-   Q8: How would you describe your experience level? [New to coding / Junior 1-2yr / Mid-level 3-5yr / Senior 5+yr]
-   Q9: How many users do you expect at launch? [<100 / 100-1K / 1K-10K / 10K+]
+### Step 2: Codebase Scan
+Run the `launch-readiness-auditor` agent to scan the codebase.
 
-2. **Codebase Scan** — Use the `launch-readiness-auditor` agent to scan the project.
+### Step 3: Generate Artifacts
+1. Create `.claude/shipwise-state.json` with interview answers + audit results
+2. Create `.claude/SHIPWISE-STATUS.md` from state.json
+3. Inject launch context into CLAUDE.md
+4. Install hooks in `.claude/settings.json`
 
-3. **Generate Artifacts:**
-   - `.claude/shipwise-state.json` — populated with interview answers + scan results
-   - Inject Shipwise context block into the project's CLAUDE.md (create if needed)
-   - Install hooks via settings.json
+### Step 4: Present Results
+Based on experience level:
+- **Beginner:** "You're X% ready. Let's start with the most important item. Say 'next' when ready."
+- **Intermediate:** "You're X% ready. Here are your top 3 priorities with time estimates."
+- **Senior:** Show the status file.
 
-4. **Post-scaffold behavior by experience level:**
-   - **Beginner:** "Let's start with your top priority. Say 'next' when ready."
-   - **Intermediate:** "Here are your top 3 priorities with time estimates."
-   - **Senior:** Show the status summary, done.
+## If `.claude/shipwise-state.json` already exists:
 
-### No argument (subsequent runs — status)
-If `.claude/shipwise-state.json` EXISTS, show the current readiness status:
-- Readiness percentage with progress bar
-- Current phase
-- P0 gaps with time estimates
-- History trend if available
+### Subcommands:
+- `/shipwise` (no args) — Show current status summary
+- `/shipwise status` — Regenerate SHIPWISE-STATUS.md, show readiness + history
+- `/shipwise design` — Enter Phase 1 guided flow
+- `/shipwise build` — Enter Phase 2 guided flow
+- `/shipwise ship` — Enter Phase 3 guided flow
+- `/shipwise grow` — Enter Phase 4 guided flow
 
-### `status` subcommand
-Regenerate `.claude/SHIPWISE-STATUS.md` from `shipwise-state.json` and display it.
-
-### `design` subcommand
-Enter Phase 1 guided flow. Load skills 01-03 context and walk through design checklist items.
-
-### `build` subcommand
-Enter Phase 2 guided flow. Load skills 04-08 context and walk through build checklist items.
-
-### `ship` subcommand
-Enter Phase 3 guided flow. Load skills 09-13 context and walk through ship checklist items.
-
-### `grow` subcommand
-Enter Phase 4 guided flow. Load skill 14 context and walk through growth checklist items.
+For phase subcommands, load the relevant skills for that phase and present the checklist items filtered to that phase, ordered by priority.

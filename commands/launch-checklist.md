@@ -1,45 +1,50 @@
 ---
 name: launch-checklist
-description: "Deep-dive checklist for a specific domain. Usage: /launch-checklist <domain>"
+description: Deep-dive checklist for a specific domain (e.g., security, billing, seo)
 user_invocable: true
-arguments:
-  - name: domain
-    description: "Domain to deep-dive: security, billing, seo, observability, legal, testing, cicd, architecture, design, growth"
-    required: true
 ---
 
-# /launch-checklist Command
+# /launch-checklist [domain]
 
-You are providing a deep-dive checklist for the specified domain.
+Show a detailed checklist for a specific launch domain.
 
-## Behavior
+## Usage:
+`/launch-checklist security` — Show security compliance checklist
+`/launch-checklist billing` — Show billing/payments checklist
+`/launch-checklist seo` — Show SEO/performance checklist
+`/launch-checklist legal` — Show legal compliance checklist
+`/launch-checklist observability` — Show observability checklist
+`/launch-checklist infrastructure` — Show platform infrastructure checklist
+`/launch-checklist testing` — Show quality assurance checklist
+`/launch-checklist launch` — Show launch execution checklist
 
-1. **Read state.** Load `.claude/shipwise-state.json` for experience level and current item statuses. If no state file exists, tell the user to run `/shipwise` first.
+## Procedure:
+1. Map the domain argument to the corresponding skill (e.g., "security" -> skill 08)
+2. Load that skill's full checklist
+3. Cross-reference with `.claude/shipwise-state.json` to mark completed items
+4. Present the checklist with:
+   - Checkmark for completed items
+   - Empty box for incomplete items with time estimates
+   - Priority indicators (P0/P1/P2)
+5. For each incomplete P0 item, offer: "Want me to implement this now?"
 
-2. **Load domain skill.** Based on the domain argument, load the corresponding skill's full knowledge:
+## Domain-to-skill mapping:
+| Domain | Skill |
+|--------|-------|
+| security | 08-security-compliance |
+| billing | 11-billing-payments |
+| seo | 10-seo-performance |
+| observability | 09-observability-reliability |
+| legal | 12-legal-compliance-final |
+| testing | 07-quality-assurance |
+| infrastructure | 06-platform-infrastructure |
+| architecture | 04-tech-architecture |
+| design | 02-product-design |
+| growth | 14-growth-ops |
+| fullstack | 05-fullstack-development |
+| launch | 13-launch-execution |
+| idea | 01-validate-idea |
+| business | 03-business-legal-foundation |
 
-   | Domain | Skill |
-   |--------|-------|
-   | security | 08-security-compliance |
-   | billing | 11-billing-payments |
-   | seo | 10-seo-performance |
-   | observability | 09-observability-reliability |
-   | legal | 12-legal-compliance-final |
-   | testing | 07-quality-assurance |
-   | cicd | 06-platform-infrastructure |
-   | architecture | 04-tech-architecture |
-   | design | 02-product-design |
-   | growth | 14-growth-ops |
-   | fullstack | 05-fullstack-development |
-   | launch | 13-launch-execution |
-   | idea | 01-validate-idea |
-   | business | 03-business-legal-foundation |
-
-3. **Generate checklist.** For the chosen domain:
-   - Show all checklist items with current status (done/todo/in-progress)
-   - Mark items already detected in the codebase
-   - Adjust verbosity based on experience level
-   - Include copy-paste templates from reference docs for todo items
-   - Include time estimates
-
-4. **Offer guided remediation.** For beginners and intermediates, offer to work through the todo items in priority order: "Want me to help you with [first P0 item]?"
+## If no domain specified:
+Show the list of available domains with their completion percentages.
