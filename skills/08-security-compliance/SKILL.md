@@ -13,11 +13,22 @@ triggers:
   - "CSP"
   - "vulnerability"
   - "pen test"
+  - "dependency scanning"
+  - "secret scanning"
+  - "gitleaks"
+  - "Snyk"
+  - "Dependabot"
+  - "helmet"
+  - "Argon2"
+  - "MFA"
+  - "input validation"
+  - "DOMPurify"
+  - "SSRF"
 ---
 
 # Security & Compliance
 
-> Phase 2: BUILD | Sprint 2 (planned)
+> Phase 2: BUILD | Sprint 2
 
 ## Coverage
 
@@ -25,36 +36,133 @@ triggers:
 - Auth hardening (Argon2id, rate limiting, session security, MFA, HaveIBeenPwned)
 - Input validation (server-side Zod/Joi, DOMPurify, file upload security)
 - Security headers (CSP, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy)
-- Dependency management (Dependabot/Renovate, Snyk/Socket, lock files)
+- Dependency management (Dependabot/Renovate, Snyk/Socket, lock files, CI audit)
 - Pre-commit secret scanning (gitleaks/trufflehog)
+
+---
 
 ## Checklist Items
 
-### Security Headers
+### OWASP Top 10 Compliance
+
 <!-- beginner -->
-**Add security headers** — Security headers tell browsers how to protect your users. CSP (Content Security Policy) prevents malicious script injection. HSTS forces HTTPS. X-Frame-Options prevents your site from being embedded in malicious iframes. Without these, your users are vulnerable to common attacks.
-→ Time: ~15 min
-→ Template: See `references/security-headers/`
+**Run through the OWASP Top 10 checklist** — OWASP is a nonprofit that publishes the 10 most critical web security risks. Think of it as a "building code" for web apps. Each item (like Broken Access Control, Injection, Cryptographic Failures) represents a category of attacks. Walking through this checklist catches the vast majority of real-world vulnerabilities before attackers find them.
+> Time: ~2 hours for initial audit
+> Reference: See `references/owasp-checklist.md`
 
 <!-- intermediate -->
-**Security headers** — CSP, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy. Use helmet (Express) or next.config.js headers.
-→ ~15 min
+**OWASP Top 10 (2025) audit** — A01 Broken Access Control, A02 Cryptographic Failures, A03 Injection, A04 Insecure Design, A05 Security Misconfiguration, A06 Vulnerable Components, A07 Authentication Failures, A08 Software/Data Integrity, A09 Logging Failures, A10 SSRF. Verify each with automated + manual checks.
+> ~2 hours | `references/owasp-checklist.md`
 
 <!-- senior -->
-**Security headers** → CSP/HSTS/XFO/Referrer/Permissions-Policy.
+**OWASP Top 10 (2025)** — Full A01-A10 audit. Automated SAST/DAST + manual verification per category.
+> `references/owasp-checklist.md`
+
+---
+
+### Security Headers
+
+<!-- beginner -->
+**Add security headers to every response** — Security headers are instructions your server sends to the browser saying "here's how to protect this user." CSP (Content Security Policy) tells the browser which scripts/styles are allowed to run, blocking injected malicious code. HSTS forces HTTPS so no one can intercept traffic. X-Frame-Options prevents your site from being embedded in a malicious iframe (clickjacking). Without these headers, browsers allow almost anything by default.
+> Time: ~15 min with templates
+> Template: See `references/security-headers/`
+
+<!-- intermediate -->
+**Security headers** — CSP (nonce-based for scripts), HSTS (max-age=31536000, includeSubDomains, preload), X-Frame-Options (DENY), X-Content-Type-Options (nosniff), Referrer-Policy (strict-origin-when-cross-origin), Permissions-Policy (restrict camera, mic, geolocation). Use helmet (Express) or next.config.js headers.
+> ~15 min | `references/security-headers/`
+
+<!-- senior -->
+**Security headers** — CSP w/ nonce, HSTS w/ preload, XFO, XCTO, Referrer-Policy, Permissions-Policy. Templates in `references/security-headers/`.
+
+---
 
 ### Auth Hardening
+
 <!-- beginner -->
-**Harden your authentication** — Use bcrypt or Argon2id for password hashing (never MD5/SHA). Add rate limiting to login endpoints (max 5 attempts per minute) so attackers can't guess passwords. Set cookies to httpOnly (JavaScript can't read them) and sameSite=strict (prevents CSRF attacks).
+**Harden your authentication system** — Authentication is how your app knows who someone is. If it's weak, attackers can steal accounts. Here's what to do:
+- **Password hashing**: Use Argon2id (or bcrypt as fallback) to store passwords. Never store plain text or use MD5/SHA — those can be cracked in seconds.
+- **Rate limiting**: Limit login attempts to 5 per minute per IP. Without this, attackers can try millions of passwords automatically (brute force).
+- **Secure cookies**: Set `httpOnly` (JavaScript can't read the cookie), `secure` (only sent over HTTPS), and `sameSite=strict` (prevents CSRF attacks where another site tricks the browser into making requests as you).
+- **CSRF protection**: Add CSRF tokens to all state-changing forms so requests can only come from your own site.
+- **Password breach checking**: Check new passwords against the HaveIBeenPwned database — if a password has been leaked before, don't allow it.
+> Time: ~1 hour
+> Reference: See `references/auth-hardening-checklist.md`
 
 <!-- intermediate -->
-**Auth hardening** — Argon2id hashing, rate limiting (5/min login), httpOnly+sameSite cookies, CSRF tokens, consider MFA.
+**Auth hardening** — Argon2id hashing (memoryCost: 65536, timeCost: 3, parallelism: 4), rate limiting (5/min login, 100/min API), httpOnly+secure+sameSite=strict cookies, CSRF double-submit pattern, HaveIBeenPwned k-anonymity API for password checks, consider MFA via TOTP.
+> ~1 hour | `references/auth-hardening-checklist.md`
 
 <!-- senior -->
-**Auth hardening** → Argon2id, rate limit, session config, CSRF, MFA.
+**Auth hardening** — Argon2id, rate limit (sliding window), session config (httpOnly/secure/sameSite/short TTL), CSRF double-submit, HIBP k-anonymity, MFA (TOTP/WebAuthn).
+> `references/auth-hardening-checklist.md`
+
+---
+
+### Input Validation
+
+<!-- beginner -->
+**Validate all user input on the server** — Never trust data from the browser. Even if you have client-side validation, attackers can bypass it entirely (using tools like Postman or curl). Always validate on the server using a schema library like Zod or Joi. For HTML content users submit, sanitize it with DOMPurify to strip malicious scripts. For file uploads: check MIME types, limit file sizes, and store files outside your web root.
+> Time: ~45 min
+> Key rule: Client-side validation is UX. Server-side validation is security.
+
+<!-- intermediate -->
+**Input validation** — Server-side Zod/Joi schemas on every endpoint. DOMPurify for any user-submitted HTML. File uploads: validate MIME type (check magic bytes, not just extension), enforce size limits, store outside web root, generate random filenames. Parameterized queries only (never string interpolation for SQL).
+> ~45 min
+
+<!-- senior -->
+**Input validation** — Zod/Joi server-side, DOMPurify for HTML, file upload validation (magic bytes + size + random names + isolated storage), parameterized queries, allowlist over denylist.
+
+---
+
+### Dependency Scanning
+
+<!-- beginner -->
+**Set up automated dependency scanning** — Your app uses dozens (sometimes hundreds) of open-source libraries. Any one of them could have a security vulnerability discovered tomorrow. Dependency scanning tools automatically check your libraries against known vulnerability databases and alert you (or even create PRs to update). This is one of the highest-impact security measures because vulnerable dependencies are the #1 way real apps get hacked.
+> Time: ~30 min to set up
+> Reference: See `references/dependency-scanning-setup.md`
+
+<!-- intermediate -->
+**Dependency scanning** — Dependabot or Renovate for automated update PRs, Snyk or Socket for vulnerability scanning in CI, `npm audit` / lock file integrity checks in CI pipeline, pin major versions.
+> ~30 min | `references/dependency-scanning-setup.md`
+
+<!-- senior -->
+**Dependency scanning** — Dependabot/Renovate + Snyk/Socket CI gate + `npm audit --audit-level=high` in CI + lock file verification.
+> `references/dependency-scanning-setup.md`
+
+---
+
+### Secret Scanning
+
+<!-- beginner -->
+**Set up pre-commit secret scanning** — Accidentally committing an API key, database password, or secret token to Git is one of the most common and dangerous mistakes. Once a secret is in Git history, it's nearly impossible to fully remove. Pre-commit hooks with tools like gitleaks or trufflehog scan your code before every commit and block you if they detect anything that looks like a secret (API keys, tokens, passwords).
+> Time: ~15 min to set up
+> Reference: See `references/dependency-scanning-setup.md` (secret scanning section)
+
+<!-- intermediate -->
+**Pre-commit secret scanning** — gitleaks pre-commit hook (blocks commits containing secrets), trufflehog for CI/historical scanning, .gitleaks.toml for custom rules/allowlists.
+> ~15 min | `references/dependency-scanning-setup.md`
+
+<!-- senior -->
+**Secret scanning** — gitleaks pre-commit + trufflehog CI scan + GitHub secret scanning alerts.
+
+---
+
+## Verification Steps
+
+After completing the checklist above, verify:
+
+1. **Headers**: Run `curl -I https://your-domain.com` and confirm CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy are all present.
+2. **Auth**: Attempt >5 rapid login failures — should get rate-limited. Inspect cookies — should see `httpOnly`, `Secure`, `SameSite=Strict`.
+3. **Injection**: Try `' OR 1=1 --` in form fields, `<script>alert(1)</script>` in text inputs — should be rejected or sanitized.
+4. **Dependencies**: Run `npm audit` — should show 0 high/critical vulnerabilities.
+5. **Secrets**: Try committing a file containing `AKIA...` (fake AWS key pattern) — pre-commit hook should block it.
+6. **OWASP scan**: Run `npx is-website-vulnerable https://your-domain.com` as a quick smoke test.
+
+---
 
 ## Companion tools
-- `agamm/claude-code-owasp` (52K stars)
-- `unicodeveloper/shannon` (pen testing)
-- `trailofbits/skills`
-- `anthropics/claude-code-security-review`
+
+- `agamm/claude-code-owasp` (52K stars) — Automated OWASP Top 10 scanning with Claude Code integration
+- `unicodeveloper/shannon` — Pen testing assistant for security review
+- `trailofbits/skills` — Security-focused Claude Code skills from Trail of Bits
+- `anthropics/claude-code-security-review` — Automated security code review

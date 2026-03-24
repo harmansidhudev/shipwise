@@ -1,0 +1,183 @@
+# Next.js + Postgres + Vercel Deployment Pipeline
+# Copy to: .github/workflows/ci.yml
+#
+# [CUSTOMIZE] Search for [CUSTOMIZE] comments and update values.
+#
+# Required GitHub Secrets:
+#   VERCEL_TOKEN        — Vercel API token (Settings → Tokens)
+#   VERCEL_ORG_ID       — Vercel org ID (from .vercel/project.json)
+#   VERCEL_PROJECT_ID   — Vercel project ID (from .vercel/project.json)
+#   DATABASE_URL        — Postgres connection string for test database
+#
+# Branch strategy:
+#   main     → production deploy
+#   staging  → preview deploy (staging URL)
+#   feat/*   → preview deploy (ephemeral URL)
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"           # [CUSTOMIZE] Node.js version
+  PNPM_VERSION: "9"            # [CUSTOMIZE] pnpm version
+
+jobs:
+  # ============================================================
+  # Job 1: Lint, typecheck, test, build
+  # ============================================================
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine  # [CUSTOMIZE] Match your production Postgres version
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # --- Lint ---
+      - name: Lint
+        run: pnpm lint
+        # [CUSTOMIZE] If your lint command is different, change above
+        # Common alternatives: pnpm run lint, npx eslint .
+
+      # --- Typecheck ---
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+        # [CUSTOMIZE] If using a custom typecheck script: pnpm run typecheck
+
+      # --- Test ---
+      - name: Run database migrations
+        run: pnpm exec prisma migrate deploy
+        # [CUSTOMIZE] If using Drizzle: pnpm exec drizzle-kit push
+        # If using raw SQL migrations: adjust command accordingly
+
+      - name: Test
+        run: pnpm test
+        # [CUSTOMIZE] Common alternatives:
+        # pnpm run test:ci
+        # pnpm exec vitest run --coverage
+
+      # --- Build ---
+      - name: Build
+        run: pnpm build
+        env:
+          # [CUSTOMIZE] Add any build-time env vars your app needs
+          NEXT_PUBLIC_APP_URL: https://example.com
+          NEXT_TELEMETRY_DISABLED: 1
+
+  # ============================================================
+  # Job 2: Deploy to Vercel
+  # ============================================================
+  deploy:
+    name: Deploy
+    needs: ci
+    runs-on: ubuntu-latest
+    # Only deploy on push (not on PR — Vercel handles PR previews natively)
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel
+
+      # --- Production deploy (main branch) ---
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # --- Staging deploy (staging branch) ---
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # --- Run database migrations in production ---
+      - name: Run production migrations
+        if: github.ref == 'refs/heads/main'
+        run: pnpm exec prisma migrate deploy
+        # [CUSTOMIZE] If using Drizzle: pnpm exec drizzle-kit push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # ============================================================
+  # Job 3: Security scanning (runs in parallel with CI)
+  # ============================================================
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

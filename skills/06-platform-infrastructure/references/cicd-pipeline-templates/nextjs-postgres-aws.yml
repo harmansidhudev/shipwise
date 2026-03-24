@@ -1,0 +1,266 @@
+# Next.js + Postgres + AWS Deployment Pipeline (via SST or Docker/ECS)
+# Copy to: .github/workflows/ci.yml
+#
+# [CUSTOMIZE] Search for [CUSTOMIZE] comments and update values.
+#
+# Required GitHub Secrets:
+#   AWS_ROLE_ARN        — IAM role ARN for OIDC (see secrets-management.md)
+#   DATABASE_URL        — Postgres connection string for test database
+#
+# Required GitHub Variables (Settings → Variables):
+#   AWS_REGION          — e.g., us-east-1
+#   ECR_REPOSITORY      — e.g., myapp-prod
+#   ECS_CLUSTER         — e.g., myapp-prod
+#   ECS_SERVICE          — e.g., myapp-prod-web
+#
+# Branch strategy:
+#   main     → production deploy
+#   staging  → staging deploy
+#   feat/*   → CI only (no deploy)
+#
+# Deploy method: This template supports two approaches:
+#   1. SST (recommended for serverless Next.js on AWS) — uncomment SST steps
+#   2. Docker + ECS Fargate — uncomment ECS steps
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"           # [CUSTOMIZE] Node.js version
+  PNPM_VERSION: "9"            # [CUSTOMIZE] pnpm version
+  AWS_REGION: us-east-1        # [CUSTOMIZE] AWS region
+
+permissions:
+  id-token: write    # Required for OIDC auth with AWS
+  contents: read
+  packages: write    # Required for pushing Docker images
+
+jobs:
+  # ============================================================
+  # Job 1: Lint, typecheck, test, build
+  # ============================================================
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine  # [CUSTOMIZE] Match your production Postgres version
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # --- Lint ---
+      - name: Lint
+        run: pnpm lint
+
+      # --- Typecheck ---
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      # --- Test ---
+      - name: Run database migrations
+        run: pnpm exec prisma migrate deploy
+        # [CUSTOMIZE] If using Drizzle: pnpm exec drizzle-kit push
+
+      - name: Test
+        run: pnpm test
+
+      # --- Build (verify it compiles) ---
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_APP_URL: https://example.com  # [CUSTOMIZE]
+          NEXT_TELEMETRY_DISABLED: 1
+
+  # ============================================================
+  # Job 2a: Deploy with SST (Serverless — recommended)
+  # ============================================================
+  # Uncomment this job if using SST for deployment.
+  # SST deploys Next.js to Lambda@Edge + CloudFront + S3.
+
+  # deploy-sst:
+  #   name: Deploy (SST)
+  #   needs: ci
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
+  #
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup pnpm
+  #       uses: pnpm/action-setup@v4
+  #       with:
+  #         version: ${{ env.PNPM_VERSION }}
+  #
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: "pnpm"
+  #
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
+  #
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}  # [CUSTOMIZE]
+  #         aws-region: ${{ env.AWS_REGION }}
+  #
+  #     - name: Deploy to production
+  #       if: github.ref == 'refs/heads/main'
+  #       run: pnpm exec sst deploy --stage prod
+  #
+  #     - name: Deploy to staging
+  #       if: github.ref == 'refs/heads/staging'
+  #       run: pnpm exec sst deploy --stage staging
+
+  # ============================================================
+  # Job 2b: Deploy with Docker + ECS Fargate
+  # ============================================================
+  deploy-ecs:
+    name: Deploy (ECS)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}  # [CUSTOMIZE]
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        id: image
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          ECR_REGISTRY="${{ steps.ecr-login.outputs.registry }}"
+          ECR_REPOSITORY="${{ vars.ECR_REPOSITORY }}"  # [CUSTOMIZE] Set in repo variables
+          echo "tag=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "latest=${ECR_REGISTRY}/${ECR_REPOSITORY}:latest" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_APP_URL=${{ vars.APP_URL }} \
+            --tag ${{ steps.image.outputs.tag }} \
+            --tag ${{ steps.image.outputs.latest }} \
+            .
+        # [CUSTOMIZE] Add --build-arg for any build-time env vars
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ steps.image.outputs.tag }}
+          docker push ${{ steps.image.outputs.latest }}
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_SERVICE }} \
+            --query taskDefinition \
+            > task-definition.json
+
+      - name: Update task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ vars.ECR_REPOSITORY }}  # [CUSTOMIZE] Container name in task def
+          image: ${{ steps.image.outputs.tag }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}         # [CUSTOMIZE] Set in repo variables
+          cluster: ${{ vars.ECS_CLUSTER }}         # [CUSTOMIZE] Set in repo variables
+          wait-for-service-stability: true
+
+      # --- Run database migrations after deploy ---
+      - name: Run production migrations
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Run migration as a one-off ECS task
+          aws ecs run-task \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --task-definition ${{ steps.task-def.outputs.task-definition }} \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ vars.PRIVATE_SUBNETS }}],securityGroups=[${{ vars.APP_SECURITY_GROUP }}]}" \
+            --overrides '{"containerOverrides":[{"name":"${{ vars.ECR_REPOSITORY }}","command":["npx","prisma","migrate","deploy"]}]}'
+        # [CUSTOMIZE] Adjust migration command for your ORM
+
+  # ============================================================
+  # Job 3: Security scanning
+  # ============================================================
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Docker image vulnerability scan ---
+      # Uncomment if using Docker deployment
+      # - name: Run Trivy vulnerability scanner
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ needs.deploy-ecs.outputs.image-tag }}
+      #     format: 'sarif'
+      #     output: 'trivy-results.sarif'
+      #     severity: 'CRITICAL,HIGH'

@@ -1,0 +1,225 @@
+# Python FastAPI + Railway Deployment Pipeline
+# Copy to: .github/workflows/ci.yml
+#
+# [CUSTOMIZE] Search for [CUSTOMIZE] comments and update values.
+#
+# Required GitHub Secrets:
+#   RAILWAY_TOKEN       — Railway API token (railway.app → Account Settings → Tokens)
+#   DATABASE_URL        — Postgres connection string for test database (optional, uses service container)
+#
+# Required GitHub Variables:
+#   RAILWAY_SERVICE_ID  — Railway service ID (from project settings)
+#
+# Branch strategy:
+#   main     → production deploy
+#   staging  → staging environment deploy
+#   feat/*   → CI only (no deploy)
+#
+# Prerequisites:
+#   - Railway project created with Postgres addon
+#   - Railway CLI installed in the deploy step
+#   - pyproject.toml with [project.optional-dependencies] for dev deps
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"      # [CUSTOMIZE] Python version
+  UV_VERSION: "0.5"            # [CUSTOMIZE] uv version (fast Python package manager)
+
+jobs:
+  # ============================================================
+  # Job 1: Lint, typecheck, test
+  # ============================================================
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine  # [CUSTOMIZE] Match your production Postgres version
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+      REDIS_URL: redis://localhost:6379
+      APP_ENV: test
+      APP_SECRET_KEY: test-secret-key-not-for-production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Setup Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+        # [CUSTOMIZE] If not using uv:
+        # pip install -e ".[dev]"
+
+      # --- Lint ---
+      - name: Lint with Ruff
+        run: uv run ruff check .
+        # [CUSTOMIZE] If using flake8: uv run flake8 .
+
+      - name: Format check with Ruff
+        run: uv run ruff format --check .
+        # [CUSTOMIZE] If using Black: uv run black --check .
+
+      # --- Typecheck ---
+      - name: Typecheck with mypy
+        run: uv run mypy .
+        # [CUSTOMIZE] If using pyright: uv run pyright
+
+      # --- Test ---
+      - name: Run database migrations
+        run: uv run alembic upgrade head
+        # [CUSTOMIZE] If using other migration tools, adjust command
+
+      - name: Test with pytest
+        run: uv run pytest --cov --cov-report=xml -v
+        # [CUSTOMIZE] Adjust pytest args as needed
+        # --cov=src for specific package coverage
+        # -x to stop on first failure
+        # -n auto for parallel tests (requires pytest-xdist)
+
+      - name: Upload coverage
+        if: github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+        # [CUSTOMIZE] Remove this step if not using Codecov
+
+  # ============================================================
+  # Job 2: Build Docker image (validates Dockerfile)
+  # ============================================================
+  build:
+    name: Build
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --tag myapp:${{ github.sha }} \
+            --file Dockerfile \
+            .
+        # [CUSTOMIZE] Adjust Dockerfile path if needed
+
+  # ============================================================
+  # Job 3: Deploy to Railway
+  # ============================================================
+  deploy:
+    name: Deploy
+    needs: [ci, build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      # --- Production deploy (main branch) ---
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_ID }}
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # [CUSTOMIZE] If using a different service ID for production:
+        # railway up --service ${{ vars.RAILWAY_PROD_SERVICE_ID }}
+
+      # --- Staging deploy (staging branch) ---
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        run: railway up --service ${{ vars.RAILWAY_STAGING_SERVICE_ID }}
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # [CUSTOMIZE] Set RAILWAY_STAGING_SERVICE_ID in repo variables
+
+      # --- Run database migrations after deploy ---
+      - name: Run production migrations
+        if: github.ref == 'refs/heads/main'
+        run: |
+          railway run --service ${{ vars.RAILWAY_SERVICE_ID }} \
+            alembic upgrade head
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # [CUSTOMIZE] Adjust migration command for your ORM
+
+  # ============================================================
+  # Job 4: Security scanning
+  # ============================================================
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Setup Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      # --- Dependency vulnerability scan ---
+      - name: Check for vulnerable dependencies
+        run: uv run pip-audit
+        # [CUSTOMIZE] If not using pip-audit:
+        # uv run safety check
