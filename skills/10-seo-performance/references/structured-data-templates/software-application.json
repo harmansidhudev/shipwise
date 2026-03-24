@@ -1,0 +1,107 @@
+{
+  "_comment": [
+    "JSON-LD SoftwareApplication Schema — embed on your product/pricing page.",
+    "This schema tells Google your product is a software application with pricing and reviews.",
+    "It can power rich results showing star ratings and price in search results.",
+    "",
+    "When to use: Add to your main product page and/or pricing page.",
+    "Validate: https://search.google.com/test/rich-results",
+    "Docs: https://schema.org/SoftwareApplication",
+    "",
+    "[CUSTOMIZE] Replace ALL values below with your actual product information.",
+    "Remove the _comment field before embedding in production.",
+    "Companion tools: coreyhaines31/marketingskills -> seo-audit"
+  ],
+
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+
+  "name": "[CUSTOMIZE] Your Product Name",
+  "description": "[CUSTOMIZE] Brief description of what the software does and who it's for. 150-300 characters.",
+  "url": "https://[CUSTOMIZE_DOMAIN]",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+
+  "image": "https://[CUSTOMIZE_DOMAIN]/og/product.png",
+  "screenshot": "https://[CUSTOMIZE_DOMAIN]/images/product-screenshot.png",
+
+  "author": {
+    "@type": "Organization",
+    "name": "[CUSTOMIZE] Your Company Name",
+    "url": "https://[CUSTOMIZE_DOMAIN]"
+  },
+
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "[CUSTOMIZE] Free tier description — what's included",
+      "url": "https://[CUSTOMIZE_DOMAIN]/pricing",
+      "availability": "https://schema.org/InStock",
+      "priceValidUntil": "[CUSTOMIZE] 2026-12-31"
+    },
+    {
+      "@type": "Offer",
+      "name": "[CUSTOMIZE] Pro",
+      "price": "[CUSTOMIZE] 29",
+      "priceCurrency": "USD",
+      "description": "[CUSTOMIZE] Pro tier description — what's included beyond free",
+      "url": "https://[CUSTOMIZE_DOMAIN]/pricing",
+      "availability": "https://schema.org/InStock",
+      "billingIncrement": "P1M",
+      "priceValidUntil": "[CUSTOMIZE] 2026-12-31"
+    },
+    {
+      "@type": "Offer",
+      "name": "[CUSTOMIZE] Enterprise",
+      "price": "[CUSTOMIZE] 99",
+      "priceCurrency": "USD",
+      "description": "[CUSTOMIZE] Enterprise tier description",
+      "url": "https://[CUSTOMIZE_DOMAIN]/pricing",
+      "availability": "https://schema.org/InStock",
+      "billingIncrement": "P1M",
+      "priceValidUntil": "[CUSTOMIZE] 2026-12-31"
+    }
+  ],
+
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "[CUSTOMIZE] 4.8",
+    "ratingCount": "[CUSTOMIZE] 150",
+    "bestRating": "5",
+    "worstRating": "1",
+    "reviewCount": "[CUSTOMIZE] 85"
+  },
+
+  "review": [
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "[CUSTOMIZE] Jane Smith"
+      },
+      "datePublished": "[CUSTOMIZE] 2025-01-15",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5",
+        "bestRating": "5"
+      },
+      "reviewBody": "[CUSTOMIZE] Short review text from a real customer."
+    }
+  ],
+
+  "featureList": [
+    "[CUSTOMIZE] Feature 1 description",
+    "[CUSTOMIZE] Feature 2 description",
+    "[CUSTOMIZE] Feature 3 description"
+  ],
+
+  "softwareVersion": "[CUSTOMIZE] 1.0",
+  "releaseNotes": "https://[CUSTOMIZE_DOMAIN]/changelog",
+  "softwareHelp": {
+    "@type": "CreativeWork",
+    "url": "https://[CUSTOMIZE_DOMAIN]/docs"
+  }
+}

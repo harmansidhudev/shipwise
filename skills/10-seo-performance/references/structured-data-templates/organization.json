@@ -1,0 +1,66 @@
+{
+  "_comment": [
+    "JSON-LD Organization Schema — embed in your site layout (<script type='application/ld+json'>).",
+    "This schema tells Google who you are: company name, logo, social profiles, contact info.",
+    "It powers the Knowledge Panel that appears in Google search results.",
+    "",
+    "When to use: Add to the root layout so it appears on every page.",
+    "Validate: https://search.google.com/test/rich-results",
+    "Docs: https://schema.org/Organization",
+    "",
+    "[CUSTOMIZE] Replace ALL values below with your actual company information.",
+    "Remove any properties that don't apply to your organization.",
+    "Companion tools: coreyhaines31/marketingskills -> seo-audit"
+  ],
+
+  "@context": "https://schema.org",
+  "@type": "Organization",
+
+  "name": "[CUSTOMIZE] Your Company Name",
+  "legalName": "[CUSTOMIZE] Your Legal Entity Name, Inc.",
+  "url": "https://[CUSTOMIZE_DOMAIN]",
+  "logo": "https://[CUSTOMIZE_DOMAIN]/logo.png",
+  "description": "[CUSTOMIZE] One-sentence description of what your company does.",
+
+  "foundingDate": "[CUSTOMIZE] 2024",
+  "founders": [
+    {
+      "@type": "Person",
+      "name": "[CUSTOMIZE] Founder Name",
+      "url": "https://[CUSTOMIZE] founder-url-or-linkedin"
+    }
+  ],
+
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "[CUSTOMIZE] 123 Main St",
+    "addressLocality": "[CUSTOMIZE] San Francisco",
+    "addressRegion": "[CUSTOMIZE] CA",
+    "postalCode": "[CUSTOMIZE] 94105",
+    "addressCountry": "US"
+  },
+
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "support@[CUSTOMIZE_DOMAIN]",
+      "url": "https://[CUSTOMIZE_DOMAIN]/support",
+      "availableLanguage": ["English"]
+    }
+  ],
+
+  "sameAs": [
+    "https://twitter.com/[CUSTOMIZE_HANDLE]",
+    "https://github.com/[CUSTOMIZE_ORG]",
+    "https://linkedin.com/company/[CUSTOMIZE_COMPANY]",
+    "https://youtube.com/@[CUSTOMIZE_CHANNEL]"
+  ],
+
+  "image": "https://[CUSTOMIZE_DOMAIN]/og/default.png",
+
+  "numberOfEmployees": {
+    "@type": "QuantitativeValue",
+    "value": "[CUSTOMIZE] 10"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "_comment": [
+    "JSON-LD FAQPage Schema — embed on pages with FAQ sections (pricing, help, product).",
+    "This schema enables FAQ rich results in Google: expandable Q&A directly in search results.",
+    "Each question appears as an accordion in the SERP, driving significant click-through.",
+    "",
+    "When to use: Pricing page FAQ, help/support page, product page objection handling.",
+    "Validate: https://search.google.com/test/rich-results",
+    "Docs: https://schema.org/FAQPage",
+    "",
+    "[CUSTOMIZE] Replace all question/answer pairs with your actual FAQ content.",
+    "Answers support basic HTML (links, lists, bold) for richer display.",
+    "Include 4-8 questions per page. Google may show 2-4 in search results.",
+    "Remove the _comment field before embedding in production.",
+    "Companion tools: coreyhaines31/marketingskills -> seo-audit"
+  ],
+
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] What is [Product Name]?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] [Product Name] is a [category] that helps [audience] [achieve outcome]. It provides [key features]. <a href='https://[CUSTOMIZE_DOMAIN]/features'>Learn more about our features</a>."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] How much does [Product Name] cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] [Product Name] offers a free plan for individuals and small teams. Paid plans start at $[PRICE]/month and include [key paid features]. All plans come with a [TRIAL_PERIOD]-day free trial. <a href='https://[CUSTOMIZE_DOMAIN]/pricing'>See all pricing plans</a>."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] How do I get started?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] Getting started takes less than 2 minutes: <ol><li>Sign up at <a href='https://[CUSTOMIZE_DOMAIN]/signup'>our signup page</a></li><li>[Step 2 description]</li><li>[Step 3 description]</li></ol> No credit card is required for the free plan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] Is my data secure?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] Yes. We use industry-standard security practices including [encryption type] encryption in transit and at rest, [compliance certifications like SOC 2, GDPR]. Your data is stored in [region/provider]. We never sell or share your data with third parties. <a href='https://[CUSTOMIZE_DOMAIN]/security'>Read our security page</a>."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] What integrations do you support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] [Product Name] integrates with [list key integrations: Slack, GitHub, Jira, etc.]. We also offer a REST API and webhooks for custom integrations. <a href='https://[CUSTOMIZE_DOMAIN]/integrations'>Browse all integrations</a>."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[CUSTOMIZE] Can I cancel anytime?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[CUSTOMIZE] Yes, you can cancel your subscription at any time from your account settings. There are no long-term contracts or cancellation fees. When you cancel, you'll retain access to your paid plan until the end of your current billing period."
+      }
+    }
+  ]
+}
