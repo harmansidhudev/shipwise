@@ -1,0 +1,301 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  role          UserRole  @default(MEMBER)
+  plan          Plan      @default(FREE)
+  stripeCustomerId String? @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organizations OrganizationMember[]
+  projects      Project[]
+  comments      Comment[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  sessions      UserSession[]
+
+  @@index([email])
+  @@index([clerkId])
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  plan        Plan     @default(FREE)
+  stripeSubscriptionId String? @unique
+  stripeCustomerId     String? @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     OrganizationMember[]
+  projects    Project[]
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@index([slug])
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  role           MemberRole   @default(VIEWER)
+  userId         String
+  organizationId String
+  joinedAt       DateTime     @default(now())
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  name           String
+  description    String?
+  status         ProjectStatus @default(DRAFT)
+  visibility     Visibility    @default(PRIVATE)
+  ownerId        String
+  organizationId String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  owner          User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  tasks          Task[]
+  comments       Comment[]
+  tags           ProjectTag[]
+  deployments    Deployment[]
+
+  @@index([ownerId])
+  @@index([organizationId])
+  @@index([status])
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  projectId   String
+  assigneeId  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  authorId  String
+  projectId String?
+  taskId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([projectId])
+  @@index([taskId])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  color    String       @default("#6366f1")
+  projects ProjectTag[]
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+}
+
+model Deployment {
+  id          String           @id @default(cuid())
+  projectId   String
+  environment Environment      @default(STAGING)
+  status      DeploymentStatus @default(PENDING)
+  commitSha   String?
+  deployedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([environment])
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  email          String
+  organizationId String
+  role           MemberRole   @default(VIEWER)
+  token          String       @unique @default(cuid())
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  read      Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  action         String
+  entityType     String
+  entityId       String
+  userId         String?
+  organizationId String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime     @default(now())
+
+  user           User?        @relation(fields: [userId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Visibility {
+  PRIVATE
+  INTERNAL
+  PUBLIC
+}
+
+enum Environment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+enum DeploymentStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  MENTION
+  ASSIGNMENT
+  COMMENT
+  DEPLOYMENT
+  INVITATION
+  SYSTEM
+}

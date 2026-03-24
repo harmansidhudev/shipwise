@@ -2,7 +2,10 @@
 cat > /dev/null  # consume stdin
 
 STATE_FILE=".claude/shipwise-state.json"
-[ ! -f "$STATE_FILE" ] && exit 0
+if [ ! -f "$STATE_FILE" ]; then
+  jq -n '{"additionalContext":"[Shipwise] No project profile found. Run /shipwise to activate launch readiness tracking."}'
+  exit 0
+fi
 
 # Extract metrics from state.json
 PHASE=$(jq -r '.current_phase' "$STATE_FILE" 2>/dev/null)

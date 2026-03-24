@@ -47,7 +47,7 @@ const buttonVariants = cva(
         link: 'text-primary-500 underline-offset-4 hover:underline',
       },
       size: {
-        sm: 'h-8 px-3 text-sm',
+        sm: 'h-8 px-3 text-sm', // Note: sm (32px) is below 44px touch target minimum. Use md or lg for mobile touch targets.
         md: 'h-10 px-4 text-sm',
         lg: 'h-12 px-6 text-base',
         icon: 'h-10 w-10',
@@ -252,6 +252,174 @@ export const Tabs = { Root, List, Trigger, Panel };
   <Tabs.Panel id="overview">Overview content here</Tabs.Panel>
   <Tabs.Panel id="settings">Settings content here</Tabs.Panel>
 </Tabs.Root>
+```
+
+## Empty State Pattern
+
+Use an `EmptyState` component whenever a list or table has no rows to show. This keeps the UI informative rather than blank, and gives users a clear next action.
+
+### EmptyState component
+
+```tsx
+// shared/components/EmptyState/EmptyState.tsx
+import type { ReactNode } from 'react';
+import { Button } from '@/shared/components/Button';
+
+// [CUSTOMIZE] Replace icon type with your icon library (e.g., lucide-react, heroicons)
+interface EmptyStateProps {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
+export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+      <div className="text-neutral-400">{icon}</div>
+      <h3 className="text-base font-semibold text-neutral-900">{title}</h3>
+      <p className="max-w-sm text-sm text-neutral-500">{description}</p>
+      {actionLabel && onAction && (
+        <Button variant="primary" size="md" onClick={onAction} className="mt-2">
+          {actionLabel}
+        </Button>
+      )}
+    </div>
+  );
+}
+```
+
+### Usage in a DataTable
+
+```tsx
+import { FolderOpen } from 'lucide-react';
+import { EmptyState } from '@/shared/components/EmptyState';
+
+export function ProjectTable({ data, isFiltered, onCreateProject }) {
+  if (data.length === 0) return (
+    isFiltered
+      ? <EmptyState
+          icon={<FolderOpen className="h-10 w-10" />}
+          title="No results match your search."
+          description="Try adjusting your filters or clearing the search term."
+        />
+      : <EmptyState
+          icon={<FolderOpen className="h-10 w-10" />}
+          title="No projects yet."
+          description="Create your first project to get started."
+          actionLabel="Create project"
+          onAction={onCreateProject}
+        />
+  );
+
+  // … render table rows
+}
+```
+
+**Variants at a glance:**
+
+| Scenario | title | description | actionLabel |
+|---|---|---|---|
+| Empty list with CTA | "No projects yet." | "Create your first project to get started." | "Create project" |
+| Empty search results | "No results match your search." | "Try adjusting your filters or clearing the search term." | *(omit)* |
+
+## Interactive Table Accessibility
+
+Sortable, selectable tables need explicit ARIA markup so screen readers and keyboard users get the same experience as mouse users.
+
+**Key attributes:**
+
+- `aria-sort` on sortable `<th>` elements — values: `ascending` | `descending` | `none`
+- `role="checkbox"` + `aria-checked` on row-selection cells
+- `aria-live="polite"` region announces dynamic updates (sorting, filtering) without interrupting the user
+- Keyboard pattern: **Arrow keys** to move focus between cells, **Space** to toggle row selection, **Enter** to activate the primary row action
+
+### Accessible table header + row template
+
+```tsx
+// [CUSTOMIZE] Wire sortField/sortDir state and onSort/onSelect handlers to your table state
+interface SortState {
+  field: string;
+  dir: 'ascending' | 'descending' | 'none';
+}
+
+function SortableHeader({
+  label, field, sort, onSort,
+}: { label: string; field: string; sort: SortState; onSort: (field: string) => void }) {
+  const ariaSortValue = sort.field === field ? sort.dir : 'none';
+  return (
+    <th
+      scope="col"
+      aria-sort={ariaSortValue}
+      className="px-4 py-3 text-left text-sm font-medium text-neutral-500 cursor-pointer select-none"
+      onClick={() => onSort(field)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSort(field); }}
+      tabIndex={0}
+    >
+      {label}
+      {sort.field === field && (sort.dir === 'ascending' ? ' ▲' : ' ▼')}
+    </th>
+  );
+}
+
+function SelectableRow({
+  row, isSelected, onSelect, onActivate,
+}: { row: { id: string; name: string }; isSelected: boolean; onSelect: () => void; onActivate: () => void }) {
+  return (
+    <tr
+      aria-selected={isSelected}
+      onKeyDown={(e) => {
+        if (e.key === ' ') { e.preventDefault(); onSelect(); }
+        if (e.key === 'Enter') onActivate();
+      }}
+      tabIndex={0}
+      className="hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
+    >
+      <td className="px-4 py-3">
+        <input
+          type="checkbox"
+          role="checkbox"
+          aria-checked={isSelected}
+          checked={isSelected}
+          onChange={onSelect}
+          aria-label={`Select ${row.name}`}
+          className="h-4 w-4 rounded border-neutral-300"
+        />
+      </td>
+      <td className="px-4 py-3 text-sm">{row.name}</td>
+    </tr>
+  );
+}
+
+// Wrap your table in a container that announces updates to screen readers
+function AccessibleTable({ rows, sort, onSort }) {
+  return (
+    <>
+      {/* aria-live region: announces sort/filter changes without stealing focus */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {sort.field ? `Table sorted by ${sort.field}, ${sort.dir}` : ''}
+      </div>
+      <div className="overflow-x-auto rounded-lg border border-neutral-200">
+        <table className="min-w-full divide-y divide-neutral-200">
+          <thead className="bg-neutral-50">
+            <tr>
+              <th scope="col" className="px-4 py-3 w-10">
+                <span className="sr-only">Select</span>
+              </th>
+              <SortableHeader label="Name" field="name" sort={sort} onSort={onSort} />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-200 bg-white">
+            {rows.map((row) => (
+              <SelectableRow key={row.id} row={row} isSelected={false} onSelect={() => {}} onActivate={() => {}} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
 ```
 
 ## Customization notes

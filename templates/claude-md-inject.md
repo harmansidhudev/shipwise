@@ -1,3 +1,13 @@
+<!-- Placeholder substitution guide:
+  {{project_type}}    → shipwise-state.json → project.type (saas, marketplace, tool, api, other)
+  {{audience}}        → shipwise-state.json → project.audience (b2c, b2b, developers, internal)
+  {{stack_summary}}   → shipwise-state.json → project.stack (formatted as "frontend + backend + database + hosting")
+  {{current_phase}}   → shipwise-state.json → current_phase (design, build, ship, grow)
+  {{experience_level}} → shipwise-state.json → experience_level (beginner, intermediate, senior)
+  {{expected_scale}}  → shipwise-state.json → expected_scale (<100, 100-1000, 1000-10000, 10000+)
+  {{top_gaps}}        → First 3 items from auditor output where status="todo" and priority="P0", formatted as "- [item name] (~time_estimate)"
+  Replace each {{placeholder}} with the corresponding value. Do not leave literal {{}} in the output.
+-->
 # Shipwise Launch Context
 
 This project uses [Shipwise](https://github.com/harmansidhudev/shipwise) for launch lifecycle tracking.

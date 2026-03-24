@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  ACTIVE
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  clerkId        String    @unique
+  name           String?
+  avatarUrl      String?
+  role           String    @default("member") // owner | admin | member
+  organizationId String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  assignedTasks  Task[]        @relation("TaskAssignee")
+  comments       Comment[]
+  auditLogs      AuditLog[]
+  notifications  Notification[]
+  uploadedFiles  Attachment[]
+  apiKeys        ApiKey[]
+
+  @@index([email])
+  @@index([clerkId])
+  @@index([organizationId])
+}
+
+model Organization {
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  plan             Plan      @default(FREE)
+  stripeCustomerId String?   @unique
+  logoUrl          String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  members          User[]
+  projects         Project[]
+  subscription     Subscription?
+  invoices         Invoice[]
+  apiKeys          ApiKey[]
+  webhooks         Webhook[]
+
+  @@index([slug])
+  @@index([stripeCustomerId])
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  name           String
+  description    String?
+  status         Status    @default(ACTIVE)
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tasks          Task[]
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  assigneeId  String?
+  projectId   String
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  attachments Attachment[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([priority])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  taskId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([authorId])
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  filename     String
+  url          String
+  size         Int
+  mimeType     String?
+  taskId       String
+  uploadedById String
+  createdAt    DateTime @default(now())
+
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([taskId])
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  stripeSubscriptionId String   @unique
+  status               String   // active | canceled | past_due | trialing
+  plan                 Plan
+  organizationId       String   @unique
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([stripeSubscriptionId])
+  @@index([status])
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  stripeInvoiceId String  @unique
+  amount         Int      // amount in cents
+  currency       String   @default("usd")
+  status         String   // paid | open | void | uncollectible
+  organizationId String
+  pdfUrl         String?
+  createdAt      DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([stripeInvoiceId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g. "project.created", "task.deleted", "member.invited"
+  entityType String   // e.g. "Project", "Task", "User"
+  entityId   String
+  userId     String
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // task.assigned | comment.added | project.created | invite.received
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model ApiKey {
+  id             String    @id @default(cuid())
+  key            String    @unique // hashed
+  name           String
+  organizationId String
+  createdById    String
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User         @relation(fields: [createdById], references: [id])
+
+  @@index([key])
+  @@index([organizationId])
+}
+
+model Webhook {
+  id             String   @id @default(cuid())
+  url            String
+  events         String[] // ["task.created", "project.updated"]
+  secret         String
+  organizationId String
+  active         Boolean  @default(true)
+  lastDeliveredAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}

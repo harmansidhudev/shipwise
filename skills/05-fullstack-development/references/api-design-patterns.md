@@ -110,6 +110,74 @@ export async function POST(req: NextRequest) {
 }
 ```
 
+### Offset-based pagination
+
+**When to use:** Admin dashboards, analytics tables, and any UI where the user needs to jump to page N or see a total record count. Avoid for feeds and timelines — a concurrent insert shifts rows between pages.
+
+```ts
+// app/api/v1/admin/projects/route.ts (Next.js App Router)
+// [CUSTOMIZE] Replace "Project" with your resource name
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { db } from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
+
+const listQuerySchema = z.object({
+  page:  z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  sort:  z.enum(['createdAt', '-createdAt', 'name', '-name']).default('-createdAt'),
+});
+
+export async function GET(req: NextRequest) {
+  const user = await requireAuth(req);
+
+  const params = Object.fromEntries(req.nextUrl.searchParams);
+  const query  = listQuerySchema.parse(params);
+
+  const orderDir   = query.sort.startsWith('-') ? 'desc' : 'asc';
+  const orderField = query.sort.replace('-', '');
+  const skip       = (query.page - 1) * query.limit;
+
+  const [data, total] = await Promise.all([
+    db.project.findMany({
+      where:   { userId: user.id, deletedAt: null },
+      orderBy: { [orderField]: orderDir },
+      skip,
+      take: query.limit,
+    }),
+    db.project.count({
+      where: { userId: user.id, deletedAt: null },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / query.limit);
+
+  return NextResponse.json({
+    data,
+    meta: {
+      page:       query.page,
+      limit:      query.limit,
+      total,
+      totalPages,
+    },
+  });
+}
+```
+
+Response shape:
+
+```ts
+interface PagedResponse<T> {
+  data: T[];
+  meta: {
+    page:       number;  // current page (1-indexed)
+    limit:      number;  // items per page
+    total:      number;  // total matching records
+    totalPages: number;  // Math.ceil(total / limit)
+  };
+}
+```
+
 ### Single resource route with PATCH and soft DELETE
 
 ```ts
@@ -258,6 +326,107 @@ export async function rateLimit(identifier: string) {
 
   return null; // No rate limit hit
 }
+```
+
+## Role-Based Access Control
+
+Use `requireRole` as a middleware factory that wraps `requireAuth`. It reads the user's role from the session and rejects requests that don't match.
+
+### Next.js App Router (Clerk)
+
+```ts
+// lib/auth.ts
+// [CUSTOMIZE] Replace Clerk with your auth provider; adjust role claim path
+import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { AppError } from '@/lib/errors';
+
+type Role = 'admin' | 'editor' | 'viewer';
+
+/**
+ * Middleware factory — call at the top of a route handler.
+ * Throws 401 if unauthenticated, 403 if the user's role doesn't match.
+ *
+ * Usage:
+ *   const user = await requireRole('admin')(req);
+ */
+export function requireRole(role: Role) {
+  return async function (req: NextRequest) {
+    const session = auth();
+
+    if (!session.userId) {
+      throw new AppError(401, 'UNAUTHENTICATED', 'Authentication required');
+    }
+
+    // Clerk stores custom roles in publicMetadata
+    const userRole = session.sessionClaims?.metadata?.role as Role | undefined;
+
+    if (userRole !== role) {
+      throw new AppError(403, 'FORBIDDEN', `Role '${role}' required`);
+    }
+
+    return { id: session.userId, role: userRole };
+  };
+}
+```
+
+Route usage:
+
+```ts
+// app/api/v1/admin/users/route.ts
+import { requireRole } from '@/lib/auth';
+
+export async function GET(req: NextRequest) {
+  const user = await requireRole('admin')(req);
+  // ... admin-only logic
+}
+```
+
+### Express (middleware function)
+
+```ts
+// middleware/require-role.ts
+// [CUSTOMIZE] Replace getSessionUser with your session lookup
+import { Request, Response, NextFunction } from 'express';
+import { getSessionUser } from '@/lib/session';
+
+type Role = 'admin' | 'editor' | 'viewer';
+
+export function requireRole(role: Role) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await getSessionUser(req);
+
+      if (!user) {
+        return res.status(401).json({
+          error: { code: 'UNAUTHENTICATED', message: 'Authentication required' },
+        });
+      }
+
+      if (user.role !== role) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: `Role '${role}' required` },
+        });
+      }
+
+      req.user = user; // attach for downstream handlers
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+```
+
+Route usage:
+
+```ts
+// routes/admin.ts
+import { requireRole } from '@/middleware/require-role';
+
+router.get('/admin/users', requireRole('admin'), async (req, res) => {
+  // req.user is guaranteed to have role === 'admin' here
+});
 ```
 
 ## Customization notes

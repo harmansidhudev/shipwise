@@ -2,7 +2,9 @@
 name: security-compliance
 description: "OWASP Top 10, auth hardening, input validation, security headers, dependency management, and pre-commit secret scanning."
 triggers:
-  - "security"
+  - "web security"
+  - "application security"
+  - "app security"
   - "OWASP"
   - "auth hardening"
   - "rate limiting"

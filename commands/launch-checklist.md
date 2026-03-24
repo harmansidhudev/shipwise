@@ -48,3 +48,6 @@ Show a detailed checklist for a specific launch domain.
 
 ## If no domain specified:
 Show the list of available domains with their completion percentages.
+
+## If domain is not in the mapping table:
+Respond: "Unknown domain: [domain]. Available domains: security, billing, seo, observability, legal, testing, infrastructure, architecture, design, growth, fullstack, launch, idea, business. Run `/launch-checklist` with no arguments to see completion percentages for each."

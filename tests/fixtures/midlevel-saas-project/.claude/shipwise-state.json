@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "acme-project-hub",
+    "type": "saas",
+    "audience": "b2b",
+    "phase": "building",
+    "stack": {
+      "frontend": "nextjs",
+      "backend": "nextjs",
+      "database": "postgres",
+      "hosting": "vercel",
+      "auth": "clerk"
+    },
+    "has_users": "beta",
+    "monetization": "freemium",
+    "team_size": "solo"
+  },
+  "current_phase": "build",
+  "experience_level": "senior",
+  "expected_scale": "100-1000",
+  "items": [
+    { "id": "framework", "name": "Frontend Framework", "status": "done", "phase": "build", "priority": "P0", "evidence": "package.json: next 14.2.3", "time_estimate": null },
+    { "id": "database-orm", "name": "Database ORM", "status": "done", "phase": "build", "priority": "P0", "evidence": "prisma/schema.prisma: 12 models", "time_estimate": null },
+    { "id": "auth-provider", "name": "Auth Provider", "status": "done", "phase": "build", "priority": "P0", "evidence": "@clerk/nextjs in package.json", "time_estimate": null },
+    { "id": "payment-integration", "name": "Payment Integration", "status": "done", "phase": "build", "priority": "P0", "evidence": "stripe in package.json + webhook handler", "time_estimate": null },
+    { "id": "hosting-platform", "name": "Hosting Platform", "status": "done", "phase": "build", "priority": "P0", "evidence": "vercel.json present", "time_estimate": null },
+    { "id": "unit-tests", "name": "Unit Tests", "status": "done", "phase": "build", "priority": "P1", "evidence": "16 test files in tests/", "time_estimate": null },
+    { "id": "linting", "name": "Code Linting", "status": "done", "phase": "build", "priority": "P1", "evidence": ".eslintrc.json + .prettierrc", "time_estimate": null },
+    { "id": "input-validation", "name": "Input Validation", "status": "done", "phase": "build", "priority": "P0", "evidence": "zod schemas in lib/validations.ts", "time_estimate": null },
+    { "id": "cicd-pipeline", "name": "CI/CD Pipeline", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "2 hours" },
+    { "id": "error-tracking", "name": "Error Tracking", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "2 hours" },
+    { "id": "security-headers", "name": "Security Headers", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "health-endpoint", "name": "Health Endpoint", "status": "todo", "phase": "ship", "priority": "P1", "evidence": null, "time_estimate": "30 min" },
+    { "id": "privacy-policy", "name": "Privacy Policy", "status": "todo", "phase": "ship", "priority": "P1", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "terms-of-service", "name": "Terms of Service", "status": "todo", "phase": "ship", "priority": "P1", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "robots-txt", "name": "robots.txt", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "15 min" },
+    { "id": "sitemap", "name": "Sitemap", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "30 min" },
+    { "id": "error-boundaries", "name": "Error Boundaries", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "30 min" },
+    { "id": "structured-logging", "name": "Structured Logging", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "e2e-tests", "name": "E2E Tests", "status": "todo", "phase": "build", "priority": "P2", "evidence": null, "time_estimate": "4 hours" },
+    { "id": "backups", "name": "Database Backups", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "dependency-scanning", "name": "Dependency Scanning", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "30 min" },
+    { "id": "meta-tags", "name": "Meta Tags / Open Graph", "status": "todo", "phase": "ship", "priority": "P1", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "not-found-page", "name": "404 Page", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "15 min" }
+  ],
+  "history": [
+    { "timestamp": "2026-03-24T10:00:00Z", "readiness_pct": 35 }
+  ],
+  "created_at": "2026-03-24T10:00:00Z",
+  "updated_at": "2026-03-24T10:00:00Z"
+}
