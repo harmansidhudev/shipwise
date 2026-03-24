@@ -80,6 +80,23 @@ The expected user count affects which items are P0 vs P1 vs P2:
 | Error tracking | P0 | P0 | P0 | P0 |
 | Backups | P0 | P0 | P0 | P0 |
 | Auth hardening | P0 | P0 | P0 | P0 |
+| CI/CD pipeline | P2 | P1 | P0 | P0 |
+| Security headers | P1 | P0 | P0 | P0 |
+| Input validation | P0 | P0 | P0 | P0 |
+| Error boundaries | P1 | P1 | P0 | P0 |
+| Health endpoints | P2 | P1 | P1 | P0 |
+| Structured logging | P2 | P2 | P1 | P0 |
+| Privacy policy | P2 | P1 | P0 | P0 |
+| Terms of service | P2 | P1 | P0 | P0 |
+| Cookie consent | P2 | P1 | P0 | P0 |
+| Sitemap | P2 | P2 | P1 | P1 |
+| Robots.txt | P2 | P2 | P1 | P1 |
+| Meta tags / OG | P2 | P1 | P1 | P0 |
+| 404 page | P1 | P1 | P1 | P0 |
+| E2E tests | P2 | P2 | P1 | P0 |
+| Dependency scanning | P2 | P1 | P0 | P0 |
+
+**Default rule:** For auditor items not listed above, use P2 for <100 users, P1 for 100-1K, P0 for 1K+. The first item shown in beginner guided mode is the highest-priority P0 item from the auditor's checklist.
 
 ## Post-scaffold behavior
 

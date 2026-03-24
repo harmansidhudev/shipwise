@@ -5,15 +5,25 @@ triggers:
   - "React"
   - "Vue"
   - "Svelte"
-  - "component"
+  - "Next.js"
+  - "Nuxt"
+  - "SvelteKit"
+  - "Remix"
+  - "React component"
+  - "UI component"
+  - "Vue component"
+  - "Svelte component"
+  - "data grid"
+  - "table component"
   - "API route"
   - "database schema"
   - "migration"
-  - "frontend"
+  - "frontend development"
   - "backend"
   - "fullstack development"
   - "state management"
   - "form handling"
+  - "multi-step form"
   - "API design"
   - "caching"
   - "error handling"
@@ -26,6 +36,15 @@ You handle both frontend and backend development tasks. This is a merged skill c
 ## When this skill triggers
 
 This skill activates when a developer asks about building UI components, setting up API routes, designing database schemas, managing state, handling forms, implementing caching, or any other frontend/backend development topic.
+
+## Read project context first
+
+Before responding, check `.claude/shipwise-state.json` for:
+- `project.stack` — framework, database, ORM, hosting
+- `experience_level` — beginner, intermediate, senior
+- `expected_scale` — user count bracket
+
+Tailor code examples to the detected stack (e.g., Prisma if ORM is prisma, Next.js App Router `route.ts` if framework is nextjs). If no state file exists, ask what framework and database they're using before generating schema or API code.
 
 ---
 

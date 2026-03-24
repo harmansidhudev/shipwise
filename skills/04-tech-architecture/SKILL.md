@@ -13,9 +13,18 @@ triggers:
   - "auth strategy"
   - "authentication approach"
   - "REST vs GraphQL"
+  - "REST vs tRPC"
   - "API architecture"
+  - "API tradeoff"
   - "pick a stack"
   - "stack recommendations"
+  - "tRPC"
+  - "GraphQL"
+  - "gRPC"
+  - "WebSocket"
+  - "subscriptions"
+  - "monorepo architecture"
+  - "which API style"
 ---
 
 # Tech Architecture — Stack & Infrastructure Decisions
@@ -52,6 +61,24 @@ If state doesn't exist, ask the minimum needed: "What are you building, who is i
 
 Reference: `references/frontend-framework-matrix.md`
 
+<!-- beginner -->
+**For beginners:** Recommend ONE framework. Don't present a comparison table — it causes decision paralysis. Default to Next.js unless there's a clear reason not to. Say: "For what you're building, I recommend Next.js. Here's why it fits, and here's how to get started. Want me to scaffold it?"
+
+<!-- intermediate -->
+### Quick recommendations by project type
+
+| Project Type | Default Pick | Why |
+|-------------|-------------|-----|
+| SaaS with dashboard | Next.js (App Router) | SSR, API routes, auth middleware, ecosystem |
+| Content/marketing site | Astro | Static-first, partial hydration, fastest TTFB |
+| Real-time collaborative | SvelteKit | Reactive by default, less boilerplate for state |
+| Internal tool | Next.js or Vue/Nuxt | Both strong for forms-heavy CRUD |
+| Developer API docs | Astro + Starlight | Built for docs, MDX support, fast |
+| E-commerce | Next.js or Nuxt | SSR for SEO, API routes for cart |
+
+**For intermediate developers:** Present the top 2 options with a brief comparison focused on the criteria that matter most for their project. Include trade-offs. Let them choose.
+
+<!-- senior -->
 ### Quick recommendations by project type
 
 | Project Type | Default Pick | Why |
@@ -67,13 +94,6 @@ Reference: `references/frontend-framework-matrix.md`
 
 The full 12-criteria comparison (DX, performance, ecosystem, learning curve, SSR/SSG support, TypeScript, testing, mobile, deployment, community, hiring, bundle size) lives in the reference doc. Use it when the developer wants to compare specific frameworks.
 
-<!-- beginner -->
-**For beginners:** Recommend ONE framework. Don't present a comparison table — it causes decision paralysis. Default to Next.js unless there's a clear reason not to. Say: "For what you're building, I recommend Next.js. Here's why it fits, and here's how to get started. Want me to scaffold it?"
-
-<!-- intermediate -->
-**For intermediate developers:** Present the top 2 options with a brief comparison focused on the criteria that matter most for their project. Include trade-offs. Let them choose.
-
-<!-- senior -->
 **For senior developers:** Share the full decision matrix reference. Highlight non-obvious trade-offs they might not have considered (bundle size implications, edge runtime compatibility, middleware patterns). They'll make their own call.
 
 ## Backend / API Strategy

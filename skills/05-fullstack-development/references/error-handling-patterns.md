@@ -75,6 +75,96 @@ export const Errors = {
 } as const;
 ```
 
+## Request Correlation
+
+Attaching a `requestId` to every error response lets you match client-facing errors to server-side log lines. Generate one per request in the error handler and return it in the response envelope.
+
+### requestId in the error response envelope
+
+```ts
+// lib/api-handler.ts — extend withErrorHandler to inject requestId
+// [CUSTOMIZE] Pass requestId to your logger (Pino, Axiom, etc.) instead of console
+import { NextRequest, NextResponse } from 'next/server';
+import { AppError } from './errors';
+
+type ApiHandler = (
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) => Promise<NextResponse>;
+
+export function withErrorHandler(handler: ApiHandler): ApiHandler {
+  return async (req, context) => {
+    const requestId = crypto.randomUUID();
+    try {
+      return await handler(req, context);
+    } catch (error) {
+      return handleError(error, requestId);
+    }
+  };
+}
+
+function handleError(error: unknown, requestId: string): NextResponse {
+  if (error instanceof AppError) {
+    return NextResponse.json(
+      {
+        requestId,
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.details && { details: error.details }),
+        },
+      },
+      { status: error.statusCode }
+    );
+  }
+
+  return NextResponse.json(
+    {
+      requestId,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'An unexpected error occurred',
+      },
+    },
+    { status: 500 }
+  );
+}
+```
+
+### Server-side logging with requestId
+
+```ts
+// lib/api-handler.ts — structured log on every caught error
+// [CUSTOMIZE] Replace console.warn/error with your structured logger
+
+function handleError(error: unknown, requestId: string): NextResponse {
+  if (error instanceof AppError) {
+    console.warn('[AppError]', {
+      requestId,
+      code: error.code,
+      message: error.message,
+      statusCode: error.statusCode,
+      details: error.details,
+    });
+
+    return NextResponse.json(
+      { requestId, error: { code: error.code, message: error.message } },
+      { status: error.statusCode }
+    );
+  }
+
+  console.error('[UnhandledError]', { requestId, error });
+  // captureException(error, { tags: { requestId } });
+
+  return NextResponse.json(
+    { requestId, error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' } },
+    { status: 500 }
+  );
+}
+```
+
+The client receives the `requestId` in the JSON body. Log it with `console.warn('[AppError]', { requestId, ... })` so you can grep a single ID across distributed logs to reconstruct the full request chain.
+
 ### Global error handler — Next.js middleware
 
 ```ts
@@ -243,6 +333,54 @@ export function globalErrorHandler(
 // Register in app.ts:
 // app.use(globalErrorHandler);
 ```
+
+## Inline Async Error State
+
+`ErrorBoundary` only catches render-phase errors. When a data fetch fails (server 4xx/5xx, network timeout), the component renders normally but holds an error in state. Use a small `InlineError` component to display it inline with a retry button.
+
+```tsx
+// shared/components/InlineError.tsx
+// [CUSTOMIZE] Swap Tailwind classes for your design system tokens
+
+interface InlineErrorProps {
+  message: string;
+  onRetry?: () => void;
+}
+
+export function InlineError({ message, onRetry }: InlineErrorProps) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+      <p className="text-sm font-medium text-red-700">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700"
+        >
+          Try again
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+**Usage pattern — data fetch failure:**
+
+```tsx
+// app/(dashboard)/projects/page.tsx
+import { InlineError } from '@/shared/components/InlineError';
+
+export default function ProjectsPage() {
+  const { data, error, isLoading, refetch } = useProjects();
+
+  if (isLoading) return <Skeleton />;
+  if (error) return <InlineError message={error.message} onRetry={refetch} />;
+
+  return <ProjectList projects={data} />;
+}
+```
+
+`InlineError` sits where the content would have appeared. `ErrorBoundary` wraps the full subtree for render crashes. Use both — they cover different failure modes.
 
 ### React ErrorBoundary for frontend
 

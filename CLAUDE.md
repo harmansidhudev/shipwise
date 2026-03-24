@@ -26,3 +26,16 @@ Shipwise guides developers through the full webapp launch lifecycle: Design → 
 - Reference docs must contain at least one copy-paste code template
 - Hooks read from and write to shipwise-state.json (never modify markdown directly)
 - All priorities follow P0 (critical) > P1 (important) > P2 (nice-to-have) scale
+
+## Experience-level rendering contract
+Skills use HTML comment blocks to tag content for different experience levels:
+- `<!-- beginner -->` — content for beginners (new to coding, junior)
+- `<!-- intermediate -->` — content for mid-level developers (3-5yr)
+- `<!-- senior -->` — content for senior developers (5+yr)
+
+**Rendering rules:**
+1. Check `experience_level` from `.claude/shipwise-state.json`
+2. Only include content from the matching experience block in your response
+3. Content OUTSIDE any experience block renders for ALL levels (shared context)
+4. If no state file exists, default to `intermediate`
+5. Never show comparison tables or multi-option matrices to beginners — give one clear recommendation

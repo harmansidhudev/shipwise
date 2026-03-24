@@ -18,6 +18,14 @@ Run a full codebase re-scan to update launch readiness.
 7. Show current P0 gaps with time estimates
 
 ## Output format:
+
+### Status symbols
+Display mapping for auditor JSON status values:
+- `"done"` → ✓
+- `"partial"` → ⚠
+- `"todo"` → ✗
+
+### Experience-level variants
 Based on experience level:
 - **Beginner:** Friendly summary with explanations of each gap
 - **Intermediate:** Table of changes + current P0/P1 gaps
