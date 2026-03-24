@@ -76,7 +76,7 @@ Shipwise adapts all output to your experience level (set during scaffold):
 
 ## By the numbers
 
-- 15 domain skills + 1 orchestrator
+- 14 domain skills + 1 orchestrator (15 total)
 - 2 specialized agents
 - 4 lifecycle hooks
 - 3 commands to remember

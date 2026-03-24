@@ -1,0 +1,42 @@
+{
+  "name": "shipwise",
+  "displayName": "Shipwise",
+  "tagline": "Ship your webapp wisely — the launch lifecycle plugin",
+  "description": "Guides developers through the full webapp launch lifecycle: Design → Build → Ship → Grow. 15 contextual skills, 4 automatic checkpoint hooks, 45+ copy-paste reference docs, and codebase-aware readiness tracking.",
+  "author": "Harman Sidhu",
+  "categories": [
+    "development",
+    "devops",
+    "security",
+    "testing",
+    "productivity"
+  ],
+  "tags": [
+    "launch",
+    "deployment",
+    "lifecycle",
+    "checklist",
+    "readiness",
+    "security",
+    "observability",
+    "seo",
+    "billing",
+    "legal",
+    "growth",
+    "ci-cd",
+    "testing",
+    "architecture"
+  ],
+  "icon": "rocket_launch",
+  "featured": false,
+  "compatibility": {
+    "claude_code": ">=1.0.0"
+  },
+  "stats": {
+    "skills": 15,
+    "hooks": 4,
+    "agents": 2,
+    "commands": 3,
+    "reference_docs": "45+"
+  }
+}

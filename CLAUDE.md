@@ -4,7 +4,7 @@
 Shipwise guides developers through the full webapp launch lifecycle: Design → Build → Ship → Grow. It provides contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking.
 
 ## Architecture
-- **16 skills** across 4 phases + 1 orchestrator (00-launch-assess)
+- **15 skills** (14 domain + 1 orchestrator) across 4 phases
 - **4 hooks** for automatic checkpoint gates (session context, post-edit whispers, deploy gate, stop updater)
 - **2 agents** for deep codebase scanning (launch-readiness-auditor, gap-analyzer)
 - **3 commands** (/shipwise, /launch-audit, /launch-checklist)
