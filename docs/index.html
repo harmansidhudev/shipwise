@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipwise — Ship Wisely</title>
+  <meta name="description" content="The webapp launch lifecycle plugin for Claude Code. Contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking.">
+  <meta property="og:title" content="Shipwise — Ship Wisely">
+  <meta property="og:description" content="The webapp launch lifecycle plugin for Claude Code. From idea to shipped product.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #141416;
+      --border: #2a2a2e;
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .header-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .header-links a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: 20px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { border-color: var(--text-muted); }
+
+    /* Install block */
+    .install-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin: 40px auto 0;
+      max-width: 420px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      color: var(--green);
+      text-align: left;
+    }
+
+    .install-block .comment { color: var(--text-muted); }
+
+    /* Modes */
+    .modes {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .modes h2 {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.02em;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .mode-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .mode-card .mode-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .mode-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .mode-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .mode-card .friction {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* Phases */
+    .phases {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .phases h2 {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.02em;
+    }
+
+    .phase-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      align-items: stretch;
+    }
+
+    .phase-item {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .phase-item .phase-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .phase-item h3 {
+      font-size: 20px;
+      margin: 4px 0 8px;
+    }
+
+    .phase-item p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .phase-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 20px;
+      padding: 0 4px;
+    }
+
+    /* Numbers */
+    .numbers {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .numbers h2 {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.02em;
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      text-align: center;
+    }
+
+    .number-item .num {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .number-item .label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 32px; }
+      .hero .subtitle { font-size: 16px; }
+      .phase-row { flex-direction: column; }
+      .phase-arrow { transform: rotate(90deg); justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">ship<span>wise</span></a>
+      <div class="header-links">
+        <a href="https://github.com/harmansidhudev/shipwise">GitHub</a>
+        <a href="https://github.com/harmansidhudev/shipwise#quick-start">Docs</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Ship your webapp<br><span class="highlight">wisely</span></h1>
+      <p class="subtitle">
+        The launch lifecycle plugin for Claude Code. Contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking from idea to shipped product.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/harmansidhudev/shipwise" class="btn btn-primary">Get started</a>
+        <a href="https://github.com/harmansidhudev/shipwise#quick-start" class="btn btn-secondary">Read the docs</a>
+      </div>
+      <div class="install-block">
+        <div class="comment"># Install and scaffold</div>
+        <div>/shipwise</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modes">
+    <div class="container">
+      <h2>Four modes of guidance</h2>
+      <div class="mode-grid">
+        <div class="mode-card">
+          <div class="mode-label">Mode D</div>
+          <h3>Scaffold</h3>
+          <p>9-question diagnostic interview, codebase scan, and artifact generation. Run once at project start.</p>
+          <div class="friction">1 command, once</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">Mode B</div>
+          <h3>Checkpoint Gates</h3>
+          <p>Hooks fire on every session, file edit, and deploy. Contextual whispers and deploy warnings.</p>
+          <div class="friction">Zero friction (automatic)</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">Mode A</div>
+          <h3>Contextual Knowledge</h3>
+          <p>Domain skills auto-load when Claude detects matching context. Better responses without asking.</p>
+          <div class="friction">Zero friction (automatic)</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">Mode C</div>
+          <h3>On-Demand Audit</h3>
+          <p>Full codebase re-scan with structured report. Run before milestones.</p>
+          <div class="friction">1 command, as needed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="phases">
+    <div class="container">
+      <h2>The full lifecycle</h2>
+      <div class="phase-row">
+        <div class="phase-item">
+          <div class="phase-num">Phase 1</div>
+          <h3>Design</h3>
+          <p>Validate, scope, and plan</p>
+        </div>
+        <div class="phase-arrow">&rarr;</div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 2</div>
+          <h3>Build</h3>
+          <p>Architecture, code, test, secure</p>
+        </div>
+        <div class="phase-arrow">&rarr;</div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 3</div>
+          <h3>Ship</h3>
+          <p>Monitor, optimize, comply, launch</p>
+        </div>
+        <div class="phase-arrow">&rarr;</div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 4</div>
+          <h3>Grow</h3>
+          <p>Analyze, retain, iterate, scale</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="numbers">
+    <div class="container">
+      <h2>By the numbers</h2>
+      <div class="number-grid">
+        <div class="number-item">
+          <div class="num">16</div>
+          <div class="label">Domain skills</div>
+        </div>
+        <div class="number-item">
+          <div class="num">4</div>
+          <div class="label">Lifecycle hooks</div>
+        </div>
+        <div class="number-item">
+          <div class="num">2</div>
+          <div class="label">Scanning agents</div>
+        </div>
+        <div class="number-item">
+          <div class="num">3</div>
+          <div class="label">Commands</div>
+        </div>
+        <div class="number-item">
+          <div class="num">45+</div>
+          <div class="label">Reference docs</div>
+        </div>
+        <div class="number-item">
+          <div class="num">25</div>
+          <div class="label">Ecosystem integrations</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>MIT License &middot; <a href="https://github.com/harmansidhudev/shipwise">GitHub</a> &middot; Built by <a href="https://github.com/harmansidhudev">Harman Sidhu</a></p>
+    </div>
+  </footer>
+</body>
+</html>

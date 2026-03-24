@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Shipwise State",
+  "description": "Machine-readable launch readiness state for a project tracked by Shipwise",
+  "type": "object",
+  "required": ["version", "project", "current_phase", "experience_level", "expected_scale", "items", "history"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "enum": ["1.0.0"]
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "type", "audience", "phase", "stack", "has_users", "monetization", "team_size"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["saas", "marketplace", "tool", "api", "other"] },
+        "audience": { "type": "string", "enum": ["b2c", "b2b", "developers", "internal"] },
+        "phase": { "type": "string", "enum": ["idea", "designing", "building", "ready-to-ship", "live"] },
+        "stack": {
+          "type": "object",
+          "properties": {
+            "frontend": { "type": "string" },
+            "backend": { "type": "string" },
+            "database": { "type": "string" },
+            "hosting": { "type": "string" },
+            "auth": { "type": "string" }
+          }
+        },
+        "has_users": { "type": "string", "enum": ["no", "beta", "paying"] },
+        "monetization": { "type": "string", "enum": ["no", "free", "freemium", "paid"] },
+        "team_size": { "type": "string", "enum": ["solo", "cofounded", "small-team", "larger-team"] }
+      }
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": ["design", "build", "ship", "grow"]
+    },
+    "experience_level": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "senior"]
+    },
+    "expected_scale": {
+      "type": "string",
+      "enum": ["<100", "100-1000", "1000-10000", "10000+"]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status", "phase", "priority"],
+        "properties": {
+          "id": { "type": "string", "description": "Unique kebab-case identifier" },
+          "name": { "type": "string", "description": "Human-readable name" },
+          "status": { "type": "string", "enum": ["todo", "in-progress", "done", "skipped"] },
+          "phase": { "type": "string", "enum": ["design", "build", "ship", "grow"] },
+          "priority": { "type": "string", "enum": ["P0", "P1", "P2"] },
+          "category": { "type": "string", "description": "Skill category this item belongs to" },
+          "owner": { "type": ["string", "null"], "description": "Team member assigned (null if unassigned)" },
+          "time_estimate": { "type": "string", "description": "Human-readable time estimate" },
+          "evidence": {
+            "type": "object",
+            "properties": {
+              "files": { "type": "array", "items": { "type": "string" } },
+              "patterns": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "readiness_pct"],
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "readiness_pct": { "type": "number", "minimum": 0, "maximum": 100 }
+        }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

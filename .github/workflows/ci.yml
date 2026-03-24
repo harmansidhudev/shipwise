@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin.json
+        run: |
+          echo "Checking plugin.json is valid JSON..."
+          cat .claude-plugin/plugin.json | python3 -m json.tool > /dev/null
+
+      - name: Validate state schema
+        run: |
+          echo "Checking state schema is valid JSON..."
+          cat templates/shipwise-state-schema.json | python3 -m json.tool > /dev/null
+
+      - name: Check all SKILL.md files exist
+        run: |
+          echo "Checking skill files..."
+          for dir in skills/*/; do
+            if [ ! -f "$dir/SKILL.md" ]; then
+              echo "ERROR: Missing SKILL.md in $dir"
+              exit 1
+            fi
+          done
+          echo "All skill files present."
+
+      - name: Check hooks are executable
+        run: |
+          for hook in hooks/*.sh; do
+            if [ ! -x "$hook" ]; then
+              echo "ERROR: $hook is not executable"
+              exit 1
+            fi
+          done
+          echo "All hooks are executable."
+
+      - name: Validate hook scripts syntax
+        run: |
+          for hook in hooks/*.sh hooks/lib/*.sh; do
+            echo "Checking $hook..."
+            bash -n "$hook"
+          done
+          echo "All hook scripts have valid syntax."
+
+      - name: Check skill frontmatter
+        run: |
+          echo "Checking skill frontmatter..."
+          for skill in skills/*/SKILL.md; do
+            if ! head -1 "$skill" | grep -q "^---"; then
+              echo "ERROR: $skill missing frontmatter"
+              exit 1
+            fi
+          done
+          echo "All skills have frontmatter."
+
+      - name: Count skills
+        run: |
+          SKILL_COUNT=$(find skills -name "SKILL.md" | wc -l | tr -d ' ')
+          echo "Total skills: $SKILL_COUNT"
+          if [ "$SKILL_COUNT" -lt 15 ]; then
+            echo "WARNING: Expected at least 15 skills, found $SKILL_COUNT"
+          fi
