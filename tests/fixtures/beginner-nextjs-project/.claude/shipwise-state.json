@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "my-saas-app",
+    "type": "saas",
+    "audience": "b2b",
+    "phase": "building",
+    "stack": {
+      "frontend": "nextjs",
+      "backend": "nextjs",
+      "database": null,
+      "hosting": null,
+      "auth": null
+    },
+    "has_users": "no",
+    "monetization": "freemium",
+    "team_size": "solo"
+  },
+  "current_phase": "build",
+  "experience_level": "beginner",
+  "expected_scale": "<100",
+  "items": [
+    { "id": "framework", "name": "Frontend Framework", "status": "done", "phase": "build", "priority": "P0", "evidence": "package.json: next 14.x detected", "time_estimate": null },
+    { "id": "error-tracking", "name": "Error Tracking", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "2 hours" },
+    { "id": "auth-hardening", "name": "Auth Hardening", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "3 hours" },
+    { "id": "input-validation", "name": "Input Validation", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "security-headers", "name": "Security Headers", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "cicd-pipeline", "name": "CI/CD Pipeline", "status": "todo", "phase": "build", "priority": "P2", "evidence": null, "time_estimate": "2 hours" },
+    { "id": "unit-tests", "name": "Unit Tests", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "3 hours" },
+    { "id": "error-boundaries", "name": "Error Boundaries", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "30 min" },
+    { "id": "not-found-page", "name": "404 Page", "status": "todo", "phase": "build", "priority": "P1", "evidence": null, "time_estimate": "15 min" },
+    { "id": "health-endpoint", "name": "Health Endpoint", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "30 min" },
+    { "id": "privacy-policy", "name": "Privacy Policy", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "terms-of-service", "name": "Terms of Service", "status": "todo", "phase": "ship", "priority": "P2", "evidence": null, "time_estimate": "1 hour" },
+    { "id": "backups", "name": "Database Backups", "status": "todo", "phase": "build", "priority": "P0", "evidence": null, "time_estimate": "1 hour" }
+  ],
+  "history": [
+    { "timestamp": "2026-03-24T10:00:00Z", "readiness_pct": 8 }
+  ],
+  "created_at": "2026-03-24T10:00:00Z",
+  "updated_at": "2026-03-24T10:00:00Z"
+}
