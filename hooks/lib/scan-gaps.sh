@@ -1,105 +1,64 @@
 #!/bin/bash
-# Scan project for evidence of completed checklist items
-# Returns JSON array of {id, found: true/false}
+# Scan for evidence of completed checklist items
+# Usage: source hooks/lib/scan-gaps.sh; scan_gaps STATE_FILE
 
 scan_gaps() {
-  local results="[]"
+  local STATE_FILE="$1"
+  local UPDATED=false
 
-  check() {
-    local id="$1"
-    local found="$2"
-    if [ "$found" = "true" ]; then
-      results=$(echo "$results" | jq --arg id "$id" '. += [{"id": $id, "found": true}]')
-    else
-      results=$(echo "$results" | jq --arg id "$id" '. += [{"id": $id, "found": false}]')
+  mark_done() {
+    local item_id="$1"
+    local current=$(jq -r --arg id "$item_id" '.items[] | select(.id == $id) | .status' "$STATE_FILE" 2>/dev/null)
+    if [ "$current" = "todo" ]; then
+      jq --arg id "$item_id" '(.items[] | select(.id == $id)).status = "done"' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+      UPDATED=true
     fi
   }
 
+  has_file() {
+    find . -path "./.git" -prune -o -path "./node_modules" -prune -o -name "$1" -print 2>/dev/null | grep -q .
+  }
+
+  has_content() {
+    grep -rql "$1" --include="$2" . 2>/dev/null
+  }
+
   # CI/CD
-  if [ -f ".github/workflows/ci.yml" ] || [ -f ".github/workflows/deploy.yml" ] || ls .github/workflows/*.yml 2>/dev/null | grep -q .; then
-    check "cicd-pipeline" "true"
-  else
-    check "cicd-pipeline" "false"
-  fi
+  has_file "ci.yml" && mark_done "cicd-pipeline"
+  has_file "*.yml" && [ -d ".github/workflows" ] && mark_done "cicd-pipeline"
 
   # Containerization
-  if [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ]; then
-    check "containerization" "true"
-  else
-    check "containerization" "false"
-  fi
+  has_file "Dockerfile" && mark_done "containerization"
+  has_file "docker-compose*.yml" && mark_done "containerization"
 
-  # Tests
-  if find . -path ./node_modules -prune -o -name "*.test.*" -print -o -name "*.spec.*" -print 2>/dev/null | grep -q .; then
-    check "unit-tests" "true"
-  else
-    check "unit-tests" "false"
-  fi
-
-  # E2E tests
-  if [ -f "playwright.config.ts" ] || [ -f "playwright.config.js" ] || [ -f "cypress.config.ts" ]; then
-    check "e2e-tests" "true"
-  else
-    check "e2e-tests" "false"
-  fi
+  # IaC
+  has_file "*.tf" && mark_done "iac"
 
   # Error tracking
-  if grep -rq 'sentry\|@sentry' package.json 2>/dev/null; then
-    check "error-tracking" "true"
-  else
-    check "error-tracking" "false"
-  fi
+  has_content "@sentry" "package.json" && mark_done "error-tracking"
+  has_file "sentry.client.config.*" && mark_done "error-tracking"
 
   # Health endpoints
-  if find . -path ./node_modules -prune -o -name "*health*" -print 2>/dev/null | grep -q .; then
-    check "health-endpoints" "true"
-  else
-    check "health-endpoints" "false"
-  fi
+  has_file "*health*" && mark_done "health-endpoints"
 
-  # SEO basics
-  if [ -f "public/robots.txt" ] || find . -path ./node_modules -prune -o -name "robots.txt" -print 2>/dev/null | grep -q .; then
-    check "robots-txt" "true"
-  else
-    check "robots-txt" "false"
-  fi
-
-  if find . -path ./node_modules -prune -o -name "sitemap*" -print 2>/dev/null | grep -q .; then
-    check "sitemap" "true"
-  else
-    check "sitemap" "false"
-  fi
+  # SEO
+  has_file "robots.txt" && mark_done "robots-txt"
+  has_file "sitemap*" && mark_done "sitemap"
 
   # Legal
-  if find . -path ./node_modules -prune -o -name "privacy*" -print 2>/dev/null | grep -q .; then
-    check "privacy-policy" "true"
-  else
-    check "privacy-policy" "false"
-  fi
+  has_file "privacy*" && mark_done "privacy-policy"
+  has_file "terms*" && mark_done "terms-of-service"
 
-  if find . -path ./node_modules -prune -o -name "terms*" -print 2>/dev/null | grep -q .; then
-    check "terms-of-service" "true"
-  else
-    check "terms-of-service" "false"
-  fi
+  # Testing
+  has_file "playwright.config.*" && mark_done "e2e-tests"
+  has_file "vitest.config.*" && mark_done "unit-tests"
+  has_file "jest.config.*" && mark_done "unit-tests"
 
-  # Security headers
-  if grep -rq 'helmet\|Content-Security-Policy\|X-Frame-Options' . --include="*.ts" --include="*.js" --include="*.conf" 2>/dev/null; then
-    check "security-headers" "true"
-  else
-    check "security-headers" "false"
-  fi
+  # Security
+  has_file ".gitleaks.toml" && mark_done "secret-scanning"
 
-  # Env example
-  if [ -f ".env.example" ] || [ -f ".env.sample" ]; then
-    check "env-example" "true"
-  else
-    check "env-example" "false"
-  fi
+  # Auth
+  has_content "rate.limit\|rateLimit\|RateLimiter" "*.ts" && mark_done "rate-limiting"
 
-  echo "$results"
+  echo "$UPDATED"
 }
-
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-  scan_gaps
-fi

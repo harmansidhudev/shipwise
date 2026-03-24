@@ -1,7 +1,4 @@
 #!/bin/bash
-# Shipwise — PreToolUse hook (Bash)
-# Warns before deploy commands if P0 gaps exist.
-# Fixes applied: G3 (guided remediation), G9 (post-deploy verify)
 HOOK_INPUT=$(cat)
 CMD=$(echo "$HOOK_INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
 [ -z "$CMD" ] && exit 0
@@ -14,15 +11,10 @@ fi
 STATE_FILE=".claude/shipwise-state.json"
 [ ! -f "$STATE_FILE" ] && exit 0
 
-if ! command -v jq &> /dev/null; then
-  exit 0
-fi
-
 EXP=$(jq -r '.experience_level // "intermediate"' "$STATE_FILE" 2>/dev/null)
 P0_ITEMS=$(jq -r '[.items[] | select(.status == "todo" and .priority == "P0")] | length' "$STATE_FILE" 2>/dev/null)
 
 if [ "$P0_ITEMS" -gt 0 ]; then
-  # Build gap list with time estimates
   GAPS=$(jq -r '
     [.items[] | select(.status == "todo" and .priority == "P0")]
     | .[0:5]
@@ -30,14 +22,12 @@ if [ "$P0_ITEMS" -gt 0 ]; then
     | "  - \(.name) (~\(.time_estimate // "? min"))"
   ' "$STATE_FILE" 2>/dev/null)
 
-  MSG="DEPLOY GATE: $P0_ITEMS P0 items incomplete:\n$GAPS"
+  MSG="⚠ DEPLOY GATE: $P0_ITEMS P0 items incomplete:\n$GAPS"
 
-  # G3: Guided remediation offer for non-experts
   if [ "$EXP" = "beginner" ] || [ "$EXP" = "intermediate" ]; then
     MSG="$MSG\n\nWant me to fix these in priority order? Say 'fix shipwise gaps' to start with the quickest one."
   fi
 
-  # G9: Post-deploy verification suggestion
   MSG="$MSG\n\nAfter deploying, say 'verify deploy' and I'll check your production health endpoint."
 
   jq -n --arg ctx "[Shipwise] $MSG" \

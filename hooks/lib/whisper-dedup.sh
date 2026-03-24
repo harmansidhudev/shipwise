@@ -1,19 +1,27 @@
 #!/bin/bash
-# G4: Whisper deduplication
-# Tracks which whisper categories have been shown in this session
+# Whisper deduplication logic (Fix G4)
+# Usage: source hooks/lib/whisper-dedup.sh
 
-DEDUP_FILE="/tmp/shipwise-whispers-${1:-default}"
+get_dedup_file() {
+  local session_id="${1:-default}"
+  echo "/tmp/shipwise-whispers-$session_id"
+}
 
-has_whispered() {
+was_whispered() {
   local category="$1"
-  [ -f "$DEDUP_FILE" ] && grep -q "^$category$" "$DEDUP_FILE" 2>/dev/null
+  local dedup_file="$2"
+
+  [ -f "$dedup_file" ] && grep -q "^${category}$" "$dedup_file" 2>/dev/null
 }
 
 record_whisper() {
   local category="$1"
-  echo "$category" >> "$DEDUP_FILE"
+  local dedup_file="$2"
+
+  echo "$category" >> "$dedup_file"
 }
 
-clear_whispers() {
-  rm -f "$DEDUP_FILE"
+clear_session_whispers() {
+  local dedup_file="$1"
+  [ -f "$dedup_file" ] && rm -f "$dedup_file"
 }

@@ -1,7 +1,4 @@
 #!/bin/bash
-# Shipwise — PostToolUse hook (Write|Edit|MultiEdit)
-# Contextual whisper when editing code that relates to a checklist gap.
-# Fixes applied: G2 (dual-mode), G4 (dedup), G5 (intent-suppress)
 HOOK_INPUT=$(cat)
 FILE_PATH=$(echo "$HOOK_INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
 [ -z "$FILE_PATH" ] && exit 0
@@ -9,11 +6,7 @@ FILE_PATH=$(echo "$HOOK_INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/n
 STATE_FILE=".claude/shipwise-state.json"
 [ ! -f "$STATE_FILE" ] && exit 0
 
-if ! command -v jq &> /dev/null; then
-  exit 0
-fi
-
-# Read experience level (G2)
+# Read experience level
 EXP=$(jq -r '.experience_level // "intermediate"' "$STATE_FILE" 2>/dev/null)
 
 # Session dedup file (G4)
@@ -44,7 +37,7 @@ if grep -q "^$CATEGORY$" "$DEDUP_FILE" 2>/dev/null; then
   exit 0
 fi
 
-# G5: Intent suppression — if the file was created (Write), user likely asked for it
+# G5: Intent suppression
 TOOL_NAME=$(echo "$HOOK_INPUT" | jq -r '.tool_name // ""' 2>/dev/null)
 if [ "$TOOL_NAME" = "Write" ]; then
   if [ "$CATEGORY" != "secrets" ]; then
@@ -66,15 +59,15 @@ case "$CATEGORY:$EXP" in
   billing:*)
     MSG="Payment code detected. Checklist: webhook HMAC verification, idempotent handlers, PCI scope." ;;
   cicd:beginner)
-    MSG="CI/CD config detected. A good pipeline runs in order: install dependencies > lint code > check types > run tests > build > deploy. Each step must pass before the next runs." ;;
+    MSG="CI/CD config detected. A good pipeline runs in order: install dependencies → lint code → check types → run tests → build → deploy. Each step must pass before the next runs." ;;
   cicd:*)
-    MSG="CI/CD config detected. Checklist: lint > typecheck > test > build > deploy gates." ;;
+    MSG="CI/CD config detected. Checklist: lint → typecheck → test → build → deploy gates." ;;
   api:beginner)
     MSG="API route detected. Every API endpoint needs: input validation (check the data is correct), auth middleware (verify the user is allowed), error handling (return helpful messages), and rate limiting (prevent abuse)." ;;
   api:*)
     MSG="API route detected. Checklist: input validation, auth middleware, error handling, rate limiting." ;;
   secrets:*)
-    MSG="Sensitive file detected. Ensure this is in .gitignore. Secrets should be in a vault (not .env files committed to git)." ;;
+    MSG="⚠ Sensitive file detected. Ensure this is in .gitignore. Secrets should be in a vault (not .env files committed to git)." ;;
   observability:beginner)
     MSG="Health/monitoring code detected. Good health endpoints check the app AND its dependencies (database, cache, external APIs). Return JSON with each dependency status." ;;
   observability:*)

@@ -1,23 +1,14 @@
 #!/bin/bash
-# Shipwise — Stop hook
-# Scans for newly created files that match checklist gaps. Updates state.json.
-# Fixes applied: G8 (JSON state), G10 (phase transition), G15 (time-series)
 HOOK_INPUT=$(cat)
 
-# Prevent infinite loop
 ACTIVE=$(echo "$HOOK_INPUT" | jq -r '.stop_hook_active // false' 2>/dev/null)
 [ "$ACTIVE" = "true" ] && exit 0
 
 STATE_FILE=".claude/shipwise-state.json"
 [ ! -f "$STATE_FILE" ] && exit 0
 
-if ! command -v jq &> /dev/null; then
-  exit 0
-fi
-
 UPDATED=false
 
-# Scan for evidence of completed items
 check_file() {
   local pattern="$1"
   local item_id="$2"
@@ -30,7 +21,6 @@ check_file() {
   fi
 }
 
-# Check common patterns
 check_file "ci.yml" "cicd-pipeline"
 check_file "Dockerfile" "containerization"
 check_file "*.tf" "iac"
@@ -42,7 +32,6 @@ check_file "privacy*" "privacy-policy"
 check_file "terms*" "terms-of-service"
 
 if [ "$UPDATED" = true ]; then
-  # G15: Log readiness over time
   TOTAL=$(jq '.items | length' "$STATE_FILE" 2>/dev/null)
   DONE=$(jq '[.items[] | select(.status == "done")] | length' "$STATE_FILE" 2>/dev/null)
   PCT=$((DONE * 100 / (TOTAL > 0 ? TOTAL : 1)))
@@ -52,7 +41,6 @@ if [ "$UPDATED" = true ]; then
     '.history += [{"timestamp": $ts, "readiness_pct": ($pct | tonumber)}]' \
     "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
 
-  # G10: Phase transition detection
   CURRENT_PHASE=$(jq -r '.current_phase' "$STATE_FILE" 2>/dev/null)
   PHASE_REMAINING=$(jq --arg phase "$CURRENT_PHASE" \
     '[.items[] | select(.phase == $phase and .status == "todo")] | length' \
@@ -68,7 +56,7 @@ if [ "$UPDATED" = true ]; then
 
     if [ -n "$NEXT_PHASE" ]; then
       jq --arg np "$NEXT_PHASE" '.current_phase = $np' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
-      MSG="$CURRENT_PHASE phase complete! Transitioning to $NEXT_PHASE. Run /shipwise status to see your new priorities."
+      MSG="🎉 $CURRENT_PHASE phase complete! Transitioning to $NEXT_PHASE. Run /shipwise status to see your new priorities."
       jq -n --arg reason "$MSG" '{"decision": "block", "reason": $reason}'
       exit 0
     fi
