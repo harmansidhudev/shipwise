@@ -420,9 +420,94 @@ export function verifyTotpCode(secret: string, code: string): boolean {
 
 ---
 
+### 7. Account Lockout
+
+```ts
+// lib/account-lockout.ts
+// [CUSTOMIZE] Adjust thresholds and lockout duration for your risk profile
+// Requires: Redis (or database) for tracking failed attempts per account
+
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+
+const MAX_FAILED_ATTEMPTS = 5;           // [CUSTOMIZE] Lock after 5 failures
+const LOCKOUT_DURATION_SEC = 15 * 60;    // [CUSTOMIZE] 15-minute lockout
+const ATTEMPT_WINDOW_SEC = 30 * 60;      // [CUSTOMIZE] Track attempts over 30 minutes
+
+/**
+ * Record a failed login attempt for an account.
+ * Returns { locked: boolean, remainingAttempts: number, lockoutEndsAt?: Date }
+ */
+export async function recordFailedAttempt(accountId: string) {
+  const key = `lockout:${accountId}`;
+  const attempts = await redis.incr(key);
+
+  if (attempts === 1) {
+    // First failure — set expiry window
+    await redis.expire(key, ATTEMPT_WINDOW_SEC);
+  }
+
+  if (attempts >= MAX_FAILED_ATTEMPTS) {
+    // Lock the account
+    const lockKey = `locked:${accountId}`;
+    await redis.set(lockKey, '1', 'EX', LOCKOUT_DURATION_SEC);
+    return {
+      locked: true,
+      remainingAttempts: 0,
+      lockoutEndsAt: new Date(Date.now() + LOCKOUT_DURATION_SEC * 1000),
+    };
+  }
+
+  return {
+    locked: false,
+    remainingAttempts: MAX_FAILED_ATTEMPTS - attempts,
+  };
+}
+
+/**
+ * Check if an account is currently locked out.
+ */
+export async function isAccountLocked(accountId: string): Promise<boolean> {
+  const lockKey = `locked:${accountId}`;
+  return (await redis.exists(lockKey)) === 1;
+}
+
+/**
+ * Clear failed attempts after a successful login.
+ */
+export async function clearFailedAttempts(accountId: string) {
+  await redis.del(`lockout:${accountId}`);
+  await redis.del(`locked:${accountId}`);
+}
+
+// Usage in login handler:
+// if (await isAccountLocked(user.id)) {
+//   return res.status(423).json({ error: 'Account temporarily locked. Try again later.' });
+// }
+// if (!passwordValid) {
+//   const result = await recordFailedAttempt(user.id);
+//   if (result.locked) {
+//     // [CUSTOMIZE] Send email notification to account owner
+//     await sendLockoutNotification(user.email, result.lockoutEndsAt);
+//   }
+//   return res.status(401).json({ error: 'Invalid credentials', ...result });
+// }
+// await clearFailedAttempts(user.id);  // Success — reset counter
+```
+
+**Key design decisions:**
+- **Account-level, not IP-level**: Rate limiting (Section 2) handles IP-based attacks. Account lockout handles distributed attacks targeting a single account from many IPs.
+- **Fail-open on Redis failure**: If Redis is down, skip the lockout check rather than locking everyone out. Log the Redis error for investigation.
+- **Notification on lockout**: Email the account owner when their account is locked. This alerts legitimate users to potential attack attempts.
+- **Admin unlock**: Provide an admin endpoint to manually unlock accounts for support cases.
+
+---
+
 ## Customization notes
 
 - **Argon2id parameters**: The defaults (64 MB, 3 iterations, 4 threads) are suitable for most apps. If you're on a dedicated server with >8 GB RAM, increase `memoryCost` to `131072` (128 MB) for stronger security.
+- **Bcrypt fallback**: If Argon2id is unavailable (e.g., platform restrictions on native modules), use bcrypt with cost factor >= 12 (not the default 10). At cost factor 12, hashing takes ~250ms on modern hardware, which is acceptable for auth endpoints. Never go below 10.
 - **Rate limit storage**: Always use Redis in production for rate limiting. In-memory stores don't work with multiple server instances and reset on deploys.
 - **Session TTL**: 30 minutes is a good default. For banking/health apps, use 15 minutes. For low-risk consumer apps, up to 7 days with refresh tokens.
 - **CSRF**: If your API is purely token-based (JWT in Authorization header, no cookies), you may not need CSRF protection since the browser won't automatically send the token.

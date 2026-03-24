@@ -32,6 +32,22 @@ update_readiness() {
   echo "$PCT"
 }
 
+update_stack() {
+  local STATE_FILE="$1"
+  local FIELD="$2"
+  local VALUE="$3"
+
+  if [ ! -f "$STATE_FILE" ]; then
+    echo "Error: State file not found: $STATE_FILE" >&2
+    return 1
+  fi
+
+  local TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  jq --arg field "$FIELD" --arg val "$VALUE" --arg ts "$TIMESTAMP" \
+    '.project.stack[$field] = $val | .updated_at = $ts' \
+    "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+}
+
 detect_phase_transition() {
   local STATE_FILE="$1"
 

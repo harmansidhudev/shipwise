@@ -82,11 +82,12 @@ triggers:
 
 <!-- beginner -->
 **Harden your authentication system** — Authentication is how your app knows who someone is. If it's weak, attackers can steal accounts. Here's what to do:
-- **Password hashing**: Use Argon2id (or bcrypt as fallback) to store passwords. Never store plain text or use MD5/SHA — those can be cracked in seconds.
+- **Password hashing**: Use Argon2id (or bcrypt with cost factor >= 12 as fallback) to store passwords. Never store plain text or use MD5/SHA — those can be cracked in seconds.
 - **Rate limiting**: Limit login attempts to 5 per minute per IP. Without this, attackers can try millions of passwords automatically (brute force).
 - **Secure cookies**: Set `httpOnly` (JavaScript can't read the cookie), `secure` (only sent over HTTPS), and `sameSite=strict` (prevents CSRF attacks where another site tricks the browser into making requests as you).
 - **CSRF protection**: Add CSRF tokens to all state-changing forms so requests can only come from your own site.
 - **Password breach checking**: Check new passwords against the HaveIBeenPwned database — if a password has been leaked before, don't allow it.
+- **Account lockout**: Lock accounts after 5 failed login attempts for 15 minutes. This stops distributed brute-force attacks that rate limiting alone can't catch. Email the account owner when a lockout happens.
 > Time: ~1 hour
 > Reference: See `references/auth-hardening-checklist.md`
 

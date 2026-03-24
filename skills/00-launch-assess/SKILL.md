@@ -96,7 +96,9 @@ The expected user count affects which items are P0 vs P1 vs P2:
 | E2E tests | P2 | P2 | P1 | P0 |
 | Dependency scanning | P2 | P1 | P0 | P0 |
 
-**Default rule:** For auditor items not listed above, use P2 for <100 users, P1 for 100-1K, P0 for 1K+. The first item shown in beginner guided mode is the highest-priority P0 item from the auditor's checklist.
+**Infrastructure exceptions:** For <100 users, the following items should be "skip" (not shown to the user), not P2: Containerization, IaC, Load testing, Auto-scaling, Status page, Monitoring, Secrets management. Solo beginners should not see infrastructure items they cannot meaningfully act on.
+
+**Default rule:** For all other auditor items not listed in either table above, use P2 for <100 users, P1 for 100-1K, P0 for 1K+. The first item shown in beginner guided mode is the highest-priority P0 item from the auditor's checklist.
 
 ## Post-scaffold behavior
 

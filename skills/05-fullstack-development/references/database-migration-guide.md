@@ -49,8 +49,8 @@ model User {
   updatedAt   DateTime @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
-  projects    Project[]
-  teamMemberships TeamMember[]
+  projects         Project[]
+  teamMemberships  TeamMember[]
 
   @@map("users")
   @@index([email])
@@ -69,6 +69,7 @@ model Project {
 
   user        User     @relation(fields: [userId], references: [id])
   tasks       Task[]
+  teamMembers TeamMember[]
 
   @@map("projects")
   @@index([userId])
@@ -96,6 +97,22 @@ model Task {
   @@index([assigneeId])
   @@index([status])
   @@index([deletedAt])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  role      String   @default("member") // "owner" | "admin" | "member" | "viewer"
+  userId    String   @map("user_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+  @@map("team_members")
+  @@index([projectId])
 }
 ```
 
