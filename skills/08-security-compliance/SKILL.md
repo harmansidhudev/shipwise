@@ -43,6 +43,32 @@ triggers:
 
 ---
 
+## Read project context first
+
+Before responding, check `.claude/shipwise-state.json` for:
+- `project.stack.auth` — determines which auth hardening items apply
+- `experience_level` — beginner, intermediate, senior
+- `expected_scale` — affects rate limiting thresholds
+
+### Managed auth provider detection
+
+If `project.stack.auth` is a managed provider (`clerk`, `auth0`, `supabase`, `firebase`), the provider handles password hashing, breach checking, and account lockout internally. **Skip these sections** from the auth hardening checklist and note why:
+
+- **Skip Section 1 (Argon2id/bcrypt)** — managed by the provider
+- **Skip Section 5 (HaveIBeenPwned)** — managed by the provider
+- **Skip Section 7 (Account lockout)** — managed by the provider (verify in provider dashboard settings)
+
+**Focus instead on** what the developer IS responsible for with managed auth:
+- Rate limiting at the application layer (provider rate limits protect their endpoints, not yours)
+- Session/cookie configuration via the provider's SDK
+- CSRF protection for non-API routes
+- MFA enablement via the provider's dashboard
+- Security headers (always your responsibility regardless of auth provider)
+
+If `project.stack.auth` is self-managed (`nextauth`, `lucia`, `custom`) or absent, present the full checklist.
+
+---
+
 ## Checklist Items
 
 ### OWASP Top 10 Compliance
@@ -80,22 +106,36 @@ triggers:
 
 ### Auth Hardening
 
+> **Note:** If using a managed auth provider (Clerk, Auth0, Supabase Auth, Firebase Auth), see the "Managed auth provider detection" section above. Skip password hashing, HIBP, and account lockout — your provider handles those. Focus on rate limiting, session config, CSRF, and MFA enablement.
+
 <!-- beginner -->
-**Harden your authentication system** — Authentication is how your app knows who someone is. If it's weak, attackers can steal accounts. Here's what to do:
-- **Password hashing**: Use Argon2id (or bcrypt as fallback) to store passwords. Never store plain text or use MD5/SHA — those can be cracked in seconds.
-- **Rate limiting**: Limit login attempts to 5 per minute per IP. Without this, attackers can try millions of passwords automatically (brute force).
-- **Secure cookies**: Set `httpOnly` (JavaScript can't read the cookie), `secure` (only sent over HTTPS), and `sameSite=strict` (prevents CSRF attacks where another site tricks the browser into making requests as you).
+**Harden your authentication system** — Authentication is how your app knows who someone is. If it's weak, attackers can steal accounts.
+
+**If using Clerk, Auth0, or similar managed auth:**
+- Your provider handles password hashing and breach checking — you don't need to implement those
+- **Rate limiting**: Still your responsibility. Limit login attempts to 5 per minute per IP on YOUR API routes. The provider protects their endpoints, but you need to protect yours.
+- **Secure cookies**: Configure via your provider's SDK. Clerk: set `sameSite: 'strict'` in middleware. Auth0: configure in tenant settings.
 - **CSRF protection**: Add CSRF tokens to all state-changing forms so requests can only come from your own site.
-- **Password breach checking**: Check new passwords against the HaveIBeenPwned database — if a password has been leaked before, don't allow it.
-> Time: ~1 hour
+- **MFA**: Enable in your provider's dashboard. Clerk: Dashboard → User & Authentication → Multi-factor. Auth0: Dashboard → Security → MFA.
+
+**If using custom/self-hosted auth (NextAuth, Lucia, custom):**
+- **Password hashing**: Use Argon2id (or bcrypt with cost factor >= 12 as fallback). Never store plain text or use MD5/SHA.
+- **Rate limiting**: Limit login attempts to 5 per minute per IP.
+- **Secure cookies**: Set `httpOnly`, `secure`, and `sameSite=strict`.
+- **CSRF protection**: Add CSRF tokens to all state-changing forms.
+- **Password breach checking**: Check new passwords against the HaveIBeenPwned database.
+- **Account lockout**: Lock accounts after 5 failed attempts for 15 minutes.
+> Time: ~30 min (managed) / ~1 hour (self-hosted)
 > Reference: See `references/auth-hardening-checklist.md`
 
 <!-- intermediate -->
-**Auth hardening** — Argon2id hashing (memoryCost: 65536, timeCost: 3, parallelism: 4), rate limiting (5/min login, 100/min API), httpOnly+secure+sameSite=strict cookies, CSRF double-submit pattern, HaveIBeenPwned k-anonymity API for password checks, consider MFA via TOTP.
-> ~1 hour | `references/auth-hardening-checklist.md`
+**Auth hardening** — Check `project.stack.auth` first.
+- **Managed (Clerk/Auth0/Supabase/Firebase):** Skip Argon2id/HIBP/lockout (provider-managed). Focus on: application-layer rate limiting (5/min login, 100/min API), session config via provider SDK, CSRF double-submit pattern, MFA enablement in provider dashboard.
+- **Self-hosted (NextAuth/Lucia/custom):** Full checklist — Argon2id (memoryCost: 65536, timeCost: 3, parallelism: 4), rate limiting, httpOnly+secure+sameSite=strict cookies, CSRF double-submit, HIBP k-anonymity, account lockout (5 attempts/15 min), MFA via TOTP.
+> ~30 min (managed) / ~1 hour (self-hosted) | `references/auth-hardening-checklist.md`
 
 <!-- senior -->
-**Auth hardening** — Argon2id, rate limit (sliding window), session config (httpOnly/secure/sameSite/short TTL), CSRF double-submit, HIBP k-anonymity, MFA (TOTP/WebAuthn).
+**Auth hardening** — Managed auth: rate limit (app layer), session SDK config, CSRF, MFA dashboard toggle. Self-hosted: Argon2id, sliding-window rate limit, session config, CSRF double-submit, HIBP k-anonymity, account lockout, MFA (TOTP/WebAuthn).
 > `references/auth-hardening-checklist.md`
 
 ---

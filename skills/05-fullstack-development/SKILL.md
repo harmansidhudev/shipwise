@@ -46,6 +46,10 @@ Before responding, check `.claude/shipwise-state.json` for:
 
 Tailor code examples to the detected stack (e.g., Prisma if ORM is prisma, Next.js App Router `route.ts` if framework is nextjs). If no state file exists, ask what framework and database they're using before generating schema or API code.
 
+### Persist stack context discovered in conversation
+
+If the developer mentions their stack in conversation (e.g., "I'm using Next.js with Prisma and Postgres") and `.claude/shipwise-state.json` exists but `project.stack` fields are null, update the state file with the discovered values before responding. Use the same format as skill 04's state update procedure. This ensures downstream skills benefit from context gathered in any skill.
+
 ---
 
 ## Frontend Coverage
@@ -235,6 +239,15 @@ Reference: `references/database-migration-guide.md`
 | Indexes | Every foreign key. Every column in `WHERE` clauses. Composite indexes for multi-column queries. |
 | Enums | Use string enums or a lookup table, not database-level enums (hard to migrate) |
 | Booleans | `is_` prefix (`is_active`, `is_verified`) |
+
+<!-- beginner -->
+**Why these conventions matter:** When your database grows, consistency saves you from confusion. `snake_case` table names match SQL standards so your queries read naturally. UUIDs as primary keys prevent users from guessing other users' IDs (sequential IDs like 1, 2, 3 are easy to enumerate). Timestamps on every table let you debug issues ("when was this record last changed?"). Soft deletes (`deleted_at`) mean you can recover accidentally deleted data — never permanently delete user data. See `references/database-migration-guide.md` for a complete Prisma schema you can copy-paste.
+
+<!-- intermediate -->
+Follow these conventions from day one. Changing them later requires migrations across every table. The reference doc has copy-paste Prisma and Drizzle templates that implement all conventions.
+
+<!-- senior -->
+Conventions table above. Reference: `references/database-migration-guide.md`.
 
 ### Migration strategy
 

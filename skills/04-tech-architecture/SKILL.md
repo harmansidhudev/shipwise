@@ -277,6 +277,31 @@ Astro + REST API + Postgres + Auth.js + Cloudflare Pages
 **Real-time app:**
 SvelteKit + tRPC + Postgres + Supabase Auth + Fly.io
 
+## Checklist Items (for `/launch-checklist architecture`)
+
+When invoked via `/launch-checklist architecture`, present these items as a checklist with status from `shipwise-state.json`. Cross-reference `project.stack` fields to determine completion.
+
+| # | Item | Check | P0/P1/P2 | Time Estimate |
+|---|------|-------|----------|---------------|
+| 1 | Frontend framework selected | `project.stack.frontend` is not null | P0 | 30 min |
+| 2 | Backend / API strategy decided | `project.stack.api_style` is not null | P0 | 30 min |
+| 3 | Database selected | `project.stack.database` is not null | P0 | 20 min |
+| 4 | ORM selected | `project.stack.orm` is not null | P1 | 15 min |
+| 5 | Auth provider chosen | `project.stack.auth` is not null | P0 | 30 min |
+| 6 | Hosting platform chosen | `project.stack.hosting` is not null | P1 | 20 min |
+| 7 | Full stack documented in state | All non-null fields in `project.stack` | P1 | 5 min |
+
+<!-- beginner -->
+**How to read this checklist:** Each row is a decision you need to make before building. P0 items are decisions that block everything else (you can't write API code without picking an API style). P1 items can wait a bit but should be decided before your first deploy. If an item shows a checkmark, Shipwise already knows your choice from a previous conversation.
+
+<!-- intermediate -->
+For each unchecked item, use the decision matrices above or ask "help me choose my [item]" to walk through the trade-offs. Decisions are saved to `shipwise-state.json` automatically.
+
+<!-- senior -->
+Unchecked items indicate `null` in `project.stack`. Fill via conversation or edit `.claude/shipwise-state.json` directly.
+
+---
+
 ## Companion tools
 
 These community skills complement tech-architecture decisions:
@@ -284,11 +309,44 @@ These community skills complement tech-architecture decisions:
 - **`alirezarezvani/claude-skills` → `senior-architect`** — Deep architecture review, system design patterns, scalability analysis. Use after initial stack selection for architecture validation.
 - **`levnikolaevich/claude-code-skills` → architecture audit** — Automated codebase architecture audit. Use to validate that implementation matches chosen architecture patterns.
 
-## After decisions are made
+## After decisions are made — MANDATORY state update
 
-Once the developer picks their stack:
+Once the developer confirms their stack choices, you MUST update `.claude/shipwise-state.json` before doing anything else. This is not optional — downstream skills (fullstack-development, security-compliance, billing-payments) read this file to personalize their output.
 
-1. Update `shipwise-state.json` → `project.stack` with all selections
-2. Offer to scaffold the project with the chosen stack
-3. Route to `05-fullstack-development` for implementation guidance
-4. Route to `06-platform-infrastructure` for deployment setup
+### State update procedure
+
+1. Read the current `.claude/shipwise-state.json`
+2. Update the `project.stack` object with confirmed selections:
+   ```json
+   {
+     "project": {
+       "stack": {
+         "frontend": "nextjs",       // or "nuxt", "sveltekit", "astro", "remix", etc.
+         "backend": "nextjs",         // or "express", "fastify", "hono", etc.
+         "database": "postgres",      // or "mongodb", "sqlite", "supabase", etc.
+         "orm": "prisma",             // or "drizzle", "typeorm", null
+         "hosting": "vercel",         // or "railway", "fly", "aws", "cloudflare", etc.
+         "auth": "clerk",             // or "auth0", "nextauth", "supabase", "lucia", etc.
+         "api_style": "trpc"          // or "rest", "graphql", "grpc"
+       }
+     }
+   }
+   ```
+3. Set `updated_at` to the current ISO timestamp
+4. Only update fields that were decided — leave others as-is (null if not yet chosen)
+
+### After state is written
+
+Output this confirmation message verbatim (replacing bracketed values):
+
+```
+Stack saved: [framework] + [database] + [orm] + [auth] → [hosting].
+All future Shipwise guidance will be tailored to this stack.
+
+Ready to build? I can help with:
+- "Set up my database schema" → schema design with [orm] templates
+- "Build API endpoints" → [api_style] patterns for [framework]
+- "/launch-checklist architecture" → verify all stack decisions are locked in
+```
+
+This message serves as a natural handoff to skill 05 (fullstack-development) or skill 06 (platform-infrastructure) based on what the developer asks next.
