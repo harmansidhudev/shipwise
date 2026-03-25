@@ -355,7 +355,7 @@
   /* Metrics Strip */
   .metrics { padding: 6rem 0; background: var(--terminal-bg); }
   .metrics .inner {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
     background: var(--border-subtle);
   }
   .metric-card {
@@ -386,7 +386,7 @@
     letter-spacing: 0.25em; color: var(--outline);
     margin-bottom: 2rem;
   }
-  .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+  .install-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3rem; }
   .install-block label {
     display: block; font-size: 0.875rem; font-weight: 700;
     color: var(--white-text); margin-bottom: 1rem;
@@ -455,6 +455,74 @@
     color: var(--footer-copy); font-size: 0.75rem; letter-spacing: -0.01em;
   }
 
+  /* Scenario Carousel */
+  .scenarios-section { padding: 6rem 0; }
+  .scenarios-header { margin-bottom: 3rem; }
+  .scenarios-header h2 {
+    font-family: 'Newsreader', serif; font-style: italic;
+    font-size: 2.75rem; color: var(--white-text); letter-spacing: -0.02em;
+  }
+  .scenarios-header p {
+    color: var(--on-surface-variant); font-size: 1rem; margin-top: 0.5rem;
+  }
+  .scenarios-header .bar { height: 0.25rem; width: 6rem; background: var(--primary); margin-top: 1rem; }
+  .carousel-track {
+    display: flex; gap: 1.5rem; overflow-x: auto;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; padding-bottom: 1rem;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .scenario-card {
+    flex: 0 0 380px; scroll-snap-align: start;
+    background: var(--surface-low); padding: 2rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    transition: transform 0.2s, border-color 0.2s;
+    border: 1px solid var(--border-subtle);
+  }
+  .scenario-card:hover { transform: translateY(-4px); border-color: var(--border-ghost); }
+  .scenario-card .persona-badge {
+    display: inline-block; padding: 0.2rem 0.625rem;
+    font-size: 0.625rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; width: fit-content;
+  }
+  .persona-founder { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .persona-engineer { background: rgba(14,165,233,0.15); color: #38bdf8; }
+  .persona-cto { background: rgba(168,85,247,0.15); color: #c084fc; }
+  .persona-mid { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .persona-junior { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .persona-qa { background: rgba(244,63,94,0.15); color: #fb7185; }
+  .scenario-card .card-title {
+    font-family: 'Newsreader', serif; color: var(--white-text);
+    font-size: 1.25rem; line-height: 1.3;
+  }
+  .scenario-card .card-prompt {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem; line-height: 1.5;
+    background: var(--terminal-bg); color: var(--terminal-cmd);
+    padding: 0.625rem 0.875rem;
+  }
+  .scenario-card .card-body {
+    color: var(--on-surface-variant); font-size: 0.8125rem; line-height: 1.6; flex: 1;
+  }
+  .scenario-card .verdict-badge {
+    display: inline-block; padding: 0.2rem 0.625rem;
+    font-size: 0.625rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; width: fit-content;
+    background: rgba(34,197,94,0.15); color: #4ade80;
+  }
+  .carousel-dots {
+    display: flex; justify-content: center; gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .carousel-dots .dot {
+    width: 0.5rem; height: 0.5rem; border-radius: 50%;
+    background: var(--outline); opacity: 0.4;
+    transition: opacity 0.2s, background 0.2s;
+    border: none; padding: 0; cursor: pointer;
+  }
+  .carousel-dots .dot.active { opacity: 1; background: var(--primary-text); }
+
   /* Responsive */
   @media (max-width: 1024px) {
     .hero { grid-template-columns: 1fr; padding-top: 8rem; }
@@ -464,13 +532,16 @@
     .guidance .inner { grid-template-columns: 1fr; }
     .phases-visual { grid-template-columns: repeat(2, 1fr); }
     .phase-arrow { display: none; }
-    .metrics .inner { grid-template-columns: 1fr; }
+    .metrics .inner { grid-template-columns: repeat(2, 1fr); }
     .install-grid { grid-template-columns: 1fr; }
+    .scenario-card { flex: 0 0 300px; }
   }
   @media (max-width: 640px) {
     .hero h1 { font-size: 2.5rem; }
     .phases-visual { grid-template-columns: 1fr; }
+    .metrics .inner { grid-template-columns: 1fr; }
     nav .links a:not(.btn-nav) { display: none; }
+    .scenario-card { flex: 0 0 280px; }
   }
 </style>
 </head>
@@ -501,7 +572,7 @@
         <span class="hero-badge">v1.0.0 — Built for Claude Code</span>
         <h1>Ship Your Webapp <span class="accent">Wisely.</span></h1>
         <p class="subtitle">
-          The launch lifecycle plugin for Claude Code. Contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking — from idea validation through post-launch growth.
+          The launch lifecycle plugin for Claude Code. 15 skills that make Claude's answers production-ready — from architecture decisions to deploy-day security. Same auth prompt, 2× the security coverage.
         </p>
         <div class="cta-group">
           <a href="https://github.com/harmansidhudev/shipwise" class="btn-primary">Get Started</a>
@@ -531,6 +602,105 @@
     </div>
   </section>
 
+  <!-- Scenario Carousel -->
+  <section class="scenarios-section">
+    <div class="container">
+      <div class="scenarios-header">
+        <h2>Tested Against Real Projects</h2>
+        <p>12 scenarios. 3 developer archetypes. Every one passed.</p>
+        <p style="color:var(--outline); font-size:1rem; margin-top:0.375rem;">Full test results, prompts, and findings are <a href="https://github.com/harmansidhudev/shipwise/tree/main/tests" style="color:var(--outline); text-decoration:underline; text-underline-offset:0.2em; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-text)'" onmouseout="this.style.color='var(--outline)'">open source</a>.</p>
+        <div class="bar"></div>
+      </div>
+      <div class="carousel-track" id="scenarioCarousel">
+        <div class="scenario-card">
+          <span class="persona-badge persona-founder">Solo Founder &middot; Beginner</span>
+          <div class="card-title">First project scaffold</div>
+          <div class="card-prompt">&gt; /shipwise</div>
+          <div class="card-body">Answered 9 questions as a beginner building her first SaaS. Shipwise detected her Next.js project, generated a personalized 23-item checklist, and offered to walk her through the top 3 items step by step.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-engineer">Senior Engineer &middot; Side Project</span>
+          <div class="card-title">Codebase-aware scaffold</div>
+          <div class="card-prompt">&gt; /shipwise</div>
+          <div class="card-body">Shipwise scanned his SaaS project and correctly detected Prisma (12 models), Clerk auth, Stripe billing, 47 test files, and Vercel config. Identified 5 P0 gaps: no CI/CD, no error tracking, no health endpoint, no legal pages, no security headers.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-founder">Solo Founder &middot; Beginner</span>
+          <div class="card-title">Picking a tech stack</div>
+          <div class="card-prompt">&gt; "I need to pick my tech stack. I know a little React."</div>
+          <div class="card-body">Instead of 'it depends,' Shipwise gave a clear recommendation with beginner-friendly explanations: Next.js for React familiarity, Postgres for reliability, Vercel for zero-config deploys.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-engineer">Senior Engineer</span>
+          <div class="card-title">tRPC vs GraphQL tradeoff</div>
+          <div class="card-prompt">&gt; "Deciding between tRPC and GraphQL for a Next.js monorepo..."</div>
+          <div class="card-body">Surfaced the real tension: tRPC is ideal for monorepos (same team, same types), but GraphQL has stronger subscription support. Gave a nuanced 'start with tRPC, add GraphQL subscriptions for real-time features' recommendation.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-mid">Mid-Level Dev</span>
+          <div class="card-title">REST API with proper patterns</div>
+          <div class="card-prompt">&gt; "Build me a REST API for user management with proper conventions..."</div>
+          <div class="card-body">Generated endpoints following RESTful conventions with Zod validation, auth middleware, structured error responses, rate limiting, and cursor-based pagination — patterns the skill prescribes but vanilla Claude often skips.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-mid">Mid-Level Dev</span>
+          <div class="card-title">Accessible data table</div>
+          <div class="card-prompt">&gt; "Create a reusable data table with sorting, filtering, pagination..."</div>
+          <div class="card-body">Output included loading skeletons, empty state with CTA, error with retry, aria-sort on headers, aria-checked on row selection, keyboard navigation, and 44px touch targets.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-qa">QA &middot; Negative Test</span>
+          <div class="card-title">Off-topic silence</div>
+          <div class="card-prompt">&gt; "What's the weather in Denver?" &middot; "Write a poem about debugging"</div>
+          <div class="card-body">Four off-topic prompts, zero false triggers. Shipwise stayed completely silent. No skills activated, no whispers, no checklist noise. The plugin only speaks when it has something relevant to say.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-qa">QA &middot; Boundary Test</span>
+          <div class="card-title">Correct skill routing</div>
+          <div class="card-prompt">&gt; "Set up React Hook Form with Zod for a multi-step signup form."</div>
+          <div class="card-body">Fullstack development skill triggered correctly (form handling). Architecture skill did NOT trigger — it's not a stack decision. Billing skill's 'plan' trigger was tightened to 'pricing plan' to prevent false matches.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-founder">Solo Founder &middot; Beginner</span>
+          <div class="card-title">Architecture to code flow</div>
+          <div class="card-prompt">&gt; "Help me choose my stack" &rarr; "Set up the DB schema" &rarr; "Build the API"</div>
+          <div class="card-body">Three prompts, natural skill transition: architecture &rarr; fullstack development. Each response built on the previous. The schema from prompt 2 was used in the API from prompt 3. Felt like one continuous conversation.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-cto">Startup CTO</span>
+          <div class="card-title">Pre-launch audit</div>
+          <div class="card-prompt">&gt; /launch-audit</div>
+          <div class="card-body">Full codebase scan of a 50-file SaaS project. Correctly detected 9/9 tech components. Found 20 gaps across security, observability, legal, and SEO. Output: structured report with readiness percentage and top 3 priorities with time estimates.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-cto">Startup CTO</span>
+          <div class="card-title">Domain-specific checklist</div>
+          <div class="card-prompt">&gt; /launch-checklist security</div>
+          <div class="card-body">Produced OWASP Top 10 walkthrough with verification steps, auth hardening checklist (Argon2id, rate limiting, MFA), and copy-paste security headers for Next.js. Invalid domain input handled gracefully with available domain list.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+        <div class="scenario-card">
+          <span class="persona-badge persona-mid">Mid-Level Dev &middot; THE KEY TEST</span>
+          <div class="card-title">Before/After: 18 &rarr; 36</div>
+          <div class="card-prompt">&gt; "Set up user auth with email/password. Include proper security practices."</div>
+          <div class="card-body">Same prompt, same project. Without Shipwise: 18/40 — basic bcrypt, no rate limiting, no CSRF. With Shipwise: 36/40 — Argon2id, account lockout, CSRF tokens, session hardening, HaveIBeenPwned check. 24 specific improvements.</div>
+          <span class="verdict-badge">&#10003; PASS</span>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+  </section>
+
   <!-- Core Principles — Bento Grid -->
   <section class="bento-section">
     <div class="container">
@@ -545,7 +715,7 @@
             <span class="material-symbols-outlined icon primary" style="font-variation-settings:'FILL' 1;">sensors</span>
             <h3>Automatic Checkpoint Gates</h3>
             <p>
-              Four hooks fire at lifecycle moments — session start, file edits, deploys, and session end. Contextual whispers appear when you edit auth code, payment flows, or infrastructure. The deploy gate catches P0 gaps before they reach production. Zero friction, always watching.
+              Writing auth code? Claude automatically includes rate limiting and CSRF protection. About to deploy with no error tracking? The deploy gate warns you. Shipwise runs on four lifecycle hooks — you never invoke them. They catch what you'd forget at 11pm before a launch.
             </p>
           </div>
           <div class="bento-link">
@@ -558,7 +728,7 @@
             <span class="material-symbols-outlined icon secondary">terminal</span>
             <h3>One-Time Scaffold</h3>
             <p>
-              Run /shipwise once. Answer 9 diagnostic questions. Get a codebase scan, readiness score, and personalized checklist. Hooks install automatically.
+              Run /shipwise once. It detects your stack (Next.js? Prisma? Clerk? Stripe?), scans for gaps, and generates a personalized launch checklist. In testing, it correctly identified 9/9 tech components and 20 missing items in a real SaaS codebase.
             </p>
           </div>
         </div>
@@ -568,7 +738,7 @@
             <span class="material-symbols-outlined icon" style="color:white;">query_stats</span>
             <h3>On-Demand Audit</h3>
             <p>
-              Run /launch-audit before milestones. Full codebase re-scan with structured diff report. See what changed since last audit.
+              Run /launch-audit before your beta, staging deploy, or public launch. Get a structured report: &#10003; Stripe integration found, &#10007; No health endpoint, &#10007; No privacy policy. Readiness: 42%. Top 3 priorities with time estimates.
             </p>
           </div>
         </div>
@@ -577,7 +747,7 @@
           <div style="flex:1;">
             <h3>15 Contextual Skills</h3>
             <p>
-              Domain skills auto-trigger based on what you're working on. Editing auth code? Security best practices load. Writing payment integration? Billing patterns appear. Claude's responses get better without you asking.
+              You don't invoke these — Claude loads them when your task matches. In our Before/After test, the same auth prompt scored 18/40 without Shipwise and 36/40 with it. The difference: 24 specific security improvements Claude wouldn't suggest on its own.
             </p>
           </div>
           <div class="mini-chart">
@@ -604,7 +774,7 @@
             </div>
             <div>
               <h4>Validate & Design</h4>
-              <p>Idea validation, competitive analysis, user stories, MVP scoping, accessibility checklists, and legal foundation — all before writing code.</p>
+              <p>20-question user interview scripts. RICE scoring templates for MVP scoping. WCAG 2.2 AA design checklists. Co-founder agreement outlines. Entity formation decision trees. The stuff you Google at 2am — already in your Claude context.</p>
             </div>
           </div>
           <div class="guidance-item">
@@ -613,7 +783,7 @@
             </div>
             <div>
               <h4>Architecture & Code</h4>
-              <p>Tech stack decisions, fullstack patterns, CI/CD pipelines, testing pyramid, and OWASP security — with copy-paste templates for every choice.</p>
+              <p>React vs Vue vs Svelte decision matrix. tRPC vs GraphQL decision tree. Auth provider comparison (Clerk, Auth0, Supabase Auth, NextAuth). GitHub Actions workflow templates. k6 load test scripts. Security headers for Next.js, Express, Nginx — copy, paste, done.</p>
             </div>
           </div>
           <div class="guidance-item">
@@ -622,7 +792,7 @@
             </div>
             <div>
               <h4>Monitor & Launch</h4>
-              <p>Sentry setup, health endpoints, billing integration, legal compliance, SEO, and a minute-by-minute launch day timeline.</p>
+              <p>Sentry config templates you can copy into your project. Health endpoint code for Next.js and Express. Stripe vs Paddle comparison matrix. GDPR/CCPA checklist. A launch day timeline: T-2h deploy, T-0 Product Hunt, T+30m email waitlist, T+2h check error rates.</p>
             </div>
           </div>
           <div class="guidance-item">
@@ -631,7 +801,7 @@
             </div>
             <div>
               <h4>Analyze & Scale</h4>
-              <p>Event taxonomy, funnel instrumentation, A/B testing, retention cohorts, email campaigns, referral programs, and cost optimization.</p>
+              <p>Event naming conventions (noun_verb). Funnel tracking from signup to payment. Retention cohort templates (D1, D7, D30). Email drip sequences: onboarding day 0/1/3/7, re-engagement at day 14, churn prevention on cancel intent. Weekly cloud cost review checklist.</p>
             </div>
           </div>
         </div>
@@ -686,6 +856,11 @@
           <h5>Lifecycle Hooks</h5>
           <p>Session context, edit whispers, deploy gate, and auto-progress tracking. Zero friction checkpoint gates.</p>
         </div>
+        <div class="metric-card">
+          <div class="num">2&times;</div>
+          <h5>Auth Security Score</h5>
+          <p>Auth security score improvement (18/40 &rarr; 36/40). Validated Before/After test.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -704,6 +879,10 @@
             <label>Initialize</label>
             <div class="install-code">/shipwise</div>
           </div>
+          <div class="install-block">
+            <label>Ship wisely</label>
+            <div class="install-code"># That's it. Hooks are active. Skills auto-trigger.<br/># Build your app — Shipwise watches your back.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -711,7 +890,8 @@
 
   <!-- Final CTA -->
   <section class="cta-section">
-    <h2>Ready to Ship?</h2>
+    <h2>Ready to Ship Wisely?</h2>
+    <p style="color:var(--on-surface-variant); font-size:1.125rem; margin-bottom:2rem; font-weight:300;">12/12 test scenarios. 24 security improvements. 2&times; auth score. Zero friction.</p>
     <div class="cta-buttons">
       <a href="https://github.com/harmansidhudev/shipwise" class="btn-cta">Get Started</a>
       <a href="https://github.com/harmansidhudev/shipwise/releases" class="link">VIEW RELEASES</a>
@@ -754,6 +934,62 @@ function toggleTheme() {
 
 // Apply on load
 applyTheme(getPreferredTheme());
+
+// Scenario Carousel auto-advance
+(function() {
+  const track = document.getElementById('scenarioCarousel');
+  const dotsContainer = document.getElementById('carouselDots');
+  if (!track || !dotsContainer) return;
+  const cards = track.querySelectorAll('.scenario-card');
+  const totalCards = cards.length;
+  let currentIndex = 0;
+  let autoTimer = null;
+
+  // Create dots
+  for (let i = 0; i < totalCards; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to scenario ' + (i + 1));
+    dot.addEventListener('click', function() { scrollTo(i); });
+    dotsContainer.appendChild(dot);
+  }
+  const dots = dotsContainer.querySelectorAll('.dot');
+
+  function scrollTo(index) {
+    currentIndex = index;
+    var cardWidth = cards[0].offsetWidth + 24;
+    track.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    updateDots();
+  }
+
+  function updateDots() {
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === currentIndex); });
+  }
+
+  function advance() {
+    currentIndex = (currentIndex + 1) % totalCards;
+    scrollTo(currentIndex);
+  }
+
+  function startAuto() { autoTimer = setInterval(advance, 5000); }
+  function stopAuto() { clearInterval(autoTimer); }
+
+  track.addEventListener('mouseenter', stopAuto);
+  track.addEventListener('mouseleave', startAuto);
+
+  // Update dots on manual scroll
+  track.addEventListener('scroll', function() {
+    const scrollLeft = track.scrollLeft;
+    const cardWidth = cards[0].offsetWidth + 24; // gap
+    const newIndex = Math.round(scrollLeft / cardWidth);
+    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < totalCards) {
+      currentIndex = newIndex;
+      updateDots();
+    }
+  });
+
+  startAuto();
+})();
 
 // Listen for system preference changes
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
