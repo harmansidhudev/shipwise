@@ -1,101 +1,201 @@
+<div align="center">
+
 # Shipwise
 
-**Ship wisely.** The webapp launch lifecycle plugin for Claude Code.
+**Ship wisely.**
 
-Shipwise guides developers through the full launch lifecycle — from idea validation through post-launch growth — with contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking.
+The webapp launch lifecycle plugin for Claude Code.
 
-## What it does
+15 skills · 4 automatic hooks · 45+ copy-paste templates
 
-```
-  MODE D          MODE B           MODE A          MODE C
-  Scaffold        Checkpoint       Contextual      On-Demand
-  (once)          Gates            Knowledge       Audit
-                  (automatic)      (automatic)     (you invoke)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Tests: 12/12](https://img.shields.io/badge/Tests-12%2F12_passing-brightgreen.svg)](#tested)
+[![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
 
-  /shipwise ──→ hooks fire ──→ skills load ──→ /launch-audit
-  at project     on every         when Claude      before
-  start          session/edit     detects match    milestones
-                 /deploy
-```
+[Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Docs](https://harmansidhudev.github.io/shipwise/)
 
-**Four modes, three commands to remember:**
+</div>
 
-| Command | What it does |
-|---------|-------------|
-| `/shipwise` | Scaffold your project, check status, or enter a phase flow |
-| `/launch-audit` | Full codebase re-scan for launch readiness |
-| `/launch-checklist <domain>` | Deep-dive a specific domain (security, billing, seo, etc.) |
+---
 
-## Quick start
+## The 30-second pitch
+
+Shipwise makes Claude Code's answers production-ready. It auto-loads security
+best practices when you write auth code, warns you before deploying with missing
+error tracking, and tracks your launch readiness across sessions. One command to
+set up, then it works in the background.
+
+In our Before/After test, the same auth prompt scored 18/40 without Shipwise and
+36/40 with it — 24 specific security improvements including rate limiting, CSRF
+protection, session hardening, and password breach checking.
+
+## Quick Start
 
 ```bash
-# Install the plugin
+# Install
 /plugin install shipwise
 
-# Run the scaffold
+# Initialize (one-time scaffold)
 /shipwise
+
+# That's it. Hooks are active. Skills auto-trigger.
+# Build your app — Shipwise watches your back.
 ```
 
-The scaffold asks 9 diagnostic questions, scans your codebase, and generates:
-- `.claude/shipwise-state.json` — machine-readable launch readiness state
-- CLAUDE.md context injection — persistent project + launch awareness
-- Automatic hooks — checkpoint gates on every session, edit, and deploy
+## How It Works
 
-## The four phases
+| Mode | How it works | Your effort |
+|------|-------------|-------------|
+| **Scaffold** | `/shipwise` scans your codebase, detects your stack, generates a personalized checklist | Once, at project start |
+| **Checkpoint Gates** | Hooks fire on session start, file edits, and deploys. Whispers security tips on auth code. Warns before deploying with P0 gaps. | Zero — fully automatic |
+| **Contextual Skills** | 15 domain skills auto-load based on your task. Auth code → security patterns. Payment code → billing best practices. | Zero — Claude decides |
+| **On-Demand Audit** | `/launch-audit` does a full codebase scan. `/launch-checklist security` dives into a specific domain. | When you choose |
 
-### Phase 1: DESIGN (Skills 01-03)
-Idea validation, product design, business/legal foundation.
+### Experience calibration
 
-### Phase 2: BUILD (Skills 04-08)
-Tech architecture, fullstack development, infrastructure, testing, security.
-
-### Phase 3: SHIP (Skills 09-13)
-Observability, SEO/performance, billing, legal compliance, launch execution.
-
-### Phase 4: GROW (Skill 14)
-Analytics, feedback loops, retention, email campaigns, referral, content strategy.
-
-## How hooks work
-
-| Hook | Fires on | What it does |
-|------|----------|-------------|
-| Session context | Every session start | Injects readiness score + top gaps |
-| Post-edit check | File edits | Contextual whisper for auth, billing, CI/CD, API, secrets |
-| Deploy gate | Deploy commands | Warns if P0 items are incomplete |
-| Stop updater | Session end | Auto-detects completed checklist items |
-
-## Experience levels
-
-Shipwise adapts all output to your experience level (set during scaffold):
+Shipwise adapts to your level. Set during scaffold — beginner gets full
+explanations and guided remediation, senior gets terse output and code-first
+responses.
 
 | | Beginner | Intermediate | Senior |
 |---|----------|-------------|--------|
-| Checklist | Full explanations | Standard terms | Terse |
-| Whispers | Jargon explained | One-liners | Suppressed if obvious |
-| Deploy gate | Guided remediation | Time estimates | Gap list only |
+| Checklist | Full explanations, step-by-step | Standard terms, links to docs | Terse, code-first |
+| Whispers | Jargon explained inline | One-liner reminders | Suppressed if obvious |
+| Deploy gate | Guided remediation with examples | Time estimates per item | Gap list only |
+| Audit | One clear recommendation | Options with tradeoffs | Decision matrix |
 
-## By the numbers
+### Scale-aware priorities
 
-- 14 domain skills + 1 orchestrator (15 total)
-- 2 specialized agents
-- 4 lifecycle hooks
-- 3 commands to remember
-- 45+ reference documents with copy-paste templates
+Shipwise adjusts priority weighting based on your user scale:
 
-## Multi-agent compatibility
+- **< 100 users** — Focus on shipping. Skip SOC 2, skip multi-region.
+- **100 - 1K users** — Add error tracking, basic monitoring, privacy policy.
+- **1K - 10K users** — Rate limiting, load testing, incident response, backup/DR.
+- **10K+ users** — Full observability, SOC 2 readiness, multi-region, cost optimization.
 
-Shipwise skills work with any AI coding agent. Run the conversion script:
+## Skills
+
+### Phase 1: Design
+
+| Skill | What it covers |
+|-------|---------------|
+| `validate-idea` | JTBD framework, Lean Canvas, user interview scripts, competitive analysis, TAM/SAM/SOM calculator, landing page tests |
+| `product-design` | MVP scoping (RICE), user stories, wireframe pipeline, design system tokens, 50-item WCAG 2.2 AA checklist, responsive strategy |
+| `business-legal-foundation` | Entity formation decision tree, co-founder agreements, IP assignment, trademark, banking, accounting, insurance |
+
+### Phase 2: Build
+
+| Skill | What it covers |
+|-------|---------------|
+| `tech-architecture` | SaaS boilerplate comparison (5 starters), framework matrix, database selection, auth decision tree, hosting comparison, monorepo guidance |
+| `fullstack-development` | Component architecture, state management, API design patterns, multi-tenancy patterns (RLS, Clerk Orgs), database migrations, caching, error handling |
+| `platform-infrastructure` | CI/CD templates (3 stacks), Docker, Terraform, environment management, secrets rotation, DNS/SSL/CDN, preview environments |
+| `quality-assurance` | Testing pyramid, Playwright setup + example tests, k6 load test scripts (smoke/spike/soak), cross-browser checklist |
+| `security-compliance` | OWASP Top 10, auth hardening (519 lines), CORS config, security headers (Next.js/Express/Nginx), dependency scanning, secret scanning. Detects managed auth (Clerk/Auth0) and skips irrelevant items. |
+
+### Phase 3: Ship
+
+| Skill | What it covers |
+|-------|---------------|
+| `observability-reliability` | Sentry config templates, health endpoints (Next.js/Express), structured logging, alerting architecture, backup/DR with RTO/RPO, incident response playbook, status page setup |
+| `seo-performance` | Technical SEO (507-line checklist), structured data templates, Lighthouse targets, Core Web Vitals, bundle optimization, landing page UX guide |
+| `billing-payments` | Stripe vs Paddle vs Lemon Squeezy matrix, subscription architecture, webhook HMAC, dunning strategy, tax compliance, free trial design |
+| `legal-compliance-final` | Privacy policy requirements, TOS framework, cookie consent, GDPR/CCPA checklist, data retention, SOC 2 readiness, OSS license audit |
+| `launch-execution` | Staging regression checklist, rollback plan template, war room setup, launch-day timeline (T-2h to T+4h), support channel setup |
+
+### Phase 4: Grow
+
+| Skill | What it covers |
+|-------|---------------|
+| `growth-ops` | Event taxonomy, funnel instrumentation, A/B testing, retention cohorts, email lifecycle campaigns (onboarding→win-back), referral program design, cost optimization, content strategy |
+
+## Tested
+
+Shipwise was tested across 12 scenarios covering trigger accuracy, content
+quality, and structural correctness — using 3 test fixture projects (beginner,
+mid-level, senior) across beginner, mid-level, and senior developer archetypes.
+
+**Result: 12/12 scenarios passed.** [Full test results →](tests/)
+
+The key test: same auth prompt, same project — 18/40 without Shipwise, 36/40
+with it. 24 specific security improvements.
+
+| Test category | Scenarios | Result |
+|--------------|-----------|--------|
+| Scaffold accuracy | Beginner first-run, senior codebase detection | 2/2 |
+| Skill triggering | Stack selection, API patterns, accessibility, auth hardening | 4/4 |
+| Boundary checks | Off-topic silence (4 prompts), correct skill routing | 2/2 |
+| Cross-skill flow | Architecture → fullstack transition, multi-prompt coherence | 2/2 |
+| Audit commands | `/launch-audit` full scan, `/launch-checklist security` deep dive | 2/2 |
+
+### Before/After breakdown
+
+| Category | Without Shipwise | With Shipwise |
+|----------|-----------------|---------------|
+| Password hashing | bcrypt (default) | Argon2id (recommended) |
+| Rate limiting | None | Per-route + global |
+| CSRF protection | None | Token-based |
+| Session security | Default cookies | Hardened flags, rotation |
+| Breach checking | None | HaveIBeenPwned API |
+| Account lockout | None | Progressive delays |
+| **Total score** | **18/40** | **36/40** |
+
+## Companion Tools
+
+Shipwise references 25+ ecosystem tools. It tells you what to use and when —
+then points you to the best tool for the job.
+
+| Domain | Companion | What Shipwise adds |
+|--------|-----------|-------------------|
+| Security scanning | `agamm/claude-code-owasp` | Checklist layer + managed auth awareness |
+| Pen testing | `unicodeveloper/shannon` | When to run it in your launch timeline |
+| Marketing execution | `coreyhaines31/marketingskills` | Engineering + legal + ops that marketing skills miss |
+| Accessibility auditing | `AccessLint/claude-marketplace` | Design-phase a11y primer (50 items) |
+| Terraform patterns | `antonbabenko/terraform-skill` | IaC within full infrastructure checklist |
+| Development workflow | `obra/superpowers` | Lifecycle context for the dev workflow |
+
+## Multi-Agent Support
+
+Shipwise skills follow the Agent Skills open standard. Run the conversion script
+to use with other AI coding agents:
 
 ```bash
 ./scripts/convert.sh
 ```
 
-This generates a combined knowledge file and Cursor rules file.
+Supported agents:
+
+- Claude Code (native)
+- Codex
+- Cursor
+- Gemini CLI
+- Windsurf
+- Aider
+- OpenCode
+- Augment
+- Antigravity
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Look for issues tagged
+`good first issue` for newcomers.
 
-## License
+Contributions welcome:
 
-MIT
+- New skills (especially non-JS stacks)
+- Reference doc improvements
+- Additional CI/CD templates
+- Test fixtures for Python, Go, Ruby, and other ecosystems
+
+---
+
+<div align="center">
+
+**[Website](https://harmansidhudev.github.io/shipwise/)** ·
+**[Changelog](CHANGELOG.md)** ·
+**[Contributing](CONTRIBUTING.md)** ·
+**[License](LICENSE)**
+
+Built by [Harman Sidhu](https://harmansidhudev.com)
+
+</div>
