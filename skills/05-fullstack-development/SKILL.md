@@ -27,6 +27,12 @@ triggers:
   - "API design"
   - "caching"
   - "error handling"
+  - "dashboard"
+  - "dashboard layout"
+  - "KPI card"
+  - "bento grid"
+  - "date range selector"
+  - "widget"
 ---
 
 # Fullstack Development

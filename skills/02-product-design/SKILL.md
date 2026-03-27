@@ -33,6 +33,23 @@ triggers:
   - "acceptance criteria"
   - "feature gates"
   - "Van Westendorp"
+  - "form validation"
+  - "form UX"
+  - "inline validation"
+  - "autosave"
+  - "onboarding flow"
+  - "onboarding checklist"
+  - "first-time user"
+  - "activation metric"
+  - "progressive disclosure"
+  - "tooltip tour"
+  - "empty state"
+  - "button states"
+  - "toast notification"
+  - "skeleton screen"
+  - "loading state"
+  - "micro-interaction"
+  - "optimistic UI"
 ---
 
 # Product Design
@@ -53,7 +70,10 @@ Guides product scoping, design methodology, and design system foundations for we
 - Design system foundation (color tokens, typography scale, spacing system, component inventory)
 - Design handoff checklist
 - Responsive strategy (breakpoints, mobile-first, touch targets ≥44px)
-- WCAG 2.2 AA checklist at design stage (30 items)
+- WCAG 2.2 AA checklist at design stage (50 items)
+- Form UX patterns (multi-step vs single-page, validation timing, error display, autosave)
+- Onboarding UX patterns (checklists, tooltip tours, progressive disclosure, activation metrics)
+- Micro-interaction patterns (button states, toasts, skeletons, optimistic UI, transitions)
 
 ---
 
@@ -230,16 +250,26 @@ Guides product scoping, design methodology, and design system foundations for we
 ### WCAG 2.2 AA Compliance at Design Stage
 
 <!-- beginner -->
-**Check accessibility at design stage (WCAG 2.2 AA)** — Accessibility means everyone can use your app, including people with visual, motor, hearing, or cognitive disabilities. It is also a legal requirement in many countries. The good news: most accessibility issues are cheap to fix at design stage but expensive to fix after building. The key rules: text must have 4.5:1 contrast ratio against its background (use WebAIM Contrast Checker), clickable targets must be at least 44x44 pixels, every image needs alt text, users must be able to navigate entirely by keyboard, and do not convey information by color alone (add icons or text too). Use the 30-item checklist in the reference doc.
+**Check accessibility at design stage (WCAG 2.2 AA)** — Accessibility means everyone can use your app, including people with visual, motor, hearing, or cognitive disabilities. It is also a legal requirement in many countries. The good news: most accessibility issues are cheap to fix at design stage but expensive to fix after building. The key rules: text must have 4.5:1 contrast ratio against its background (use WebAIM Contrast Checker), clickable targets must be at least 44x44 pixels, every image needs alt text, users must be able to navigate entirely by keyboard, and do not convey information by color alone (add icons or text too). Use the 50-item checklist in the reference doc.
 > Time: ~1-2 hours to audit designs
 > Reference: See `references/accessibility-design-checklist.md`
 
+This checklist covers design-phase accessibility fundamentals. For comprehensive accessibility auditing with axe-core integration, ARIA pattern libraries, and WCAG 2.2 conformance testing, use a dedicated accessibility skill alongside Shipwise:
+- AccessLint/claude-marketplace — color contrast checker, WCAG reviewer, automated fixer
+- airowe/claude-a11y-skill — axe-core + jsx-a11y auditing
+- snapsynapse/skill-a11y-audit — WCAG 2.1 AA with Lighthouse integration
+
 <!-- intermediate -->
-**WCAG 2.2 AA at design stage** — 30-item checklist organized by WCAG principles: Perceivable (contrast ratios, text alternatives, captions, adaptable layouts), Operable (keyboard navigation, no keyboard traps, timing adjustable, touch targets ≥44px, focus indicators), Understandable (readable text, predictable navigation, input assistance, error prevention), Robust (semantic HTML planned, ARIA landmarks, valid structure). Audit designs before development to catch issues when they are cheap to fix.
+**WCAG 2.2 AA at design stage** — 50-item checklist organized by WCAG principles: Perceivable (contrast ratios, text alternatives, captions, adaptable layouts, non-text contrast), Operable (keyboard navigation, no keyboard traps, timing adjustable, touch targets ≥44px, focus indicators, skip navigation, target size), Understandable (readable text, predictable navigation, input assistance, error prevention, consistent navigation, language), Robust (semantic HTML planned, ARIA landmarks, valid structure, live regions). Audit designs before development to catch issues when they are cheap to fix.
 > ~1-2 hours | `references/accessibility-design-checklist.md`
 
+This checklist covers design-phase accessibility fundamentals. For comprehensive accessibility auditing with axe-core integration, ARIA pattern libraries, and WCAG 2.2 conformance testing, use a dedicated accessibility skill alongside Shipwise:
+- AccessLint/claude-marketplace — color contrast checker, WCAG reviewer, automated fixer
+- airowe/claude-a11y-skill — axe-core + jsx-a11y auditing
+- snapsynapse/skill-a11y-audit — WCAG 2.1 AA with Lighthouse integration
+
 <!-- senior -->
-**WCAG 2.2 AA** — 30-item design-stage audit: Perceivable/Operable/Understandable/Robust. Contrast (4.5:1 text, 3:1 UI), 44px targets, keyboard nav, focus indicators, semantic structure, ARIA plan.
+**WCAG 2.2 AA** — 50-item design-stage audit: Perceivable/Operable/Understandable/Robust. Contrast (4.5:1 text, 3:1 UI), 44px targets, keyboard nav, focus indicators, semantic structure, ARIA plan, skip nav, live regions, language tags, error prevention. Companion skills: AccessLint, airowe/a11y, snapsynapse/a11y-audit for axe-core + WCAG conformance testing.
 > `references/accessibility-design-checklist.md`
 
 ---
@@ -253,7 +283,7 @@ After completing the checklist above, verify:
 3. **Roadmap**: MVP, V1.1, and V2 milestones are defined. Out-of-scope is documented.
 4. **Wireframes**: At least mid-fi wireframes exist for every must-have screen. State inventory (empty/loading/populated/error/offline) is documented.
 5. **Design system**: Color tokens, typography scale, spacing system, and component inventory are defined. Token values are in CSS custom properties or Tailwind config.
-6. **Accessibility**: The 30-item WCAG 2.2 AA checklist passes at design stage. Contrast ratios verified with a checker tool.
+6. **Accessibility**: The 50-item WCAG 2.2 AA checklist passes at design stage. Contrast ratios verified with a checker tool.
 7. **Responsive**: Breakpoints defined. Layouts wireframed at mobile and desktop widths. Touch targets are ≥44px.
 8. **Design handoff**: The 30-item handoff checklist is complete for all screens going to development.
 
@@ -263,3 +293,15 @@ After completing the checklist above, verify:
 
 - `anthropics/claude-code` → `frontend-design` skill
 - `google-labs-code/design-md`
+
+### Visual design direction
+
+Shipwise covers product design methodology — what to build, how to scope it, and how to structure it for accessibility and responsiveness. For **visual design direction** — choosing an aesthetic tone, avoiding generic AI aesthetics, color palette generation, and creative typography — use bencium-marketplace alongside Shipwise:
+
+- **bencium-controlled-ux-designer** — Systematic UX with guardrails. WCAG 2.1 AA, mathematical scales, always-ask-first protocol. Best for enterprise and regulated industries. (2,553 lines of companion docs)
+- **bencium-innovative-ux-designer** — Bold creative direction. 11 aesthetic tones from minimal to maximalist. Best for landing pages and campaigns.
+- **bencium-impact-designer** — Award-level visual quality. 40+ aesthetic directions, anti-sameness protocols. Best when visual identity is a competitive advantage.
+- **bencium typography** — Typographic correctness (curly quotes, proper dashes, letterspacing, line length). Use alongside any designer skill.
+- **bencium design-audit** — 14-dimension visual audit with 3-phase improvement plan (critical → refinement → polish).
+
+Install: `claude plugin marketplace add bencium/bencium-marketplace`

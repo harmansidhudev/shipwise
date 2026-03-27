@@ -53,9 +53,31 @@ Architecture -> schema -> API in 3 prompts. Stack decisions persist to state. Pr
 
 ---
 
+## Tier 2A: UX Reference Docs (2026-03-27)
+
+5 new reference docs covering the highest-pain UX gaps for solo SaaS founders:
+
+### Form UX Patterns (Scenario F1-F3)
+Multi-step form shell with progress indicator + persistence. Per-field validation timing (blur/change/submit/hybrid). Async username check with "Checking..." state. Password strength meter. Cross-field Zod validation. Autosave hook with unsaved/saving/saved/error states + auto-retry. Mixed-mode pattern (autosave + explicit submit on same page). 10-item anti-patterns table.
+
+### Onboarding UX Patterns (Scenario O1-O3)
+Complexity → onboarding depth decision tree. Empty-state-as-onboarding with first-time vs returning variants. Checklist component with progress ring + database persistence. Tooltip tour (max 5 steps, Radix Popover). Progressive disclosure with FeatureGate + NewBadge. Activation metric definition worksheet. Re-engagement email sequence (Day 7/14/30) + WelcomeBack component.
+
+### Dashboard UX Patterns (Scenario D1-D2)
+Layout decision tree (bento grid / sidebar+main / stacked). KPI cards with trend indicator + sparkline. Zero-data states (first-time vs no-data-for-period). Date range selector with presets + comparison. Data density guidelines (Miller's Law 7±2). Polling hook with stale indicator. Widget personalization. Responsive behavior table.
+
+### Pricing Page UX Guide (Scenario P1-P2)
+Tier count decision tree (2/3/4+). PricingTierCard with "Most Popular" badge. Monthly/annual toggle with savings callout. Feature comparison matrix (grouped, sticky header). Social proof placement. FAQ accordion. Conversion psychology table (anchoring, decoy, loss aversion). Free-to-paid patterns (UpgradePrompt, FeatureLock).
+
+### Micro-Interaction Patterns (Scenario M1-M3)
+Button state machine (idle→hover→active→loading→success/error→idle). Toast system (4 types, stacking, positioning, aria-live). Skeleton vs spinner decision tree + Skeleton component (3 variants). Optimistic UI pattern + rollback. Progress indicators (determinate/indeterminate). Hover/focus state table. Animation timing tokens. Destructive action feedback (ConfirmDialog + UndoToast).
+
+---
+
 ## Headline Options for Landing Page
 
 1. **"18/40 to 37/40. Same prompt. Same model. Better code."**
 2. **"11 security dimensions vanilla Claude misses."**
-3. **"12/12 tests pass. Zero false triggers. Production-ready guidance."**
+3. **"25/25 tests pass. Zero false triggers. Production-ready guidance."**
 4. **"Your code, understood. Beginner? One answer. Senior? Full matrix."**
+5. **"Form UX, onboarding, dashboards, pricing — copy-paste patterns, not theory."**

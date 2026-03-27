@@ -39,6 +39,13 @@ triggers:
   - "breadcrumbs"
   - "help center"
   - "changelog"
+  - "pricing page"
+  - "pricing tier"
+  - "pricing table"
+  - "feature comparison"
+  - "annual monthly toggle"
+  - "free to paid"
+  - "upgrade prompt"
 ---
 
 # SEO & Performance

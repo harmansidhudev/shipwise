@@ -43,3 +43,27 @@ EmptyState, ARIA, requestId, account lockout, bcrypt fallback, Prisma TeamMember
 
 ### Structural Correctness: 12/12
 Mandatory state update, verbatim handoff, checklist format for architecture, item scope documentation, infrastructure skip rules — all in place.
+
+---
+
+## Tier 2A UX Scenarios (2026-03-27)
+
+| Code | Scenario | Skill(s) | Reference Doc | Verdict | Key Finding |
+|------|----------|----------|---------------|---------|-------------|
+| F1 | Multi-step signup form | 02, 05 | form-ux-patterns.md | PASS (after fix) | Multi-step shell + persistence + button state composition. Fixed: added sessionStorage persistence, async step validation. |
+| F2 | Inline validation timing | 02, 05 | form-ux-patterns.md | PASS (after fix) | Per-field timing tree + Zod schema. Fixed: added async validation, password strength meter, cross-field .refine(). |
+| F3 | Autosave settings page | 02, 05 | form-ux-patterns.md | PASS (after fix) | useAutosave hook with status indicator. Fixed: added "unsaved" state, auto-retry, mixed-mode pattern. |
+| O1 | First-time user experience | 02 | onboarding-ux-patterns.md | PASS | Empty-state-as-onboarding + activation metric + checklist pattern |
+| O2 | Onboarding checklist implementation | 02, 05 | onboarding-ux-patterns.md | PASS | Database persistence, progress ring, auto-dismiss, skip option |
+| O3 | Dormant user re-engagement | 02 | onboarding-ux-patterns.md | PASS | Email sequence (Day 7/14/30) + WelcomeBack component |
+| D1 | Dashboard design for SaaS | 05 | dashboard-ux-patterns.md | PASS | Bento grid + KPI cards + responsive + date range + zero-data |
+| D2 | Empty dashboard state | 05 | dashboard-ux-patterns.md | PASS | First-time vs returning distinction + onboarding CTA |
+| P1 | Pricing page design | 10 | pricing-page-ux-guide.md | PASS | 3-tier layout + toggle + comparison + social proof + FAQ |
+| P2 | Free-to-paid conversion | 10 | pricing-page-ux-guide.md | PASS | Usage limits + feature gating + contextual nudges |
+| M1 | Button loading states | 02, 05 | micro-interaction-patterns.md | PASS | Full state machine (idle→loading→success/error→idle) |
+| M2 | Toast notification system | 02, 05 | micro-interaction-patterns.md | PASS | 4 types + stacking + positioning + aria-live |
+| M3 | Skeleton vs spinner decision | 02, 05 | micro-interaction-patterns.md | PASS | Decision tree + Skeleton component + pulse animation |
+
+**UX Scenarios: 13/13 PASS (3 after fix), 0/13 PARTIAL, 0/13 FAIL**
+
+**Combined Total: 25/25 PASS**
