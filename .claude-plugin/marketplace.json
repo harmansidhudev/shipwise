@@ -1,13 +1,14 @@
 {
+  "name": "shipwise-marketplace",
   "owner": {
     "name": "Harman Sidhu",
-    "url": "https://harmansidhudev.com"
+    "email": "harman@harmansidhudev.com"
   },
   "plugins": [
     {
       "name": "shipwise",
-      "path": ".",
-      "description": "Ship wisely. 15-skill webapp launch lifecycle plugin with codebase auditor, deploy gates, and experience-level calibration.",
+      "source": "./",
+      "description": "15-skill webapp launch lifecycle plugin with codebase auditor, deploy gates, and experience-level calibration.",
       "version": "1.0.0"
     }
   ]
