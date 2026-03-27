@@ -6,10 +6,10 @@
 
 The webapp launch lifecycle plugin for Claude Code.
 
-15 skills · 4 automatic hooks · 45+ copy-paste templates
+15 skills · 4 automatic hooks · 60+ copy-paste templates
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests: 12/12](https://img.shields.io/badge/Tests-12%2F12_passing-brightgreen.svg)](#tested)
+[![Tests: 25/25](https://img.shields.io/badge/Tests-25%2F25_passing-brightgreen.svg)](#tested)
 [![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
 
 [Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Docs](https://harmansidhudev.github.io/shipwise/)
@@ -80,7 +80,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | Skill | What it covers |
 |-------|---------------|
 | `validate-idea` | JTBD framework, Lean Canvas, user interview scripts, competitive analysis, TAM/SAM/SOM calculator, landing page tests |
-| `product-design` | MVP scoping (RICE), user stories, wireframe pipeline, design system tokens, 50-item WCAG 2.2 AA checklist, responsive strategy |
+| `product-design` | MVP scoping (RICE), user stories, wireframe pipeline, 50-item WCAG 2.2 AA checklist, form UX patterns (multi-step, validation, autosave), onboarding UX (checklist, tooltip tours, activation metrics), micro-interaction patterns (button states, toasts, skeletons, optimistic UI), color system design, motion/animation spec |
 | `business-legal-foundation` | Entity formation decision tree, co-founder agreements, IP assignment, trademark, banking, accounting, insurance |
 
 ### Phase 2: Build
@@ -88,7 +88,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | Skill | What it covers |
 |-------|---------------|
 | `tech-architecture` | SaaS boilerplate comparison (5 starters), framework matrix, database selection, auth decision tree, hosting comparison, monorepo guidance |
-| `fullstack-development` | Component architecture, state management, API design patterns, multi-tenancy patterns (RLS, Clerk Orgs), database migrations, caching, error handling |
+| `fullstack-development` | Component architecture, state management, API design patterns, multi-tenancy patterns (RLS, Clerk Orgs), database migrations, caching, error handling, dashboard UX patterns (bento grid, KPI cards, zero-data states) |
 | `platform-infrastructure` | CI/CD templates (3 stacks), Docker, Terraform, environment management, secrets rotation, DNS/SSL/CDN, preview environments |
 | `quality-assurance` | Testing pyramid, Playwright setup + example tests, k6 load test scripts (smoke/spike/soak), cross-browser checklist |
 | `security-compliance` | OWASP Top 10, auth hardening (519 lines), CORS config, security headers (Next.js/Express/Nginx), dependency scanning, secret scanning. Detects managed auth (Clerk/Auth0) and skips irrelevant items. |
@@ -98,7 +98,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | Skill | What it covers |
 |-------|---------------|
 | `observability-reliability` | Sentry config templates, health endpoints (Next.js/Express), structured logging, alerting architecture, backup/DR with RTO/RPO, incident response playbook, status page setup |
-| `seo-performance` | Technical SEO (507-line checklist), structured data templates, Lighthouse targets, Core Web Vitals, bundle optimization, landing page UX guide |
+| `seo-performance` | Technical SEO (507-line checklist), structured data templates, Lighthouse targets, Core Web Vitals, bundle optimization, landing page UX guide, pricing page UX guide (tier layouts, comparison matrix, conversion psychology) |
 | `billing-payments` | Stripe vs Paddle vs Lemon Squeezy matrix, subscription architecture, webhook HMAC, dunning strategy, tax compliance, free trial design |
 | `legal-compliance-final` | Privacy policy requirements, TOS framework, cookie consent, GDPR/CCPA checklist, data retention, SOC 2 readiness, OSS license audit |
 | `launch-execution` | Staging regression checklist, rollback plan template, war room setup, launch-day timeline (T-2h to T+4h), support channel setup |
@@ -111,11 +111,13 @@ Shipwise adjusts priority weighting based on your user scale:
 
 ## Tested
 
-Shipwise was tested across 12 scenarios covering trigger accuracy, content
+Shipwise was tested across 25 scenarios covering trigger accuracy, content
 quality, and structural correctness — using 3 test fixture projects (beginner,
 mid-level, senior) across beginner, mid-level, and senior developer archetypes.
+Includes 13 UX-specific scenarios covering form validation, onboarding flows,
+dashboard layouts, pricing pages, and micro-interactions.
 
-**Result: 12/12 scenarios passed.** [Full test results →](tests/)
+**Result: 25/25 scenarios passed.** [Full test results →](tests/)
 
 The key test: same auth prompt, same project — 18/40 without Shipwise, 36/40
 with it. 24 specific security improvements.
@@ -153,6 +155,7 @@ then points you to the best tool for the job.
 | Accessibility auditing | `AccessLint/claude-marketplace` | Design-phase a11y primer (50 items) |
 | Terraform patterns | `antonbabenko/terraform-skill` | IaC within full infrastructure checklist |
 | Development workflow | `obra/superpowers` | Lifecycle context for the dev workflow |
+| Visual design | `bencium/bencium-marketplace` | Aesthetic direction + anti-generic-AI rules |
 
 ## Multi-Agent Support
 
