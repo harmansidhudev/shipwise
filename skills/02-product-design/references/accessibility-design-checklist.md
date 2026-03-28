@@ -1,4 +1,4 @@
-# Accessibility Design Checklist (WCAG 2.2 AA)
+# Accessibility Design Checklist (WCAG 2.2 AA) — 50 Items
 
 ## When to use
 
@@ -68,11 +68,11 @@ Is my design accessible?
 
 ---
 
-## The 30-item checklist
+## The 50-item checklist
 
 Organized by the four WCAG principles: Perceivable, Operable, Understandable, Robust.
 
-### Perceivable (10 items)
+### Perceivable (14 items)
 Can all users perceive the content regardless of ability?
 
 | # | Check | WCAG SC | Pass | Fail | N/A |
@@ -80,51 +80,71 @@ Can all users perceive the content regardless of ability?
 | 1 | Normal text has 4.5:1 contrast ratio against background | 1.4.3 | [ ] | [ ] | [ ] |
 | 2 | Large text (≥24px / ≥18.5px bold) has 3:1 contrast ratio | 1.4.3 | [ ] | [ ] | [ ] |
 | 3 | UI components (borders, icons, controls) have 3:1 contrast | 1.4.11 | [ ] | [ ] | [ ] |
-| 4 | Information is not conveyed by color alone (use icons, patterns, or text too) | 1.4.1 | [ ] | [ ] | [ ] |
-| 5 | All images have meaningful alt text planned (or alt="" for decorative) | 1.1.1 | [ ] | [ ] | [ ] |
-| 6 | Video/audio content has captions or transcript planned | 1.2.1, 1.2.2 | [ ] | [ ] | [ ] |
-| 7 | Text can be resized to 200% without content being clipped or overlapping | 1.4.4 | [ ] | [ ] | [ ] |
-| 8 | Content reflows to a single column at 320px width without horizontal scroll | 1.4.10 | [ ] | [ ] | [ ] |
-| 9 | Spacing between text (line height, paragraph, letter, word) can be adjusted without breaking layout | 1.4.12 | [ ] | [ ] | [ ] |
-| 10 | No content is hidden behind hover-only interactions (tooltip content also accessible via focus/click) | 1.4.13 | [ ] | [ ] | [ ] |
+| 4 | Non-text contrast: focus indicators meet 3:1 contrast against adjacent colors | 1.4.11 | [ ] | [ ] | [ ] |
+| 5 | Non-text contrast: graphical objects required to understand content (charts, icons) have 3:1 contrast | 1.4.11 | [ ] | [ ] | [ ] |
+| 6 | Information is not conveyed by color alone (use icons, patterns, or text too) | 1.4.1 | [ ] | [ ] | [ ] |
+| 7 | All images have meaningful alt text planned (or alt="" for decorative) | 1.1.1 | [ ] | [ ] | [ ] |
+| 8 | Video/audio content has captions or transcript planned | 1.2.1, 1.2.2 | [ ] | [ ] | [ ] |
+| 9 | Text can be resized to 200% without content being clipped or overlapping | 1.4.4 | [ ] | [ ] | [ ] |
+| 10 | Content reflows to a single column at 320px width without horizontal scroll | 1.4.10 | [ ] | [ ] | [ ] |
+| 11 | Spacing between text (line height, paragraph, letter, word) can be adjusted without breaking layout | 1.4.12 | [ ] | [ ] | [ ] |
+| 12 | No content is hidden behind hover-only interactions (tooltip content also accessible via focus/click) | 1.4.13 | [ ] | [ ] | [ ] |
+| 13 | Page language is set (lang attribute on html element) | 3.1.1 | [ ] | [ ] | [ ] |
+| 14 | Content in a different language than the page default is marked with a lang attribute | 3.1.2 | [ ] | [ ] | [ ] |
 
-### Operable (10 items)
+### Operable (16 items)
 Can all users operate the interface regardless of input method?
 
 | # | Check | WCAG SC | Pass | Fail | N/A |
 |---|-------|---------|------|------|-----|
-| 11 | Every interactive element is reachable by keyboard (Tab key) | 2.1.1 | [ ] | [ ] | [ ] |
-| 12 | No keyboard traps — user can always Tab or Escape away from any element | 2.1.2 | [ ] | [ ] | [ ] |
-| 13 | Tab order follows a logical reading sequence (left-to-right, top-to-bottom) | 2.4.3 | [ ] | [ ] | [ ] |
-| 14 | Visible focus indicator on every focusable element (not just browser default) | 2.4.7, 2.4.11 | [ ] | [ ] | [ ] |
-| 15 | Touch targets are at least 44x44 px with at least 8px spacing between them | 2.5.8 | [ ] | [ ] | [ ] |
-| 16 | No time limits on content, or user can extend/disable timers | 2.2.1 | [ ] | [ ] | [ ] |
-| 17 | Animations and auto-playing content can be paused, stopped, or hidden | 2.2.2 | [ ] | [ ] | [ ] |
-| 18 | Motion-triggered interactions have non-motion alternatives | 2.5.4 | [ ] | [ ] | [ ] |
-| 19 | Design respects prefers-reduced-motion (no essential animations) | 2.3.3 | [ ] | [ ] | [ ] |
-| 20 | Skip navigation link planned for pages with repeated header/nav | 2.4.1 | [ ] | [ ] | [ ] |
+| 15 | Every interactive element is reachable by keyboard (Tab key) | 2.1.1 | [ ] | [ ] | [ ] |
+| 16 | No keyboard traps — user can always Tab or Escape away from any element | 2.1.2 | [ ] | [ ] | [ ] |
+| 17 | Tab order follows a logical reading sequence (left-to-right, top-to-bottom) | 2.4.3 | [ ] | [ ] | [ ] |
+| 18 | Visible focus indicator on every focusable element (not just browser default) | 2.4.7 | [ ] | [ ] | [ ] |
+| 19 | Focus indicator is not fully obscured by sticky headers, modals, or overlapping content | 2.4.11 | [ ] | [ ] | [ ] |
+| 20 | Touch targets are at least 44x44 CSS pixels on mobile (recommended 48x48) | 2.5.8 | [ ] | [ ] | [ ] |
+| 21 | Target size is at least 24x24 CSS pixels for all interactive elements (minimum) | 2.5.8 | [ ] | [ ] | [ ] |
+| 22 | At least 8px spacing between adjacent touch targets | 2.5.8 | [ ] | [ ] | [ ] |
+| 23 | No time limits on content, or user can extend/disable timers | 2.2.1 | [ ] | [ ] | [ ] |
+| 24 | Animations and auto-playing content can be paused, stopped, or hidden | 2.2.2 | [ ] | [ ] | [ ] |
+| 25 | Motion-triggered interactions have non-motion alternatives | 2.5.4 | [ ] | [ ] | [ ] |
+| 26 | Design respects prefers-reduced-motion — all CSS animations and transitions are disabled or simplified when this media query is active | 2.3.3 | [ ] | [ ] | [ ] |
+| 27 | Skip navigation link planned for pages with repeated header/nav ("Skip to main content" as first focusable element) | 2.4.1 | [ ] | [ ] | [ ] |
+| 28 | Skip navigation links are provided for any repeated content blocks (sidebar nav, filter panels) | 2.4.1 | [ ] | [ ] | [ ] |
+| 29 | Dragging actions have single-pointer alternatives (upload via button, not just drag-and-drop) | 2.5.7 | [ ] | [ ] | [ ] |
+| 30 | Consistent help location: help links or contact information appear in the same relative position across pages | 2.4.8 | [ ] | [ ] | [ ] |
 
-### Understandable (6 items)
+### Understandable (12 items)
 Can all users understand the content and how to use the interface?
 
 | # | Check | WCAG SC | Pass | Fail | N/A |
 |---|-------|---------|------|------|-----|
-| 21 | Page language is set (lang attribute on html element) | 3.1.1 | [ ] | [ ] | [ ] |
-| 22 | Form fields have visible labels (not placeholder-only) | 3.3.2 | [ ] | [ ] | [ ] |
-| 23 | Required fields are clearly indicated (not by color alone) | 3.3.2 | [ ] | [ ] | [ ] |
-| 24 | Error messages identify the field and describe how to fix the error | 3.3.1, 3.3.3 | [ ] | [ ] | [ ] |
-| 25 | Navigation is consistent across pages (same order, same labels) | 3.2.3 | [ ] | [ ] | [ ] |
-| 26 | No unexpected context changes on focus or input (no auto-submit, no surprise navigation) | 3.2.1, 3.2.2 | [ ] | [ ] | [ ] |
+| 31 | Form fields have visible labels (not placeholder-only) | 3.3.2 | [ ] | [ ] | [ ] |
+| 32 | Required fields are clearly indicated (not by color alone) | 3.3.2 | [ ] | [ ] | [ ] |
+| 33 | Error messages identify the field and describe how to fix the error | 3.3.1, 3.3.3 | [ ] | [ ] | [ ] |
+| 34 | Navigation is consistent across pages (same order, same labels) | 3.2.3 | [ ] | [ ] | [ ] |
+| 35 | No unexpected context changes on focus or input (no auto-submit, no surprise navigation) | 3.2.1, 3.2.2 | [ ] | [ ] | [ ] |
+| 36 | Irreversible actions (delete account, remove data, submit payment) have a confirmation step or undo option | 3.3.4 | [ ] | [ ] | [ ] |
+| 37 | Irreversible actions show clear consequences before execution ("This will permanently delete 24 files") | 3.3.4 | [ ] | [ ] | [ ] |
+| 38 | Form instructions and constraints are visible before submission (character limits, format requirements) | 3.3.2 | [ ] | [ ] | [ ] |
+| 39 | Error suggestions offer specific correction guidance ("Enter a date in MM/DD/YYYY format") | 3.3.3 | [ ] | [ ] | [ ] |
+| 40 | Identification purpose: common input fields support autocomplete attributes (name, email, address, tel) | 1.3.5 | [ ] | [ ] | [ ] |
+| 41 | Consistent identification: components with the same function use the same labels across the site | 3.2.4 | [ ] | [ ] | [ ] |
+| 42 | Status messages are communicated to assistive technologies without receiving focus | 4.1.3 | [ ] | [ ] | [ ] |
 
-### Robust (4 items)
+### Robust (8 items)
 Is the design structured for assistive technology compatibility?
 
 | # | Check | WCAG SC | Pass | Fail | N/A |
 |---|-------|---------|------|------|-----|
-| 27 | Semantic HTML elements planned (nav, main, article, aside, header, footer — not div soup) | 4.1.2 | [ ] | [ ] | [ ] |
-| 28 | ARIA landmarks planned for page regions (banner, navigation, main, complementary, contentinfo) | 4.1.2 | [ ] | [ ] | [ ] |
-| 29 | Custom components have ARIA roles, states, and properties specified (e.g., role="dialog", aria-expanded) | 4.1.2 | [ ] | [ ] | [ ] |
-| 30 | Dynamic content changes have an announcement strategy (aria-live regions for notifications, toasts, errors) | 4.1.3 | [ ] | [ ] | [ ] |
+| 43 | Semantic HTML elements planned (nav, main, article, aside, header, footer — not div soup) | 4.1.2 | [ ] | [ ] | [ ] |
+| 44 | ARIA landmarks planned for page regions (banner, navigation, main, complementary, contentinfo) | 4.1.2 | [ ] | [ ] | [ ] |
+| 45 | Custom components have ARIA roles, states, and properties specified (e.g., role="dialog", aria-expanded) | 4.1.2 | [ ] | [ ] | [ ] |
+| 46 | Dynamic content changes have an announcement strategy (aria-live regions for notifications, toasts, errors) | 4.1.3 | [ ] | [ ] | [ ] |
+| 47 | aria-live="polite" for non-urgent updates (success messages, content loaded) and aria-live="assertive" for urgent updates (errors, session expiry warnings) | 4.1.3 | [ ] | [ ] | [ ] |
+| 48 | Loading states announce progress to screen readers (aria-busy="true" on loading containers, aria-live region for completion) | 4.1.3 | [ ] | [ ] | [ ] |
+| 49 | Modal dialogs trap focus within the dialog and return focus to the trigger element on close | 2.1.2, 4.1.2 | [ ] | [ ] | [ ] |
+| 50 | Single-page app route changes announce the new page title to screen readers (via aria-live or document.title update) | 4.1.3 | [ ] | [ ] | [ ] |
 
 ---
 
@@ -141,7 +161,7 @@ Design tool: [CUSTOMIZE] Figma / Sketch / other
 Contrast checker used: [CUSTOMIZE] WebAIM / Figma A11y plugin / other
 
 ## Summary
-- Total checks: 30
+- Total checks: 50
 - Pass: [COUNT]
 - Fail: [COUNT]
 - N/A: [COUNT]
@@ -153,45 +173,65 @@ Contrast checker used: [CUSTOMIZE] WebAIM / Figma A11y plugin / other
 | 1 | Normal text contrast (4.5:1) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Body text: #333 on #FFF = 12.6:1 |
 | 2 | Large text contrast (3:1) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Headings: #555 on #FFF = 7.4:1 |
 | 3 | UI component contrast (3:1) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Input borders: #CCC on #FFF = 1.6:1 — NEEDS FIX, use #767676 |
-| 4 | Color not sole indicator | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Error states use red color + error icon + text |
-| 5 | Alt text planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Hero image, feature screenshots, team photos need alt |
-| 6 | Captions/transcripts | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] No video content |
-| 7 | Text resizable to 200% | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Layout uses rem units, tested at 200% |
-| 8 | Content reflows at 320px | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Single column layout at mobile |
-| 9 | Text spacing adjustable | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] No fixed-height containers on text |
-| 10 | No hover-only content | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Tooltips also accessible via focus |
+| 4 | Focus indicator contrast (3:1) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Focus ring: #0066CC on #FFF = 5.3:1 |
+| 5 | Non-text graphical objects contrast (3:1) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Chart lines, icon indicators checked |
+| 6 | Color not sole indicator | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Error states use red color + error icon + text |
+| 7 | Alt text planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Hero image, feature screenshots, team photos need alt |
+| 8 | Captions/transcripts | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] No video content |
+| 9 | Text resizable to 200% | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Layout uses rem units, tested at 200% |
+| 10 | Content reflows at 320px | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Single column layout at mobile |
+| 11 | Text spacing adjustable | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] No fixed-height containers on text |
+| 12 | No hover-only content | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Tooltips also accessible via focus |
+| 13 | Page language set | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] lang="en" on html element |
+| 14 | Language of parts marked | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] No mixed-language content |
 
 ## Operable
 | # | Check | Result | Notes / Fix needed |
 |---|-------|--------|--------------------|
-| 11 | Keyboard reachable | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] All buttons, links, inputs in tab order |
-| 12 | No keyboard traps | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Modal closes on Escape, returns focus |
-| 13 | Logical tab order | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Tab order annotated on designs |
-| 14 | Visible focus indicator | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] 2px blue ring on all focusable elements |
-| 15 | Touch targets ≥ 44px | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Icon buttons measured at 44x44, spacing 12px |
-| 16 | No time limits | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] Session timeout warns 2 min before, extendable |
-| 17 | Pause/stop animations | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] Auto-playing carousel has pause button |
-| 18 | Non-motion alternatives | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] No motion-triggered interactions |
-| 19 | Reduced motion respected | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Animations disabled when prefers-reduced-motion |
-| 20 | Skip navigation link | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Skip to main content" link planned |
+| 15 | Keyboard reachable | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] All buttons, links, inputs in tab order |
+| 16 | No keyboard traps | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Modal closes on Escape, returns focus |
+| 17 | Logical tab order | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Tab order annotated on designs |
+| 18 | Visible focus indicator | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] 2px blue ring on all focusable elements |
+| 19 | Focus not obscured | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Sticky header doesn't cover focused elements |
+| 20 | Touch targets ≥ 44px (mobile) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Icon buttons measured at 44x44, spacing 12px |
+| 21 | Target size ≥ 24px (minimum) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] All interactive elements meet minimum |
+| 22 | Target spacing ≥ 8px | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Checked adjacent buttons, links |
+| 23 | No time limits | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] Session timeout warns 2 min before, extendable |
+| 24 | Pause/stop animations | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] Auto-playing carousel has pause button |
+| 25 | Non-motion alternatives | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] No motion-triggered interactions |
+| 26 | Reduced motion respected | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Animations disabled when prefers-reduced-motion |
+| 27 | Skip navigation link (main) | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Skip to main content" link planned |
+| 28 | Skip links for repeated blocks | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] Sidebar has skip link |
+| 29 | Drag alternatives provided | [CUSTOMIZE] Pass/Fail/N/A | [CUSTOMIZE] File upload via button, not just drag |
+| 30 | Consistent help location | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Help link in same position across pages |
 
 ## Understandable
 | # | Check | Result | Notes / Fix needed |
 |---|-------|--------|--------------------|
-| 21 | Page language set | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] lang="en" on html element |
-| 22 | Visible form labels | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] All inputs have visible labels above field |
-| 23 | Required fields indicated | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Asterisk + "(required)" text |
-| 24 | Descriptive error messages | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Email format invalid — use name@example.com" |
-| 25 | Consistent navigation | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Same nav order on all pages |
-| 26 | No unexpected changes | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] No auto-submit, forms require explicit button click |
+| 31 | Visible form labels | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] All inputs have visible labels above field |
+| 32 | Required fields indicated | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Asterisk + "(required)" text |
+| 33 | Descriptive error messages | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Email format invalid — use name@example.com" |
+| 34 | Consistent navigation | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Same nav order on all pages |
+| 35 | No unexpected changes | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] No auto-submit, forms require explicit button click |
+| 36 | Irreversible action confirmation | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Delete requires confirmation dialog |
+| 37 | Irreversible action consequences shown | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Delete dialog shows what will be deleted |
+| 38 | Form constraints visible before submit | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Character limits, format hints shown inline |
+| 39 | Error correction guidance | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Enter date as MM/DD/YYYY" |
+| 40 | Autocomplete attributes planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] name, email, tel fields have autocomplete |
+| 41 | Consistent component identification | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Same function = same label across site |
+| 42 | Status messages announced | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] "Item added to cart" uses aria-live |
 
 ## Robust
 | # | Check | Result | Notes / Fix needed |
 |---|-------|--------|--------------------|
-| 27 | Semantic HTML planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] nav, main, article, aside annotated on wireframes |
-| 28 | ARIA landmarks planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] banner, navigation, main, contentinfo regions marked |
-| 29 | Custom component ARIA | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Modal: role="dialog", aria-modal="true"; Dropdown: aria-expanded |
-| 30 | Dynamic content strategy | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Toast notifications use aria-live="polite", form errors use aria-live="assertive" |
+| 43 | Semantic HTML planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] nav, main, article, aside annotated on wireframes |
+| 44 | ARIA landmarks planned | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] banner, navigation, main, contentinfo regions marked |
+| 45 | Custom component ARIA | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Modal: role="dialog", aria-modal="true"; Dropdown: aria-expanded |
+| 46 | Dynamic content strategy | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Toast notifications use aria-live="polite", form errors use aria-live="assertive" |
+| 47 | aria-live polite vs assertive | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Success=polite, errors=assertive documented |
+| 48 | Loading state announcements | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] aria-busy on loading containers, completion announced |
+| 49 | Modal focus management | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] Focus trapped in modal, returned on close |
+| 50 | SPA route change announcements | [CUSTOMIZE] Pass/Fail | [CUSTOMIZE] New page title announced via aria-live |
 
 ## Action items
 | # | Issue | Severity | Fix | Owner | Status |
@@ -217,6 +257,12 @@ These are the issues most frequently caught too late. Check them first.
 | Missing focus indicators | Common | Keyboard users cannot see where they are | Design a visible custom focus ring |
 | No skip navigation link | Moderate | Keyboard users must tab through entire nav on every page | Add "Skip to main content" as first focusable element |
 | Auto-playing animations with no pause | Moderate | Distracting, causes nausea for some users | Add pause control, respect prefers-reduced-motion |
+| Focus obscured by sticky headers | Moderate | Keyboard users lose track of focus behind fixed elements | Ensure scroll offset accounts for sticky header height |
+| No prefers-reduced-motion support | Moderate | Users with vestibular disorders experience nausea | Wrap all animations in `@media (prefers-reduced-motion: no-preference)` |
+| Missing confirmation on irreversible actions | Moderate | Users accidentally delete data with no recovery | Add confirmation dialog for delete, payment, account changes |
+| No lang attribute on html element | Moderate | Screen readers use wrong pronunciation rules | Set `lang="en"` (or appropriate language) on `<html>` |
+| Drag-only interactions | Moderate | Users without fine motor control cannot complete tasks | Always provide button/click alternative to drag-and-drop |
+| Missing aria-live for dynamic content | Common | Screen reader users miss toast notifications, loading completion | Add aria-live="polite" for non-urgent, "assertive" for errors |
 
 ---
 

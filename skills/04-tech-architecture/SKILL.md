@@ -57,6 +57,37 @@ If state doesn't exist, ask the minimum needed: "What are you building, who is i
 4. **Present 1-2 recommendations** (not all options) with reasoning
 5. **Offer to scaffold** the chosen option
 
+## Start from a Boilerplate?
+
+Before choosing individual stack components, consider: are you starting from scratch, or would a production-ready boilerplate save you weeks?
+
+<!-- beginner -->
+**Should you use a boilerplate?** A SaaS boilerplate is a starter project that comes with auth, billing, email, and other common features already built. Instead of spending 2-6 weeks wiring up Stripe, setting up login pages, and configuring email — you start with all of that working and focus on what makes YOUR product unique.
+
+**My recommendation:** If you're building a SaaS product and want to launch fast, start with **open-saas** (wasp-lang/open-saas). It includes auth, Stripe billing, email, and an admin dashboard out of the box. If you specifically want Next.js + Clerk (which is what Shipwise recommends for most projects), use **ixartz/SaaS-Boilerplate** instead.
+
+> Reference: See `references/saas-boilerplate-comparison.md` for the full comparison of 5 open-source boilerplates.
+
+<!-- intermediate -->
+**Boilerplate vs build from scratch?** Five mature open-source boilerplates can skip 2-6 weeks of infrastructure setup:
+
+| Boilerplate | Stack | Best for |
+|-------------|-------|----------|
+| wasp-lang/open-saas | React, Node, Prisma, Stripe | Fastest to launch, solo founders |
+| ixartz/SaaS-Boilerplate | Next.js, Clerk, Drizzle, Stripe | Modern Next.js stack (matches Shipwise defaults) |
+| boxyhq/saas-starter-kit | Next.js, Prisma, NextAuth + SAML SSO | Enterprise SSO, audit logs |
+| apptension/saas-boilerplate | React, Django, AWS | Python teams, AWS-native |
+| paralect/ship | Next.js, MongoDB, Turborepo | MongoDB preference, monorepo |
+
+Evaluate: does the boilerplate's stack match your constraints? If not, build from scratch using the decision matrices below. If it does, start from the boilerplate and customize.
+
+> Reference: `references/saas-boilerplate-comparison.md` — full comparison with checklist coverage and decision matrix.
+
+<!-- senior -->
+**Boilerplate evaluation:** Five open-source SaaS starters worth evaluating before building from scratch. Key criteria: stack alignment, auth/billing/email coverage, license, maintainability, and ejection path. See `references/saas-boilerplate-comparison.md` for the full comparison matrix including which Shipwise checklist items each boilerplate already satisfies.
+
+---
+
 ## Frontend Framework Decision Matrix
 
 Reference: `references/frontend-framework-matrix.md`

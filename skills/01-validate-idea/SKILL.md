@@ -48,6 +48,63 @@ Guides founders through rigorous idea validation before writing a single line of
 
 ---
 
+## Jobs-to-be-Done (JTBD)
+
+Before defining your problem statement, frame your users' needs through the Jobs-to-be-Done lens. JTBD focuses on what people are trying to accomplish — not what product they want.
+
+### The JTBD interview format
+
+Ask users to complete this sentence about their current workflow:
+
+> "When [situation], I want to [motivation], so I can [outcome]."
+
+This reveals the **job** they're hiring a solution to do. Products don't compete with other products — they compete with every way the customer could get the job done.
+
+### 5 example JTBD statements for a SaaS product
+
+1. **Project management SaaS:** "When I'm juggling multiple client projects, I want to see all deadlines in one view, so I can avoid missing deliverables and losing clients."
+2. **Invoice SaaS:** "When a client's payment is overdue, I want to send an automatic reminder without being awkward, so I can get paid without damaging the relationship."
+3. **Analytics SaaS:** "When my CEO asks how last month's campaign performed, I want to pull a clear report in under 2 minutes, so I can look competent and keep my budget."
+4. **Scheduling SaaS:** "When a prospect wants to book a demo, I want to share my availability without 5 back-and-forth emails, so I can close deals faster."
+5. **Support SaaS:** "When a customer reports a bug, I want to see their account context immediately, so I can resolve their issue in one reply instead of three."
+
+### How to use JTBD in validation
+
+- **In interviews:** Ask "Tell me about the last time you [tried to accomplish X]. Walk me through what happened." The story reveals the real job.
+- **For positioning:** Your landing page headline should address the job, not the feature. "Get paid faster" (job) beats "Automated invoice reminders" (feature).
+- **For prioritization:** Features that serve the core job are must-haves. Features that serve peripheral jobs are should-haves or could-haves.
+
+---
+
+## Lean Canvas
+
+A Lean Canvas is a one-page business model that captures your nine key assumptions on a single page. Fill it in before user interviews with your best guesses, then update it as you gather evidence. The goal is to make every assumption explicit so you can systematically test each one.
+
+### The 9 blocks
+
+<!-- beginner -->
+1. **Problem** — The top 3 problems your users face. Be specific enough to test.
+2. **Customer Segments** — Your early adopter (most desperate segment, not broadest market).
+3. **Unique Value Proposition** — One sentence: why you, why now, why different.
+4. **Solution** — The simplest 3 features that solve your top 3 problems.
+5. **Channels** — Specific paths to reach your early adopters (subreddits, communities, keywords).
+6. **Revenue Streams** — How you charge and what you charge.
+7. **Cost Structure** — What it costs to build and run this.
+8. **Key Metrics** — The 3-5 numbers that tell you if it's working.
+9. **Unfair Advantage** — What you have that can't be easily copied.
+
+Fill this in before your first interview. After every 5 interviews, revisit and update. Assumptions that survive testing become your strategy. Assumptions that fail become pivots.
+
+> Reference: See `references/lean-canvas-template.md` for a copy-paste markdown template with all 9 blocks explained.
+
+<!-- intermediate -->
+Fill a Lean Canvas before starting interviews. The canvas forces explicit hypotheses for each block — problem/solution fit, channel assumptions, revenue model, cost structure, key metrics, and unfair advantage. Update the canvas after each validation step (interviews, landing page test, concierge MVP). Blocks where your assumption was wrong become pivot opportunities. Use the template in `references/lean-canvas-template.md`.
+
+<!-- senior -->
+Lean Canvas: pre-interview hypothesis capture across 9 blocks. Update iteratively through validation. Template: `references/lean-canvas-template.md`.
+
+---
+
 ## Checklist Items
 
 ### Problem Definition
