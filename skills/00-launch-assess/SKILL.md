@@ -156,17 +156,17 @@ After generating state, inject a context block into the project's CLAUDE.md (cre
 
 | # | Skill | Phase | Triggers on |
 |---|-------|-------|-------------|
-| 01 | validate-idea | Design | idea validation, market research, competitor analysis |
-| 02 | product-design | Design | MVP scoping, user stories, wireframes, design systems |
-| 03 | business-legal-foundation | Design | entity formation, co-founder agreements, IP |
-| 04 | tech-architecture | Build | framework selection, database choice, auth strategy |
-| 05 | fullstack-development | Build | React/Vue/Svelte, API design, database patterns |
-| 06 | platform-infrastructure | Build | CI/CD, Docker, Terraform, hosting, secrets |
-| 07 | quality-assurance | Build | testing, Playwright, k6, code quality |
-| 08 | security-compliance | Build | OWASP, auth hardening, security headers |
-| 09 | observability-reliability | Ship | Sentry, monitoring, health checks, backups |
-| 10 | seo-performance | Ship | meta tags, sitemap, Lighthouse, performance |
-| 11 | billing-payments | Ship | Stripe, subscriptions, tax, dunning |
-| 12 | legal-compliance-final | Ship | privacy policy, ToS, GDPR, cookie consent |
-| 13 | launch-execution | Ship | staging, rollback, war room, launch day |
-| 14 | growth-ops | Grow | analytics, feedback, email campaigns, referral |
+| 01 | 01-validate-idea | Design | idea validation, market research, competitor analysis |
+| 02 | 02-product-design | Design | MVP scoping, user stories, wireframes, design systems |
+| 03 | 03-business-legal-foundation | Design | entity formation, co-founder agreements, IP |
+| 04 | 04-tech-architecture | Build | framework selection, database choice, auth strategy |
+| 05 | 05-fullstack-development | Build | React/Vue/Svelte, API design, database patterns |
+| 06 | 06-platform-infrastructure | Build | CI/CD, Docker, Terraform, hosting, secrets |
+| 07 | 07-quality-assurance | Build | testing, Playwright, k6, code quality |
+| 08 | 08-security-compliance | Build | OWASP, auth hardening, security headers |
+| 09 | 09-observability-reliability | Ship | Sentry, monitoring, health checks, backups |
+| 10 | 10-seo-performance | Ship | meta tags, sitemap, Lighthouse, performance |
+| 11 | 11-billing-payments | Ship | Stripe, subscriptions, tax, dunning |
+| 12 | 12-legal-compliance-final | Ship | privacy policy, ToS, GDPR, cookie consent |
+| 13 | 13-launch-execution | Ship | staging, rollback, war room, launch day |
+| 14 | 14-growth-ops | Grow | analytics, feedback, email campaigns, referral |
