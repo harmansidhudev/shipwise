@@ -48,6 +48,62 @@ Check for these files to determine the stack:
 - [ ] Input validation: Grep for `zod`, `joi`, `yup` in route/API files
 - [ ] Dependency scanning: Check for `dependabot.yml`, `renovate.json`
 
+**UX & Accessibility:**
+- [ ] Reduced motion: Grep for `prefers-reduced-motion`, `useReducedMotion`, `reducedMotion` in component/layout files
+  - `done`: Found in a layout-level wrapper (MotionConfig, global CSS media query, or layout.tsx) that covers all animations
+  - `partial`: Found in some components but not globally applied
+  - `todo`: Not found anywhere
+  - Conditional: Only include if Framer Motion, GSAP, or CSS keyframes are detected
+  - Priority: P1 | Time: 5 min (global MotionConfig), 30 min (per-component)
+- [ ] Skip navigation: Grep for `skip-to-content`, `skip-to-main`, `skip-nav`, `Skip to`, `#main-content` in layout/shell files
+  - `done`: Skip link found that targets a `#main-content` or `#main` id
+  - `partial`: Main content landmark exists (`<main>`) but no skip link
+  - `todo`: Neither found
+  - Priority: P1 | Time: 10 min
+- [ ] Focus indicators: Grep for `focus-visible`, `focus:ring`, `focus:outline`, `:focus-visible` in CSS/global files
+  - `done`: Custom focus-visible styles found in global CSS or Tailwind config
+  - `partial`: Some components have focus styles but no global rule
+  - `todo`: Only browser defaults (no custom focus styles found)
+  - Priority: P1 | Time: 5 min (global CSS)
+- [ ] Form labels: In files containing `<input` or `<textarea`, grep for `<label`, `htmlFor`, `aria-label`, `aria-labelledby`
+  - `done`: All inputs in the codebase have associated labels or aria-labels
+  - `partial`: Some inputs have labels, others don't
+  - `todo`: Multiple inputs found without any label association
+  - Priority: P1 | Time: 15 min per form
+- [ ] Empty states: Grep for `EmptyState`, `empty-state`, `no-data`, `no-results`, `nothing here`, `get started` in component/page files
+  - `done`: Empty state patterns found in list/grid/dashboard pages
+  - `partial`: Some pages handle empty data, others render blank
+  - `todo`: No empty state handling found (lists/grids render nothing when data is empty)
+  - Priority: P2 | Time: 30 min per page
+- [ ] Loading states: Grep for `Skeleton`, `Spinner`, `Loading`, `loading.tsx`, `loading.js`, `isLoading`, `isPending` in components
+  - `done`: Loading patterns found for data-fetching components AND page-level loading states
+  - `partial`: Some loading indicators exist but coverage is incomplete
+  - `todo`: No loading state handling found
+  - Priority: P2 | Time: 20 min per component
+- [ ] Color contrast: Parse CSS custom properties for text/background color pairs. Calculate WCAG contrast ratios for: primary text on background, secondary/muted text on background, secondary/muted text on card/surface, accent/brand color on background
+  - `done`: All pairs achieve ≥4.5:1 for normal text
+  - `partial`: Some pairs fail (list specific failures with ratios)
+  - `todo`: Cannot determine (no CSS custom properties found for colors)
+  - Conditional: Only include if CSS custom properties or theme definitions are found
+  - Priority: P0 | Time: 10 min per theme
+  - Implementation: Extract hex values from CSS files (look for `--bg`, `--fg`, `--text`, `--muted`, `--card`, `--surface`, `--accent`, `--primary`, `--secondary`, `background-color`, `color` custom properties). Calculate relative luminance: L = 0.2126 * R + 0.7152 * G + 0.0722 * B (linearized). Ratio = (L1 + 0.05) / (L2 + 0.05). AA requires ≥4.5:1 normal text, ≥3:1 large text (≥18px or ≥14px bold). If multiple themes exist (`.dark`, `.light`, `[data-theme]`, `prefers-color-scheme`), calculate for each and report lowest-contrast theme.
+- [ ] Heading hierarchy: In page-level files (page.tsx, page.jsx, index.tsx), grep for heading elements (h1, h2, h3, Heading component usage). Verify each page has exactly one h1 and headings don't skip levels (h1→h3 without h2)
+  - `done`: Each page has exactly one h1, no heading level skips detected
+  - `partial`: H1 exists on all pages but heading levels are skipped in some files
+  - `todo`: Multiple h1s on a page or missing h1
+  - Priority: P1 | Time: 15 min
+- [ ] Touch targets: Grep for `min-h-[44px]`, `min-w-[44px]`, `h-11`, `w-11`, `p-3` (≥44px with padding), or a global CSS rule enforcing minimum touch target sizes
+  - `done`: Global rule or consistent pattern enforcing ≥44px on interactive elements
+  - `partial`: Some buttons/links have adequate sizing, others don't
+  - `todo`: No evidence of touch target consideration
+  - Conditional: Only include if the project has a responsive/mobile strategy (Tailwind breakpoints, media queries)
+  - Priority: P2 | Time: 10 min (global CSS)
+- [ ] ARIA landmarks: Grep for `<main`, `<nav`, `<header`, `<footer`, `<aside`, `role="main"`, `role="navigation"`, `role="banner"`, `role="contentinfo"` in layout files
+  - `done`: Layout uses semantic HTML landmarks (`<main>`, `<nav>`, `<header>`, `<footer>`)
+  - `partial`: Some landmarks present but `<main>` is missing
+  - `todo`: No semantic landmarks (content not wrapped in landmark regions)
+  - Priority: P0 (missing `<main>` landmark) / P1 (other landmarks) | Time: 10 min
+
 **Observability:**
 - [ ] Error tracking: Grep for `@sentry`, `sentry`, `bugsnag`, `datadog`
 - [ ] Health endpoints: Grep for `/health`, `health-check`, `healthz`
@@ -104,6 +160,16 @@ Return ONLY valid JSON in this exact format:
       "priority": "P0",
       "evidence": ".github/workflows/ci.yml found with lint, test, build stages",
       "time_estimate": "30 min"
+    },
+    {
+      "id": "a11y-reduced-motion",
+      "name": "Reduced Motion Support",
+      "status": "todo",
+      "phase": "build",
+      "priority": "P1",
+      "evidence": "Searched for prefers-reduced-motion, useReducedMotion, reducedMotion — no matches found in 47 component files. 12 Framer Motion animations detected without motion preference checks.",
+      "time_estimate": "5 min",
+      "fix": "Add <MotionConfig reducedMotion=\"user\"> wrapper in layout.tsx"
     }
   ],
   "summary": {
@@ -122,4 +188,5 @@ Return ONLY valid JSON in this exact format:
 - Include `evidence` field with the specific file/pattern found
 - Set realistic `time_estimate` for todo items
 - Prioritize: P0 = security + error tracking + auth + backups, P1 = testing + CI + monitoring, P2 = SEO + legal + nice-to-have
+- For UX & Accessibility items, include a `fix` field with a one-line description of the fix (not code). This helps beginners understand what to do. The `fix` field is only required for UX items, not other categories.
 - **Item scope**: Only include items relevant to the detected stack and project type. For example, omit "Payment integration" if no billing-related code or config exists and the project type doesn't imply it. Omit "Containerization" if the project uses a PaaS like Vercel. The `total` in the summary should reflect only the items included, not the full checklist. This ensures readiness percentages are meaningful — a beginner's Next.js project shouldn't be scored against 30 items when only 13 apply.

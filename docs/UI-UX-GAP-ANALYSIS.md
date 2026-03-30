@@ -113,7 +113,7 @@
 | Responsive design | Deep (checklist + code templates) | Deep (604-line guide in controlled-ux) | Tie |
 | Landing page / conversion UX | Deep (psychology-driven guide) | Not covered | Shipwise |
 | Performance / Lighthouse | Deep (CI pipeline + budgets) | Not covered | Shipwise |
-| Design audit workflow | Absent | Moderate (14-dimension audit + 3-phase plan) | Bencium |
+| Design audit workflow | Deep (14-dimension audit + 3-phase plan + automated checks) | Moderate (14-dimension audit + 3-phase plan) | Shipwise |
 
 ---
 
@@ -166,7 +166,7 @@ Ordered by pain level for a solo founder building a SaaS without a designer.
 |---|-----|---------------|----------|-----------|
 | 6 | **Color system design** | A) Add as new reference doc | `02/refs/color-system-design.md` | 60-30-10 rule, semantic tokens, dark mode mapping, brand-to-UI derivation. Current coverage is one bullet point. |
 | 7 | **Motion/animation design** | A) Add as new reference doc | `02/refs/motion-design-patterns.md` | Duration tables, easing curves, meaningful motion principles, loading transitions. Adapt bencium controlled-ux's MOTION-SPEC.md approach for our audience. |
-| 8 | **Design audit workflow** | A) Add as new reference doc | `02/refs/design-audit-workflow.md` | 14-dimension visual audit, phased improvement plan. Natural fit for Shipwise's checkpoint gate system. Inspired by bencium's design-audit skill but scoped for self-review. |
+| 8 | **Design audit workflow** | ✅ DONE | `02/refs/design-audit-workflow.md` + auditor UX checks | 14-dimension self-review framework with 3-phase audit process, copy-paste template, contrast reference, and experience-level guidance. Automated code-level checks (contrast, skip nav, focus, labels, headings, landmarks, touch targets, empty/loading states, reduced motion) added to launch-readiness-auditor. |
 | 9 | **Usability testing protocols** | A) Add as new reference doc | `02/refs/usability-testing-guide.md` | 5-second test, task completion, think-aloud. Solo founders need lightweight protocols, not full UXR methodology. |
 | 10 | **Design system depth** | A) Expand existing or add reference doc | `02/refs/design-system-guide.md` | Token categorization (fixed vs project vs adaptable), component governance, living style guide setup. Current coverage is too thin. |
 
@@ -285,7 +285,9 @@ skills/
       [GAP] onboarding-ux-patterns.md           → Progressive disclosure, activation metrics
       [GAP] color-system-design.md              → Palette generation, semantic tokens, dark mode
       [GAP] motion-design-patterns.md           → Duration, easing, meaningful motion
-      [GAP] design-audit-workflow.md            → Self-review audit, phased plan
+      design-audit-workflow.md                  → 14-dimension self-review, 3-phase
+                                                  audit process, contrast reference,
+                                                  copy-paste audit template
       [GAP] usability-testing-guide.md          → Lightweight testing protocols
       [GAP] design-system-guide.md              → Token framework, governance basics
       [GAP] micro-interaction-patterns.md       → Button states, toasts, skeletons, optimistic UI

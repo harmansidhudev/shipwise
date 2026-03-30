@@ -50,6 +50,16 @@ triggers:
   - "loading state"
   - "micro-interaction"
   - "optimistic UI"
+  - "design audit"
+  - "UI audit"
+  - "UX audit"
+  - "UX review"
+  - "visual audit"
+  - "accessibility audit"
+  - "a11y audit"
+  - "contrast ratio"
+  - "contrast check"
+  - "color contrast"
 ---
 
 # Product Design
@@ -271,6 +281,23 @@ This checklist covers design-phase accessibility fundamentals. For comprehensive
 <!-- senior -->
 **WCAG 2.2 AA** — 50-item design-stage audit: Perceivable/Operable/Understandable/Robust. Contrast (4.5:1 text, 3:1 UI), 44px targets, keyboard nav, focus indicators, semantic structure, ARIA plan, skip nav, live regions, language tags, error prevention. Companion skills: AccessLint, airowe/a11y, snapsynapse/a11y-audit for axe-core + WCAG conformance testing.
 > `references/accessibility-design-checklist.md`
+
+---
+
+### Design Audit
+
+<!-- beginner -->
+**Run a design self-review before launch** — A design audit is a structured walkthrough of your UI to catch visual, interaction, and accessibility problems before users see them. You don't need to be a designer — the audit framework gives you 14 specific things to check with 30-second quick tests for each one. Start with Phase 1 (critical issues only): check your color contrast, make sure empty pages have guidance, and test on your phone. Those three steps catch most of the problems that make an app look unfinished.
+> Time: ~1-2 hours for Phase 1
+> Reference: See `references/design-audit-workflow.md`
+
+<!-- intermediate -->
+**Design audit (14-dimension self-review)** — Structured UI review across visual hierarchy, typography, color/contrast, spacing, responsive behavior, interactive states, empty/loading/error states, navigation, forms, accessibility, content quality, and performance perception. Three-phase process: Critical (fix before any user sees it), Refinement (fix before stakeholders), Polish (production quality). Includes copy-paste audit template and automated checks via `/launch-audit`.
+> ~1-2 hours | `references/design-audit-workflow.md`
+
+<!-- senior -->
+**Design audit** — 14-dimension self-review framework. 3-phase process (critical/refinement/polish). Automated code-level checks via `/launch-audit` (contrast ratios, skip nav, focus indicators, form labels, heading hierarchy, ARIA landmarks). Manual audit template for visual/interaction quality.
+> `references/design-audit-workflow.md`
 
 ---
 
