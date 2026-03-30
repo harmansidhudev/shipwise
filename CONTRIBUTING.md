@@ -34,5 +34,18 @@ Reference docs follow this structure:
 - JSON: 2-space indent
 - Markdown: ATX headings, one sentence per line in source
 
+## Feedback and discussions
+
+- **Bug reports and feature requests:** [GitHub Issues](https://github.com/harmansidhudev/shipwise/issues)
+- **Ideas, questions, and show-and-tell:** [GitHub Discussions](https://github.com/harmansidhudev/shipwise/discussions)
+
+## Privacy and telemetry
+
+Shipwise collects **zero telemetry**. All state stays local in `.claude/shipwise-state.json` and `.claude/shipwise-usage.json`. No data is sent to any external service. Hooks have no network calls.
+
+The usage journal (`.claude/shipwise-usage.json`) records session timestamps and readiness percentages locally. Users can optionally share this in GitHub Issues for debugging — it contains no code, paths, or PII.
+
+If Claude Code introduces a plugin telemetry API in the future, Shipwise will implement **opt-in only** anonymous usage reporting following the Next.js/Astro model (command counts, skill triggers, OS type — never code, file paths, or PII).
+
 ## License
 By contributing, you agree that your contributions will be licensed under the MIT License.

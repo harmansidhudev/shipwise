@@ -117,7 +117,9 @@ After presenting results, tell the user (adapt tone to experience level):
 - **End session** → auto-detects completed items and updates your score
 - `/shipwise` — check status anytime
 - `/launch-checklist [domain]` — deep-dive (e.g., `/launch-checklist security`)
-- `/launch-audit` — full codebase re-scan"
+- `/launch-audit` — full codebase re-scan
+
+Feedback? → github.com/harmansidhudev/shipwise/discussions"
 
 ## If `.claude/shipwise-state.json` already exists:
 

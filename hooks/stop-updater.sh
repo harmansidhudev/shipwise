@@ -31,6 +31,22 @@ check_file "sitemap*" "sitemap"
 check_file "privacy*" "privacy-policy"
 check_file "terms*" "terms-of-service"
 
+# --- Usage Journal (local-only, never sent externally) ---
+USAGE_FILE=".claude/shipwise-usage.json"
+if [ ! -f "$USAGE_FILE" ]; then
+  echo '{"sessions":[]}' > "$USAGE_FILE"
+fi
+SESSION_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+CURRENT_PCT=$(jq -r '
+  (.items | length) as $total |
+  ([.items[] | select(.status == "done")] | length) as $done |
+  (if $total > 0 then ($done * 100 / $total) else 0 end)
+' "$STATE_FILE" 2>/dev/null || echo "0")
+jq --arg ts "$SESSION_TS" --arg pct "$CURRENT_PCT" \
+  '.sessions += [{"timestamp": $ts, "readiness_pct": ($pct | tonumber)}]' \
+  "$USAGE_FILE" > "${USAGE_FILE}.tmp" && mv "${USAGE_FILE}.tmp" "$USAGE_FILE"
+# --- End Usage Journal ---
+
 if [ "$UPDATED" = true ]; then
   TOTAL=$(jq '.items | length' "$STATE_FILE" 2>/dev/null)
   DONE=$(jq '[.items[] | select(.status == "done")] | length' "$STATE_FILE" 2>/dev/null)

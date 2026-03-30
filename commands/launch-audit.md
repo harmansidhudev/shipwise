@@ -30,3 +30,7 @@ Based on experience level:
 - **Beginner:** Friendly summary with explanations of each gap
 - **Intermediate:** Table of changes + current P0/P1 gaps
 - **Senior:** Compact diff + gap count
+
+### Feedback nudge
+At the end of the audit output, occasionally (not every time — roughly 1 in 3 audits) include:
+"Feedback or feature ideas? → github.com/harmansidhudev/shipwise/discussions"

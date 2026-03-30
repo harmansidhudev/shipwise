@@ -202,9 +202,13 @@ Contributions welcome:
 
 **[Website](https://harmansidhudev.github.io/shipwise/)** ·
 **[Changelog](CHANGELOG.md)** ·
+**[Discussions](https://github.com/harmansidhudev/shipwise/discussions)** ·
 **[Contributing](CONTRIBUTING.md)** ·
 **[License](LICENSE)**
 
 Built by [Harman Sidhu](https://harmansidhudev.com)
+
+<!-- Scarf install tracking pixel — replace URL after registering at scarf.sh -->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=REPLACE_WITH_SCARF_PIXEL_ID" alt="" />
 
 </div>
