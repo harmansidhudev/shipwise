@@ -1,0 +1,37 @@
+name: Bump plugin version
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.claude-plugin/plugin.json'
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump patch version
+        run: |
+          VERSION=$(python3 -c "
+          import json
+          with open('.claude-plugin/plugin.json') as f:
+              data = json.load(f)
+          parts = data['version'].split('.')
+          parts[2] = str(int(parts[2]) + 1)
+          data['version'] = '.'.join(parts)
+          with open('.claude-plugin/plugin.json', 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
+          print(data['version'])
+          ")
+          echo "NEW_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json
+          git commit -m "chore: auto-bump plugin version to $NEW_VERSION"
+          git push
