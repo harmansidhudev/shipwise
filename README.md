@@ -6,11 +6,11 @@
 
 The webapp launch lifecycle plugin for Claude Code.
 
-15 skills · 4 automatic hooks · 60+ copy-paste templates
+15 skills · 4 automatic hooks · 75+ copy-paste templates
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests: 25/25](https://img.shields.io/badge/Tests-25%2F25_passing-brightgreen.svg)](#tested)
-[![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-blue.svg)](CHANGELOG.md)
+[![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-blue.svg)](CHANGELOG.md)
 
 [Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Docs](https://harmansidhudev.github.io/shipwise/)
 
@@ -104,7 +104,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | Skill | What it covers |
 |-------|---------------|
 | `observability-reliability` | Sentry config templates, health endpoints (Next.js/Express), structured logging, alerting architecture, backup/DR with RTO/RPO, incident response playbook, status page setup |
-| `seo-performance` | Technical SEO (507-line checklist), structured data templates, Lighthouse targets, Core Web Vitals, bundle optimization, landing page UX guide, pricing page UX guide (tier layouts, comparison matrix, conversion psychology) |
+| `seo-performance` | Technical SEO (507-line checklist), structured data templates, Lighthouse targets, Core Web Vitals, Web Vitals RUM (real-user monitoring with `web-vitals` library), bundle optimization, landing page UX guide, pricing page UX guide (tier layouts, comparison matrix, conversion psychology) |
 | `billing-payments` | Stripe vs Paddle vs Lemon Squeezy matrix, subscription architecture, webhook HMAC, dunning strategy, tax compliance, free trial design |
 | `legal-compliance-final` | Privacy policy requirements, TOS framework, cookie consent, GDPR/CCPA checklist, data retention, SOC 2 readiness, OSS license audit |
 | `launch-execution` | Staging regression checklist, rollback plan template, war room setup, launch-day timeline (T-2h to T+4h), support channel setup |
@@ -113,7 +113,7 @@ Shipwise adjusts priority weighting based on your user scale:
 
 | Skill | What it covers |
 |-------|---------------|
-| `growth-ops` | Event taxonomy, funnel instrumentation, A/B testing, retention cohorts, email lifecycle campaigns (onboarding→win-back), referral program design, cost optimization, content strategy |
+| `growth-ops` | Event taxonomy, funnel instrumentation, A/B testing, retention cohorts, privacy-first analytics (Umami/Plausible/OpenPanel setup, consent-aware loading, ad-blocker bypass), revenue analytics (MRR/NRR/LTV from Stripe, SQL templates, revenue dashboard), email lifecycle campaigns (onboarding→win-back), referral program design, cost optimization, content strategy |
 
 ## Tested
 
