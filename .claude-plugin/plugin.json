@@ -1,12 +1,12 @@
 {
   "name": "shipwise",
-  "description": "Ship wisely. The webapp launch lifecycle plugin — contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking from idea to shipped product.",
+  "description": "Ship wisely. The webapp launch lifecycle plugin \u2014 contextual knowledge, automatic checkpoint gates, and codebase-aware readiness tracking from idea to shipped product.",
   "author": {
     "name": "Harman Sidhu",
     "email": "harman@harmansidhudev.com",
     "url": "https://harmansidhudev.com"
   },
-  "version": "0.5.0",
+  "version": "0.5.1",
   "repository": "https://github.com/harmansidhudev/shipwise",
   "license": "MIT"
 }
