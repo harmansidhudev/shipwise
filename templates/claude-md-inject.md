@@ -21,11 +21,20 @@ This project uses [Shipwise](https://github.com/harmansidhudev/shipwise) for lau
 - **Scale target:** {{expected_scale}}
 
 ## Active Guidance
-Shipwise hooks are active. They provide:
-- Session start: readiness score + top gaps injected into context
-- Post-edit: contextual whispers when editing auth, billing, CI/CD, API, secrets, or observability code
-- Pre-deploy: warning gate if P0 items are incomplete
-- Session stop: auto-detection of completed checklist items
+Shipwise hooks run automatically in every session:
+
+- **Session start:** Injects readiness score + top gaps into context
+- **Post-edit whispers:** When you edit files matching these categories, a `[Shipwise]` tip appears:
+  - `auth` — login, signup, session, token, password files → security checklist
+  - `billing` — stripe, payment, checkout, subscription files → webhook/PCI reminders
+  - `cicd` — workflow, deploy, Dockerfile files → pipeline checklist
+  - `api` — API route files → validation/rate-limit checklist
+  - `secrets` — .env, credential files → gitignore/vault warning (always warns)
+  - `observability` — health, monitor files → deep health check guidance
+- **Pre-deploy gate:** Warns if P0 items are incomplete when you run deploy commands
+- **Session stop:** Auto-detects newly completed checklist items (CI config, Dockerfile, legal pages, etc.)
+
+Whispers appear once per category per session (no spam). They adapt to your experience level.
 
 ## Quick Commands
 - `/shipwise` — view status or re-run scaffold

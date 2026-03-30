@@ -102,8 +102,31 @@ The expected user count affects which items are P0 vs P1 vs P2:
 
 ## Post-scaffold behavior
 
+### Project Profile Card (all experience levels)
+After generating the state file, ALWAYS show this structured summary before the experience-level follow-up:
+
+```
+**[Project Name]** — [type] for [audience]
+
+Stack: [detected stack summary]
+Phase: [interview answer] → Shipwise phase: [mapped phase]
+Scale: [expected users] | Experience: [level]
+
+Scan: [X] items checked · [Y] done · [Z] gaps
+Readiness: [X]% ██████░░░░
+
+Top gaps (P0 = must fix before launch):
+• [P0 item 1] (~time)
+• [P0 item 2] (~time)
+• [P0 item 3] (~time)
+
+State saved to `.claude/shipwise-state.json`
+```
+
+Then continue with the experience-level-specific follow-up below.
+
 <!-- beginner -->
-After generating the state file, enter guided mode:
+After showing the profile card, enter guided mode:
 "Great! I've scanned your project and found your launch readiness score. Let's work through the most important items together. Here's your #1 priority — want me to help you set it up?"
 
 Walk through items one at a time. After each completion, ask "Ready for the next one?" This makes the overwhelming checklist feel manageable.
@@ -153,6 +176,8 @@ The state file must conform to the schema at `templates/shipwise-state-schema.js
 After generating state, inject a context block into the project's CLAUDE.md (create if it doesn't exist). Use the template at `templates/claude-md-inject.md`. This ensures every future Claude Code session has project context.
 
 ## Available domain skills
+
+When presenting skill names to users, use the clean domain name (e.g., "security", "billing", "seo") not the numbered directory name. Users invoke skills via `/launch-checklist [domain]`.
 
 | # | Skill | Phase | Triggers on |
 |---|-------|-------|-------------|
