@@ -32,6 +32,16 @@ triggers:
   - "Statsig"
   - "session replay"
   - "web vitals"
+  - "privacy analytics"
+  - "cookie-free analytics"
+  - "Umami"
+  - "Plausible"
+  - "revenue analytics"
+  - "NRR"
+  - "net revenue retention"
+  - "unit economics"
+  - "payback period"
+  - "ARPU"
   - "referral program"
   - "lifecycle email"
   - "re-engagement"
@@ -52,9 +62,9 @@ This skill activates when a developer is setting up analytics or event tracking,
 
 ## Analytics Platform Selection
 
-Reference: `references/event-taxonomy-template.md`
+Reference: `references/event-taxonomy-template.md` | `references/privacy-first-analytics-setup.md`
 
-Choose one analytics platform and commit to it. Splitting events across multiple tools creates data silos and inconsistent numbers.
+Choose one analytics platform and commit to it. For privacy-first, cookie-free options (no consent banner needed), see the privacy-first analytics setup guide. Splitting events across multiple tools creates data silos and inconsistent numbers.
 
 ### Platform comparison
 
@@ -506,6 +516,24 @@ Unhealthy retention curve:
 <!-- senior -->
 **Retention** — D1/D7/D30 cohorts tracked, segmented (channel/plan/activation), curve flattening analyzed. NRR tracked for revenue retention. Cohort comparison automated.
 > `references/retention-analysis-guide.md`
+
+---
+
+## Revenue Analytics
+
+Reference: `references/revenue-analytics-setup.md`
+
+<!-- beginner -->
+**Track your revenue health** — Once you have paying customers, you need to measure whether your business is actually healthy. The key numbers: MRR (Monthly Recurring Revenue) is your current revenue run rate. LTV (Lifetime Value) is how much a customer is worth over their entire relationship with you. CAC (Customer Acquisition Cost) is how much you spend to get one customer. The rule: LTV should be at least 3× CAC. If it's not, you're spending more to acquire customers than they're worth.
+> Reference: See `references/revenue-analytics-setup.md` for Stripe webhook integration and SQL templates.
+
+<!-- intermediate -->
+**Revenue analytics (MRR/NRR/LTV)** — Stripe webhook → subscription_events table → MRR movement analysis (new, expansion, contraction, churn). Calculate NRR monthly (target >100%). Cohort-based LTV for accurate unit economics. Revenue dashboard template included.
+> `references/revenue-analytics-setup.md`
+
+<!-- senior -->
+**Revenue analytics** — MRR movement decomposition, NRR tracking, cohort-based LTV, Stripe webhook pipeline. SQL + TypeScript templates.
+> `references/revenue-analytics-setup.md`
 
 ---
 

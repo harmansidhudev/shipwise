@@ -46,6 +46,11 @@ triggers:
   - "annual monthly toggle"
   - "free to paid"
   - "upgrade prompt"
+  - "web-vitals"
+  - "real user monitoring"
+  - "RUM"
+  - "field data"
+  - "TTFB"
 ---
 
 # SEO & Performance
@@ -170,6 +175,23 @@ triggers:
 <!-- senior -->
 **Lighthouse 90+** — LCP <2.5s, CLS <0.1, INP <200ms. Lighthouse CI in GitHub Actions with performance budgets. Address CWV regressions in PR checks.
 > `references/lighthouse-targets.md`
+
+---
+
+### Web Vitals & Real User Monitoring
+
+<!-- beginner -->
+**Measure how your site performs for real users** — Lighthouse tests in a controlled environment, but your actual users have slower phones and weaker connections. Real User Monitoring (RUM) measures performance on real devices. Install the `web-vitals` library and send the results to your analytics platform. The key metrics: LCP (loading speed, must be under 2.5s), INP (responsiveness, under 200ms), CLS (layout stability, under 0.1). Google uses real-user data (not Lighthouse scores) for search ranking.
+> Time: ~30 min to set up
+> Reference: See `references/web-vitals-rum-setup.md`
+
+<!-- intermediate -->
+**Web Vitals RUM** — Install `web-vitals`, report LCP/INP/CLS/TTFB via `sendBeacon` to PostHog or custom endpoint. Monitor p75 values (what Google uses for ranking). Set up weekly regression alerts. Lab data (Lighthouse) catches regressions in CI; field data (RUM) catches real-world issues.
+> ~30 min | `references/web-vitals-rum-setup.md`
+
+<!-- senior -->
+**Web Vitals RUM** — `web-vitals` library → PostHog/custom endpoint. p75 monitoring, regression alerts, field vs lab data comparison. Diagnostic trees for LCP/INP/CLS issues.
+> `references/web-vitals-rum-setup.md`
 
 ---
 
