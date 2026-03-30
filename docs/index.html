@@ -569,7 +569,7 @@
   <section class="container">
     <div class="hero">
       <div>
-        <span class="hero-badge">v1.0.0 — Built for Claude Code</span>
+        <span class="hero-badge">v0.4.0 — Built for Claude Code</span>
         <h1>Ship Your Webapp <span class="accent">Wisely.</span></h1>
         <p class="subtitle">
           The launch lifecycle plugin for Claude Code. 15 skills that make Claude's answers production-ready — from architecture decisions to deploy-day security. Same auth prompt, 2× the security coverage.
@@ -589,12 +589,12 @@
           </div>
           <div class="terminal-body">
             <div class="terminal-line"><span class="ln">01</span><span class="cmd"><span class="prompt">&gt;</span> /shipwise</span></div>
-            <div class="terminal-line"><span class="ln">02</span><span class="out">Running diagnostic interview...</span></div>
-            <div class="terminal-line"><span class="ln">03</span><span class="ok">&#10003; Stack detected: Next.js + Postgres + Vercel</span></div>
-            <div class="terminal-line"><span class="ln">04</span><span class="ok">&#10003; 23 checklist items generated</span></div>
-            <div class="terminal-line"><span class="ln">05</span><span class="ok">&#10003; 4 hooks installed</span></div>
-            <div class="terminal-line"><span class="ln">06</span><span class="out">[Shipwise] Ready: 42% | P0 gaps: 5</span></div>
-            <div class="terminal-line" style="margin-top:0.75rem;"><span class="ln">07</span><span class="blink">Top priority: Set up error tracking...</span></div>
+            <div class="terminal-line"><span class="ln">02</span><span class="out">Scanning your codebase for launch readiness...</span></div>
+            <div class="terminal-line"><span class="ln">03</span><span class="ok">&#10003; Stack: Next.js + Postgres + Vercel</span></div>
+            <div class="terminal-line"><span class="ln">04</span><span class="ok">&#10003; Phase: Building &rarr; build</span></div>
+            <div class="terminal-line"><span class="ln">05</span><span class="ok">&#10003; Scan: 28 items &middot; 9 done &middot; 5 gaps</span></div>
+            <div class="terminal-line"><span class="ln">06</span><span class="out">Readiness: 42% &#9608;&#9608;&#9608;&#9608;&#9601;&#9601;&#9601;&#9601;&#9601;&#9601;</span></div>
+            <div class="terminal-line" style="margin-top:0.75rem;"><span class="ln">07</span><span class="blink">Top gap: Error tracking (~10 min)</span></div>
           </div>
         </div>
         <div class="hero-glow"></div>
@@ -715,7 +715,7 @@
             <span class="material-symbols-outlined icon primary" style="font-variation-settings:'FILL' 1;">sensors</span>
             <h3>Automatic Checkpoint Gates</h3>
             <p>
-              Writing auth code? Claude automatically includes rate limiting and CSRF protection. About to deploy with no error tracking? The deploy gate warns you. Shipwise runs on four lifecycle hooks — you never invoke them. They catch what you'd forget at 11pm before a launch.
+              Edit auth code &rarr; security tips. Billing code &rarr; webhook reminders. API routes &rarr; validation checklist. Secrets &rarr; gitignore warning. About to deploy with P0 gaps? The deploy gate warns you. Four hooks, six whisper categories, once per topic per session. They catch what you'd forget at 11pm before a launch.
             </p>
           </div>
           <div class="bento-link">
@@ -728,7 +728,7 @@
             <span class="material-symbols-outlined icon secondary">terminal</span>
             <h3>One-Time Scaffold</h3>
             <p>
-              Run /shipwise once. It detects your stack (Next.js? Prisma? Clerk? Stripe?), scans for gaps, and generates a personalized launch checklist. In testing, it correctly identified 9/9 tech components and 20 missing items in a real SaaS codebase.
+              Run /shipwise once. Answer 9 questions. It scans your codebase, detects your stack, and shows a project profile card with your readiness score, top gaps, and time estimates. In testing, it correctly identified 9/9 tech components and 20 missing items in a real SaaS codebase.
             </p>
           </div>
         </div>
@@ -774,7 +774,7 @@
             </div>
             <div>
               <h4>Validate & Design</h4>
-              <p>JTBD interview frameworks. Lean Canvas templates. RICE scoring for MVP scoping. 50-item WCAG 2.2 AA design checklist. Form UX patterns. Onboarding flows. Micro-interaction specs. Co-founder agreement outlines. Entity formation decision trees. The stuff you Google at 2am — already in your Claude context.</p>
+              <p>JTBD interview frameworks. Lean Canvas templates. RICE scoring for MVP scoping. 50-item WCAG 2.2 AA design checklist. 14-dimension design audit workflow. Form UX patterns. Onboarding flows. Micro-interaction specs. Co-founder agreement outlines. Entity formation decision trees. The stuff you Google at 2am — already in your Claude context.</p>
             </div>
           </div>
           <div class="guidance-item">
@@ -891,7 +891,7 @@
   <!-- Final CTA -->
   <section class="cta-section">
     <h2>Ready to Ship Wisely?</h2>
-    <p style="color:var(--on-surface-variant); font-size:1.125rem; margin-bottom:2rem; font-weight:300;">12/12 test scenarios. 24 security improvements. 2&times; auth score. Zero friction.</p>
+    <p style="color:var(--on-surface-variant); font-size:1.125rem; margin-bottom:2rem; font-weight:300;">25/25 test scenarios. 24 security improvements. 10 UX/a11y checks. Zero friction.</p>
     <div class="cta-buttons">
       <a href="https://github.com/harmansidhudev/shipwise" class="btn-cta">Get Started</a>
       <a href="https://github.com/harmansidhudev/shipwise/releases" class="link">VIEW RELEASES</a>

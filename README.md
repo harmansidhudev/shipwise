@@ -10,7 +10,7 @@ The webapp launch lifecycle plugin for Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests: 25/25](https://img.shields.io/badge/Tests-25%2F25_passing-brightgreen.svg)](#tested)
-[![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
+[![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-blue.svg)](CHANGELOG.md)
 
 [Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Docs](https://harmansidhudev.github.io/shipwise/)
 
@@ -35,27 +35,33 @@ protection, session hardening, and password breach checking.
 # Install
 /plugin install shipwise
 
-# Initialize (one-time scaffold)
+# Initialize (one-time scaffold — 9 questions, codebase scan, profile card)
 /shipwise
 
 # That's it. Hooks are active. Skills auto-trigger.
 # Build your app — Shipwise watches your back.
+
+# Helpful commands:
+/shipwise help                  # Show commands, skills, hooks
+/shipwise set-level senior      # Change experience level
+/launch-audit                   # Full codebase re-scan
+/launch-checklist security      # Deep-dive a domain
 ```
 
 ## How It Works
 
 | Mode | How it works | Your effort |
 |------|-------------|-------------|
-| **Scaffold** | `/shipwise` scans your codebase, detects your stack, generates a personalized checklist | Once, at project start |
-| **Checkpoint Gates** | Hooks fire on session start, file edits, and deploys. Whispers security tips on auth code. Warns before deploying with P0 gaps. | Zero — fully automatic |
+| **Scaffold** | `/shipwise` scans your codebase, detects your stack, shows a project profile card with readiness score and top gaps, generates a personalized checklist | Once, at project start |
+| **Checkpoint Gates** | Hooks fire on session start, file edits, and deploys. Whispers tips on auth, billing, API, CI/CD, secrets, and observability code. Warns before deploying with P0 gaps. | Zero — fully automatic |
 | **Contextual Skills** | 15 domain skills auto-load based on your task. Auth code → security patterns. Payment code → billing best practices. | Zero — Claude decides |
 | **On-Demand Audit** | `/launch-audit` does a full codebase scan. `/launch-checklist security` dives into a specific domain. | When you choose |
 
 ### Experience calibration
 
-Shipwise adapts to your level. Set during scaffold — beginner gets full
-explanations and guided remediation, senior gets terse output and code-first
-responses.
+Shipwise adapts to your level. Set during scaffold, changeable anytime with
+`/shipwise set-level`. Beginner gets full explanations and guided remediation,
+senior gets terse output and code-first responses.
 
 | | Beginner | Intermediate | Senior |
 |---|----------|-------------|--------|
@@ -80,7 +86,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | Skill | What it covers |
 |-------|---------------|
 | `validate-idea` | JTBD framework, Lean Canvas, user interview scripts, competitive analysis, TAM/SAM/SOM calculator, landing page tests |
-| `product-design` | MVP scoping (RICE), user stories, wireframe pipeline, 50-item WCAG 2.2 AA checklist, form UX patterns (multi-step, validation, autosave), onboarding UX (checklist, tooltip tours, activation metrics), micro-interaction patterns (button states, toasts, skeletons, optimistic UI), color system design, motion/animation spec |
+| `product-design` | MVP scoping (RICE), user stories, wireframe pipeline, 50-item WCAG 2.2 AA checklist, 14-dimension design audit workflow, form UX patterns (multi-step, validation, autosave), onboarding UX (checklist, tooltip tours, activation metrics), micro-interaction patterns (button states, toasts, skeletons, optimistic UI), color system design, motion/animation spec |
 | `business-legal-foundation` | Entity formation decision tree, co-founder agreements, IP assignment, trademark, banking, accounting, insurance |
 
 ### Phase 2: Build
@@ -91,7 +97,7 @@ Shipwise adjusts priority weighting based on your user scale:
 | `fullstack-development` | Component architecture, state management, API design patterns, multi-tenancy patterns (RLS, Clerk Orgs), database migrations, caching, error handling, dashboard UX patterns (bento grid, KPI cards, zero-data states) |
 | `platform-infrastructure` | CI/CD templates (3 stacks), Docker, Terraform, environment management, secrets rotation, DNS/SSL/CDN, preview environments |
 | `quality-assurance` | Testing pyramid, Playwright setup + example tests, k6 load test scripts (smoke/spike/soak), cross-browser checklist |
-| `security-compliance` | OWASP Top 10, auth hardening (519 lines), CORS config, security headers (Next.js/Express/Nginx), dependency scanning, secret scanning. Detects managed auth (Clerk/Auth0) and skips irrelevant items. |
+| `security-compliance` | OWASP Top 10, auth hardening (519 lines), CORS config, security headers (Next.js/Express/Nginx), dependency scanning, secret scanning. Detects managed auth (Clerk/Auth0) and skips irrelevant items |
 
 ### Phase 3: Ship
 
