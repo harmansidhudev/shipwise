@@ -1,63 +1,55 @@
 # Shipwise Multi-Agent Architecture Research
 
-> Deep research on how Claude Code handles agents, subagents, and parallel execution — and how Shipwise can leverage these capabilities for better performance and user experience.
+> Combined research: Claude Code subagents, Agent Teams, parallel specialized instances, third-party orchestrators, and how Shipwise can leverage each pattern.
 >
-> Date: 2026-03-31 | Research duration: ~25 minutes across 3 parallel research agents
+> Date: 2026-03-31 | Research: 3 rounds across 9 parallel research agents
 
 ---
 
 ## Table of Contents
 
-1. [How Claude Code Agents Work](#1-how-claude-code-agents-work)
-2. [Shipwise's Current Agent Architecture](#2-shipwises-current-agent-architecture)
-3. [Bottleneck Analysis](#3-bottleneck-analysis)
-4. [Multi-Agent Patterns Available](#4-multi-agent-patterns-available)
-5. [Recommended Improvements by Use Case](#5-recommended-improvements-by-use-case)
-6. [Agent Teams (Experimental)](#6-agent-teams-experimental)
+1. [Three Ways to Run Parallel Agents in Claude Code](#1-three-ways-to-run-parallel-agents)
+2. [Subagents (Current Shipwise Architecture)](#2-subagents)
+3. [Agent Teams (Experimental — Parallel Specialized Instances)](#3-agent-teams)
+4. [Worktrees + Third-Party Orchestrators](#4-worktrees--third-party-orchestrators)
+5. [Shipwise's Current Architecture](#5-shipwises-current-architecture)
+6. [Recommended Improvements — Phased Roadmap](#6-recommended-improvements)
 7. [Cost Analysis](#7-cost-analysis)
-8. [Implementation Roadmap](#8-implementation-roadmap)
-9. [What NOT to Do](#9-what-not-to-do)
+8. [What NOT to Do](#8-what-not-to-do)
 
 ---
 
-## 1. How Claude Code Agents Work
+## 1. Three Ways to Run Parallel Agents
 
-### 1.1 The Agent Tool
+| Approach | How it works | Communication | Coordination | Cost | Best for |
+|----------|-------------|---------------|-------------|------|----------|
+| **Subagents** | Main agent spawns child agents via Agent tool | Child reports back to parent only | Parent manages all work | Lower (summarized results) | Focused tasks where only the result matters |
+| **Agent Teams** | Team lead spawns teammates with shared task list | Direct peer messaging + mailbox | Automatic via shared tasks | ~7x single session | Complex parallel work needing coordination |
+| **Worktrees** | Multiple independent Claude Code instances | None (independent sessions) | Manual or via third-party tools | N × single session | Fully independent parallel features |
 
-The `Agent` tool spawns a **subagent** — a separate Claude instance with its own context window. It is the primary mechanism for parallelism in Claude Code.
+---
+
+## 2. Subagents
+
+The `Agent` tool spawns a separate Claude instance with its own context window. This is what Shipwise currently uses.
+
+### How it works
 
 | Parameter | Description |
 |-----------|-------------|
-| `prompt` | Task description — the **only** channel from parent to subagent |
-| `subagent_type` | Which agent definition to use (built-in or custom) |
-| `model` | Optional model override (`sonnet`, `opus`, `haiku`, `inherit`) |
-| `run_in_background` | Boolean — foreground (blocking) or background (concurrent) |
-| `isolation` | `"worktree"` — gives the agent its own git worktree copy |
+| `prompt` | Task description — **only** data channel from parent to child |
+| `subagent_type` | Which agent definition to use |
+| `model` | Override: `sonnet`, `opus`, `haiku`, `inherit` |
+| `run_in_background` | Foreground (blocking) or background (concurrent) |
+| `isolation` | `"worktree"` — agent gets its own git worktree |
 
-### 1.2 What Subagents Get vs Don't Get
+### Key constraints
 
-| Receives | Does NOT receive |
-|----------|-----------------|
-| Its own system prompt (from agent definition markdown) | Parent's conversation history |
-| The `prompt` parameter string | Parent's tool results |
-| Project CLAUDE.md | Other subagents' context |
-| Tool definitions (inherited or specified subset) | Skills (unless listed in `skills` field) |
+- **No nested subagents** — subagents cannot spawn their own subagents
+- Parent receives only the subagent's **final message** (intermediate tool calls stay internal)
+- Subagents don't get parent's conversation history, tool results, or skills (unless specified)
 
-**Critical**: The only data channel from parent → subagent is the `prompt` string. All file paths, decisions, and context must be explicitly included.
-
-**Return**: The parent receives only the subagent's **final message**. All intermediate tool calls stay inside the subagent's context window.
-
-### 1.3 Built-in Subagent Types
-
-| Type | Model | Tools | Purpose |
-|------|-------|-------|---------|
-| **general-purpose** | Inherits | All | Complex multi-step tasks |
-| **Explore** | Haiku (cheap) | Read-only | File discovery, codebase search |
-| **Plan** | Inherits | Read-only | Design implementation approaches |
-
-### 1.4 Custom Agent Definition Format (Plugin Agents)
-
-Plugins define agents as markdown files in `agents/` with YAML frontmatter:
+### Plugin agent definition format
 
 ```yaml
 ---
@@ -67,361 +59,384 @@ tools:
   - Read
   - Grep
   - Glob
-model: haiku        # cheap for scanning tasks
-maxTurns: 20        # cap to prevent runaway
+model: haiku
+maxTurns: 30
 ---
 
 # My Auditor
-
 You scan the codebase for [specific thing]...
 ```
 
-**Supported fields for plugin agents:** `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, `isolation`
+**Supported fields:** `name`, `description`, `model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`, `memory`, `background`, `isolation`
 
 **NOT supported for plugin agents (security):** `hooks`, `mcpServers`, `permissionMode`
 
-### 1.5 Key Constraint: No Nested Subagents
-
-**Subagents cannot spawn other subagents.** This is a hard architectural constraint. If you need nested delegation, you must chain subagents from the main conversation. This means Shipwise's orchestrator (running in main context) is the only entity that can fan out work.
-
-### 1.6 Foreground vs Background
-
-| Mode | Behavior | Use when |
-|------|----------|----------|
-| **Foreground** | Blocks main conversation until complete. Can ask user questions. | Need results before proceeding |
-| **Background** | Runs concurrently. Cannot ask user. Auto-denies unpermitted tools. | Independent work while user continues |
-
-### 1.7 Model Resolution Order
+### Model resolution order
 
 1. `CLAUDE_CODE_SUBAGENT_MODEL` env var
 2. Per-invocation `model` parameter
 3. Agent definition's `model` frontmatter
 4. Main conversation's model
 
-### 1.8 Agent Memory (Persistent)
+---
 
-Agents can have persistent memory across conversations:
+## 3. Agent Teams
 
-| Scope | Location | Use case |
-|-------|----------|----------|
-| `user` | `~/.claude/agent-memory/<name>/` | Cross-project learnings |
-| `project` | `.claude/agent-memory/<name>/` | Project-specific, shareable via VCS |
-| `local` | `.claude/agent-memory-local/<name>/` | Project-specific, not version controlled |
+This is the "FE Engineer + BE Engineer + Platform Engineer running in parallel" pattern. It's an **experimental** first-party feature (since Claude Code v2.1.32, Feb 2026).
 
-First 200 lines of `MEMORY.md` auto-injected into agent context.
+### Enable
+
+```json
+// ~/.claude/settings.json or .claude/settings.json
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}
+```
+
+### Architecture
+
+| Component | Role |
+|-----------|------|
+| **Team Lead** | Main session — creates team, spawns teammates, coordinates |
+| **Teammates** | Separate Claude Code instances with independent context windows |
+| **Task List** | Shared work items with dependency tracking and file locking |
+| **Mailbox** | Direct peer-to-peer messaging between agents |
+
+### How to start a team
+
+Natural language to the lead:
+
+```
+Create an agent team:
+- Spawn a teammate using the fe-engineer agent type for React components
+- Spawn a teammate using the be-engineer agent type for API endpoints
+- Spawn a teammate using the platform-engineer type for CI/CD and infra
+Require plan approval before they make changes.
+```
+
+Claude creates the team, spawns teammates, assigns tasks, and coordinates automatically.
+
+### Creating specialized agent definitions
+
+Store as markdown files in `~/.claude/agents/` (user scope) or `.claude/agents/` (project scope):
+
+```markdown
+---
+name: fe-engineer
+description: Frontend React/TypeScript specialist
+tools: Read, Edit, Write, Bash, Grep, Glob
+model: sonnet
+---
+
+You are a senior frontend engineer specializing in React and TypeScript.
+Focus on component architecture, accessibility, and performance.
+```
+
+```markdown
+---
+name: be-engineer
+description: Backend API and database specialist
+tools: Read, Edit, Write, Bash, Grep, Glob
+model: sonnet
+---
+
+You are a senior backend engineer. Focus on API design, database queries,
+authentication, and error handling. Always validate inputs.
+```
+
+```markdown
+---
+name: platform-engineer
+description: Infrastructure and DevOps specialist
+tools: Read, Edit, Write, Bash, Grep, Glob
+model: sonnet
+---
+
+You are a platform engineer. Focus on CI/CD, containerization, monitoring,
+and deployment. Make infrastructure reproducible.
+```
+
+### Display modes
+
+| Mode | How | Terminal requirement |
+|------|-----|---------------------|
+| **In-process** (default) | All teammates in main terminal. Shift+Down to cycle. | Any terminal |
+| **Split panes** | Each teammate gets own pane. See all output simultaneously. | tmux or iTerm2 |
+| **Auto** | Split if in tmux, in-process otherwise | — |
+
+Configure: `claude --teammate-mode tmux` or in `~/.claude.json`:
+```json
+{ "teammateMode": "tmux" }
+```
+
+### How teammates communicate
+
+- **Direct messaging** — teammates send messages to specific teammates
+- **Broadcasting** — send to all (costly, use sparingly)
+- **Shared task list** — agents self-claim available work
+- **Auto-idle notifications** — finished teammates notify the lead
+- **Task dependencies** — blocked tasks auto-unblock when deps complete
+
+### Hook events for teams
+
+| Event | When |
+|-------|------|
+| `TeammateIdle` | Teammate about to go idle (exit 2 to keep working) |
+| `TaskCreated` | Task being created (exit 2 to block) |
+| `TaskCompleted` | Task being marked complete (exit 2 to block) |
+
+### Limitations
+
+- No session resumption with in-process teammates
+- One team per session, no nested teams
+- Lead is fixed for team lifetime
+- Not supported in VS Code terminal, Windows Terminal, Ghostty
+- Task status can lag
+
+### Cost
+
+~7x more tokens than standard sessions. Each teammate has its own context window. Use Sonnet for teammates (not Opus). Keep teams to 3-5 members.
+
+### Real-world example: Anthropic's C Compiler
+
+16 parallel Claude agents built a 100,000-line Rust-based C compiler (compiles Linux 6.9 kernel) over ~2,000 sessions in two weeks, costing ~$20,000. Each agent specialized: deduplication, performance, code generation, architecture, documentation.
 
 ---
 
-## 2. Shipwise's Current Agent Architecture
+## 4. Worktrees + Third-Party Orchestrators
 
-### 2.1 Current Inventory
+### Built-in worktree support
 
-| Component | Type | Count | Tools |
-|-----------|------|-------|-------|
-| Agents | Agent definitions in `agents/` | 2 | auditor: Read/Grep/Glob; gap-analyzer: Read/Write |
-| Skills | Skill definitions in `skills/` | 15 | None (all conversational, no tool access) |
-| Hooks | Shell scripts in `hooks/` | 4 | Shell only (jq, grep, find) |
-| Commands | Command definitions in `commands/` | 3 | Invoke agents + present results |
+```bash
+# Named worktree — each gets its own branch and working directory
+claude --worktree frontend-work
+claude --worktree backend-work
+claude --worktree platform-work
 
-### 2.2 Current Agent Flow
-
-```
-User → /shipwise
-  └─ Interview (9 questions, sequential)
-  └─ Spawn: launch-readiness-auditor (foreground, blocking)
-       └─ Detect stack → Grep 10 categories sequentially → Return JSON
-  └─ Generate: state.json, STATUS.md, CLAUDE.md inject (sequential)
-  └─ Display: profile card + experience-level follow-up
-
-User → /launch-audit
-  └─ Spawn: launch-readiness-auditor (foreground, blocking)
-  └─ Compare with existing state.json
-  └─ Update state + history
-  └─ Display diff
-
-User → /launch-checklist [domain]
-  └─ Map domain → skill (no agent spawn)
-  └─ Load skill + cross-reference state.json
-  └─ Display checklist
+# With tmux (survives terminal close)
+claude --worktree frontend-work --tmux
 ```
 
-### 2.3 What's NOT Used
+Each instance gets isolated filesystem. Changes don't collide. Worktrees with no changes auto-cleanup.
 
-Shipwise currently does not use:
-- **Background agents** (all foreground/blocking)
-- **Parallel agent fan-out** (all sequential)
-- **Agent memory** (state tracked via `shipwise-state.json` instead)
-- **Model tiering** (no `model` specified in agent definitions — inherits parent model)
-- **Git worktree isolation**
-- **`maxTurns` caps** (no runaway protection)
-- **`skills` injection** (agents don't have skills loaded)
-- **Agent Teams** (experimental, not adopted)
+### Claude Squad
+
+**GitHub:** [smtg-ai/claude-squad](https://github.com/smtg-ai/claude-squad) (~6.7K stars)
+
+Terminal TUI managing multiple AI agent sessions. Each task gets isolated git workspace + tmux session.
+
+```bash
+brew install claude-squad
+cs        # Launch TUI
+cs -y     # Auto-accept mode (fully autonomous)
+```
+
+Keys: `n` (new session), `N` (new with prompt), `D` (terminate), `s` (commit+push), `tab` (toggle diff)
+
+### Other orchestrators
+
+| Tool | What it does | Scale |
+|------|-------------|-------|
+| **claude_code_agent_farm** | 20-50 agents with lock-based coordination, tmux dashboard | Enterprise |
+| **oh-my-claudecode** | Zero-config plugin, 32 specialized agents, automatic model routing | Simple |
+| **ComposioHQ agent-orchestrator** | Agent-agnostic (Claude, Codex, Aider), auto CI-fix loop | Enterprise |
+| **workmux** | Lightweight git worktrees + tmux windows | Simple |
+
+### Boris Cherny's workflow (Claude Code creator)
+
+- 5 instances locally in terminal tabs + 5-10 on website
+- Each instance uses separate git worktree
+- Uses `/batch` to fan out migration work to parallel agents
+- Each agent creates its own PR independently
+- System notifications for when Claude needs input
+
+### Comparison: Claude Code vs Cursor vs Windsurf
+
+| Dimension | Claude Code | Cursor | Windsurf |
+|-----------|------------|--------|----------|
+| Runtime | Local terminal / tmux | Cloud sandbox | Local IDE |
+| Max parallel | 16+ agents, worktree-isolated | 8 cloud agents | Multi-pane worktrees |
+| Coordination | Agent Teams (peer messaging) | Background queue | Independent panes |
+| Unique strength | Fully programmable, composable, unlimited | Cloud sandbox + browser testing | IDE integration |
+| Cost model | API tokens (pay per use) | Subscription + usage | Subscription |
 
 ---
 
-## 3. Bottleneck Analysis
+## 5. Shipwise's Current Architecture
 
-### 3.1 Scanning & Analysis
+### What exists
 
-| Bottleneck | Current behavior | Impact | Solution |
-|------------|-----------------|--------|----------|
-| **Monolithic auditor** | All 10 categories scanned sequentially by one agent | 1-3 min for large repos | Fan-out: 4 parallel domain-specific auditor agents |
-| **No incremental scan** | Full codebase re-scan on every `/launch-audit` | Same 3 min even if 1 file changed | Delta auditor: scan only git-changed files since last audit |
-| **No model tiering** | Auditor inherits parent model (Opus) for simple grep work | Paying Opus prices for Haiku-level tasks | Set `model: haiku` on auditor (grep/glob doesn't need Opus reasoning) |
+| Component | Count | Model | Parallelism |
+|-----------|-------|-------|-------------|
+| Agents (auditor, gap-analyzer) | 2 | Opus (inherited) | Sequential, foreground |
+| Skills | 15 | Conversational | N/A |
+| Hooks | 4 | Shell (no LLM) | N/A |
+| Commands | 3 | — | — |
 
-### 3.2 Hook Execution
+### What's NOT used
 
-| Bottleneck | Current behavior | Impact | Solution |
-|------------|-----------------|--------|----------|
-| **Single-category file matching** | `post-edit-check.sh` assigns ONE category per file | `src/auth/api.ts` gets "auth" but misses "api" | Multi-category matching |
-| **File-only completion detection** | `stop-updater.sh` marks items "done" if file exists | Empty Dockerfile = "done" | Content validation (check file is non-trivial) |
-| **Ephemeral whisper dedup** | Stored in `/tmp`, lost on session restart | Re-whispers everything next session | Persist to `.claude/shipwise-whispers.json` |
-| **No pre-flight verification** | Deploy gate only lists P0 items | Doesn't verify CI passing, secrets configured | Parallel pre-flight checks |
+- Background agents (all foreground/blocking)
+- Parallel fan-out (all sequential)
+- Model tiering (no `model: haiku` — paying Opus for grep work)
+- `maxTurns` caps (no runaway protection)
+- Git worktree isolation
+- Agent memory
+- Agent Teams
 
-### 3.3 Command Sequencing
+### Current audit flow
 
-| Bottleneck | Current behavior | Impact | Solution |
-|------------|-----------------|--------|----------|
-| **Interview blocks audit** | 9 questions asked THEN audit runs | User waits 2-3 min after answering | Start audit in background after Q1 (stack question) |
-| **Sequential artifact generation** | state.json → STATUS.md → CLAUDE.md inject | 3 independent writes serialized | Could parallelize (all depend on same input) |
-| **No streaming feedback** | Audit runs silently until complete | User thinks it hung | Progress messages already added (v0.4.0) — could add per-category streaming |
+```
+/launch-audit
+  └─ Spawn 1 auditor (Opus, foreground, blocking)
+     └─ Sequential: CI/CD → Testing → Security → UX → Observability → SEO → Legal → Billing → Quality
+     └─ ~120 seconds, ~$0.60
+```
 
 ---
 
-## 4. Multi-Agent Patterns Available
+## 6. Recommended Improvements
 
-### 4.1 Fan-Out / Fan-In (Scatter-Gather)
+### Phase 1: Quick Wins (1-2 hours) — DO FIRST
 
-**What**: Spawn N agents in parallel for independent subtasks, aggregate results.
+| Change | File | Impact |
+|--------|------|--------|
+| Add `model: haiku` to auditor | `agents/launch-readiness-auditor.md` | **80% cost reduction** |
+| Add `model: haiku` to gap-analyzer | `agents/gap-analyzer.md` | Cost reduction |
+| Add `maxTurns: 30` to both agents | Both agent files | Runaway protection |
+| Persist whisper dedup | `hooks/post-edit-check.sh` | No re-whispers on restart |
+| Content validation (non-empty files) | `hooks/stop-updater.sh` | No false "done" marks |
 
-**Shipwise application**: Split `launch-readiness-auditor` into 4 parallel workers:
+### Phase 2: Fan-Out Audit (4-6 hours) — HIGH IMPACT
 
-```
-Orchestrator spawns (in parallel):
-  ├─ security-auditor (haiku) → security headers, auth, OWASP, input validation
-  ├─ infra-auditor (haiku)    → CI/CD, Docker, IaC, env config, secrets
-  ├─ ux-auditor (haiku)       → a11y, empty states, loading, contrast, headings
-  └─ quality-auditor (haiku)  → testing, linting, SEO, legal, billing
-
-Orchestrator: merges 4 JSON results → unified shipwise-state.json
-```
-
-**Expected improvement**: 3-4x faster audits (parallel execution + Haiku model = cheaper AND faster)
-
-**Risk**: Race conditions on state writes. Mitigation: orchestrator collects all results in memory, writes state once.
-
-### 4.2 Pipeline (Sequential Chain)
-
-**What**: Agent A → output → Agent B → output → Agent C.
-
-**Shipwise already does this**: auditor → gap-analyzer → orchestrator presentation. The pattern is correct; the optimization is making the pipeline stages cheaper (model tiering).
-
-### 4.3 Specialist Delegation (Skills Pattern)
-
-**What**: Route tasks to domain-expert agents based on task type.
-
-**Shipwise already does this**: 14 domain skills with orchestrator routing table. This is the plugin's primary pattern and it works well. No changes needed to the pattern itself.
-
-### 4.4 Evaluator-Optimizer (Critic/Generator)
-
-**What**: One agent generates, another reviews, loop until passing.
-
-**Shipwise application**: After post-edit whisper, if developer addresses the issue, re-check once. Currently whispers are fire-and-forget with no verification.
-
-**Constraint**: Limited to 1 retry iteration (cap cost). Diminishing returns after iteration 1.
-
-### 4.5 Background Prefetching
-
-**What**: Spawn background agents to pre-load context the user will likely need next.
-
-**Shipwise application**: When phase transition detected (design → build), spawn background agent to pre-analyze which build-phase skills are relevant to this specific project and prepare context summaries.
-
----
-
-## 5. Recommended Improvements by Use Case
-
-### 5.1 `/shipwise` (First-time Scaffold)
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Start audit as background agent after Q4 (stack question) | Background agent | 2-3x faster perceived time | Low — add `run_in_background: true` |
-| Set auditor `model: haiku` | Model tiering | 3-5x cheaper audit | Trivial — one frontmatter line |
-| Add `maxTurns: 30` to auditor | Safety | Prevents runaway | Trivial |
-
-### 5.2 `/launch-audit` (Re-scan)
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Split into 4 parallel domain auditors | Fan-out | 3-4x faster | Medium — 4 new agent definitions + merge logic |
-| Delta scanning (only changed files) | Incremental | 10-50x faster for small changes | Medium — git diff + selective scan |
-| Run in background while user codes | Background agent | Zero perceived wait | Low — option in command |
-
-### 5.3 `/launch-checklist [domain]` (Deep-dive)
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Pre-load related skills in parallel | Background prefetch | Faster cross-domain transitions | Low |
-| Spawn implementation sub-agent for P0 items | Specialist delegation | "Fix it for me" capability | Medium |
-
-### 5.4 Post-Edit Whisper Hook
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Multi-category matching (auth + api) | Logic fix | Better coverage | Low — shell script update |
-| Persist dedup to `.claude/shipwise-whispers.json` | State fix | No re-whispers on restart | Low |
-
-### 5.5 Pre-Deploy Gate
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Parallel pre-flight checks (CI status, secrets, health endpoint) | Fan-out | Actionable deploy gate | Medium — new agent definitions |
-| Add content validation to file detection | Quality | No false "done" marks | Low |
-
-### 5.6 Session Stop (Auto-detection)
-
-| Change | Type | Impact | Effort |
-|--------|------|--------|--------|
-| Validate detected files have real content | Quality | No empty-file false positives | Low |
-| Phase transition → background prefetch next-phase context | Background agent | Smoother transitions | Low |
-
----
-
-## 6. Agent Teams (Experimental)
-
-Claude Code has an experimental **Agent Teams** feature (enable with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`). This is a higher-level orchestration system where:
-
-- A **team lead** coordinates multiple **teammates**
-- Teammates have independent context windows and can message each other
-- A shared **task list** tracks work items with dependency tracking
-- Display modes: in-process (single terminal) or split panes (tmux/iTerm2)
-
-### Relevance to Shipwise
-
-Agent Teams could enable a "full lifecycle session" where multiple specialists work in parallel:
+Split the monolithic auditor into 4 parallel domain-specific auditors:
 
 ```
-Team lead: Shipwise orchestrator
-  ├─ Teammate 1: Security specialist (skill 08 context)
-  ├─ Teammate 2: Infrastructure specialist (skill 06 context)
-  ├─ Teammate 3: Frontend/UX specialist (skill 05 + 02 context)
-  └─ Shared task list: P0 items from audit, assigned to specialists
+/launch-audit
+  ├─ auditor-security (haiku)      → auth, headers, OWASP, dependencies
+  ├─ auditor-infrastructure (haiku) → CI/CD, Docker, env, monitoring
+  ├─ auditor-ux-accessibility (haiku) → a11y, states, contrast, landmarks
+  └─ auditor-compliance-quality (haiku) → legal, SEO, linting, testing
+
+  Orchestrator: merge 4 JSON results → unified state.json
 ```
 
-### Why NOT to Adopt Yet
+**New agent files to create:**
+- `agents/auditor-security.md`
+- `agents/auditor-infrastructure.md`
+- `agents/auditor-ux-accessibility.md`
+- `agents/auditor-compliance-quality.md`
 
-- **Experimental**: No session resumption with in-process teammates
-- **Cost**: ~7x more tokens than standard sessions
-- **Complexity**: One team per session, no nested teams, lead is fixed
-- **Overkill**: Shipwise users are shipping MVPs, not coordinating 4 parallel workstreams
+**Results:**
+| Metric | Current | Fan-out | Improvement |
+|--------|---------|---------|-------------|
+| Wall time | ~120s | ~30-45s | **3-4x faster** |
+| Token cost | ~$0.60 | ~$0.12 | **5x cheaper** |
+| Reasoning | Opus monolithic | Haiku per-domain | Better specialization |
 
-**Recommendation**: Monitor Agent Teams maturity. Revisit when it exits experimental. The subagent pattern (fan-out) is sufficient for Shipwise's current needs.
+### Phase 3: Background & Incremental (4-6 hours)
+
+| Change | Impact |
+|--------|--------|
+| Background audit during `/shipwise` interview (start after Q4) | 33% faster perceived setup |
+| Delta scanning (only git-changed files) | 10-50x faster incremental audits |
+| Phase transition planner (background context prefetch) | Smoother phase transitions |
+
+### Phase 4: Future — Agent Teams for Full Setup (when stable)
+
+```
+"Help me set up a Next.js SaaS from scratch"
+
+Team Lead: Shipwise orchestrator
+  ├─ FE Engineer (skills 02, 05) → design system + components
+  ├─ BE Engineer (skills 04, 08) → API + auth + database
+  └─ Platform Engineer (skills 06, 09) → CI/CD + monitoring
+```
+
+**Status:** Not recommended yet. Agent Teams is experimental, 7x token cost, overkill for MVP users. Revisit when stable.
+
+### Phase 5: Future — Skill Implementer Agent
+
+```
+User: /launch-checklist security
+  → Shows P0 item: "Security headers (15 min)"
+
+User: "Fix security headers for me"
+  → Spawn skill-implementer agent (Sonnet)
+  → Agent reads skill, loads template, writes middleware
+  → Verifies: npm run build ✓
+  → "Security headers added to middleware.ts"
+```
+
+**Status:** Optional. High value but needs careful safety gates (user approval, no destructive operations).
 
 ---
 
 ## 7. Cost Analysis
 
-### 7.1 Current Cost
+### Current vs optimized
 
-| Operation | Model | Est. tokens | Est. cost |
-|-----------|-------|-------------|-----------|
-| `/shipwise` scaffold | Opus (inherited) | ~50K | ~$0.75 |
-| `/launch-audit` | Opus (inherited) | ~40K | ~$0.60 |
-| `/launch-checklist` | Opus (main) | ~20K | ~$0.30 |
-| Post-edit whisper | Shell only | 0 | $0 |
-| Deploy gate | Shell only | 0 | $0 |
+| Operation | Current | Phase 1 | Phase 2 |
+|-----------|---------|---------|---------|
+| `/shipwise` scaffold | $1.12 (Opus) | $0.67 (Haiku audit) | $0.52 (background + Haiku) |
+| `/launch-audit` | $0.60 / 120s | $0.12 / 120s | $0.12 / 30-45s |
+| `/launch-audit` (delta) | N/A | N/A | $0.03 / 10-15s |
 
-### 7.2 Optimized Cost (with model tiering)
+### Model tier recommendations
 
-| Operation | Model change | Est. tokens | Est. cost | Savings |
-|-----------|-------------|-------------|-----------|---------|
-| `/shipwise` scaffold | Auditor → Haiku | ~50K | ~$0.15 | **80%** |
-| `/launch-audit` (fan-out) | 4× Haiku workers | ~60K total | ~$0.12 | **80%** |
-| `/launch-checklist` | No change | ~20K | ~$0.30 | — |
-
-**Key insight**: The auditor does grep/glob work that doesn't need Opus-level reasoning. Switching to `model: haiku` for scanning agents is the single highest-impact cost optimization — 80% cheaper with negligible quality loss for pattern-matching tasks.
-
-### 7.3 Fan-Out Cost vs Speed Tradeoff
-
-| Approach | Agents | Total tokens | Wall time | Cost |
-|----------|--------|-------------|-----------|------|
-| Current (1 Opus auditor) | 1 | ~40K | ~60s | ~$0.60 |
-| Fan-out (4 Haiku auditors) | 4 | ~60K | ~15s | ~$0.12 |
-| Fan-out (4 Sonnet auditors) | 4 | ~60K | ~20s | ~$0.18 |
-
-Fan-out with Haiku is **4x faster AND 5x cheaper** than the current approach.
+| Task type | Model | Why |
+|-----------|-------|-----|
+| Grep/glob scanning | Haiku | Pattern matching doesn't need Opus reasoning |
+| Gap analysis | Haiku | Structured JSON → prioritized list |
+| Orchestration/synthesis | Opus (inherited) | Merging results needs strong reasoning |
+| Code implementation | Sonnet | Balance of speed and quality |
+| Agent Teams teammates | Sonnet | Cost-effective for parallel work |
 
 ---
 
-## 8. Implementation Roadmap
+## 8. What NOT to Do
 
-### Phase 1: Quick Wins (1-2 hours, high impact)
+Based on research: **79% of multi-agent failures come from coordination issues, not technical implementation.**
 
-These are single-line or small changes with disproportionate impact:
-
-1. **Add `model: haiku` to `launch-readiness-auditor.md`** — 80% cost reduction
-2. **Add `maxTurns: 30` to both agent definitions** — runaway protection
-3. **Persist whisper dedup** to `.claude/shipwise-whispers.json` — no re-whispers on restart
-4. **Content validation in `stop-updater.sh`** — check files are non-empty before marking "done"
-
-### Phase 2: Fan-Out Audit (4-6 hours, major improvement)
-
-Split the monolithic auditor into domain-specific workers:
-
-1. Create 4 new agent definitions:
-   - `agents/auditor-security.md` (tools: Read, Grep, Glob; model: haiku)
-   - `agents/auditor-infrastructure.md`
-   - `agents/auditor-ux-quality.md`
-   - `agents/auditor-compliance.md`
-2. Update `commands/launch-audit.md` to spawn all 4 in parallel
-3. Add merge logic in orchestrator to combine 4 JSON results
-4. Keep `launch-readiness-auditor.md` as fallback for `/shipwise` first-run
-
-### Phase 3: Background & Incremental (4-6 hours)
-
-1. **Background audit during interview** — start scan after Q4, continue interview
-2. **Delta scanning** — use git diff to scan only changed files
-3. **Phase transition prefetch** — background agent pre-loads next-phase context
-
-### Phase 4: Future (when Agent Teams stabilizes)
-
-1. Multi-specialist implementation sessions
-2. Parallel P0 item remediation
-3. Cross-domain coordination for complex fixes
-
----
-
-## 9. What NOT to Do
-
-Based on research into multi-agent failure modes (79% of failures come from coordination issues):
-
-| Anti-pattern | Why it fails | Shipwise implication |
-|-------------|-------------|---------------------|
-| **Inter-agent messaging** | Coordination tax grows exponentially (5 agents = 10 connections) | Keep agents independent; merge at orchestrator only |
-| **Dynamic agent spawning** | LLM decides how many agents = unpredictable cost | Use deterministic routing tables |
-| **Nested subagents** | Not supported in Claude Code; architectural constraint | Chain from main context only |
-| **Map-Reduce over all files** | Cost explosion (100 files × 5K tokens = 500K input) | Filter with glob/grep first, then LLM-analyze |
-| **Evaluator loops > 2 iterations** | Diminishing returns; cost scales linearly | Cap at 1-2 retries max |
-| **Agent Teams for simple tasks** | 7x token cost for coordination overhead | Only for genuinely parallel workstreams |
-| **Opus for scanning tasks** | Paying for reasoning that isn't needed | Haiku for grep/glob work; Opus for synthesis |
-| **Swarm/Mesh patterns** | Emergent behavior is unpredictable | Shipwise needs deterministic, reproducible results |
-
-### The 79% Rule
-
-Research analyzing 2,766 multi-agent interactions found that **79% of multi-agent failures come from specification and coordination issues**, not technical implementation. Getting the prompts and boundaries right matters more than the architecture pattern. Shipwise's existing skill boundaries (clear trigger lists, explicit scope per skill) are the right foundation — the improvement is in execution speed and cost, not architecture change.
+| Anti-pattern | Why | Shipwise rule |
+|-------------|-----|---------------|
+| Inter-agent messaging | Coordination tax grows O(n²) | Keep auditors independent; merge at orchestrator only |
+| Dynamic agent spawning | Unpredictable cost | Always 4 auditors (deterministic) |
+| Nested subagents | Not supported | Chain from main context only |
+| Map-Reduce over all files | Cost explosion | Filter with glob/grep first |
+| Evaluator loops > 2 iterations | Diminishing returns | Cap at 1 retry |
+| Agent Teams for simple tasks | 7x token overhead | Only for genuinely parallel workstreams |
+| Opus for scanning | Overkill | Haiku for all read-only agents |
+| Swarm/Mesh patterns | Unpredictable behavior | Deterministic routing tables |
 
 ---
 
 ## Sources
 
-- [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents)
-- [Orchestrate teams of Claude Code sessions](https://code.claude.com/docs/en/agent-teams)
-- [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview)
-- [How we built our multi-agent research system — Anthropic Engineering](https://www.anthropic.com/engineering/multi-agent-research-system)
-- [Building Effective AI Agents — Anthropic](https://resources.anthropic.com/building-effective-ai-agents)
-- [Why Do Multi-Agent LLM Systems Fail? — arxiv](https://arxiv.org/abs/2503.13657)
-- [The Code Agent Orchestra — Addy Osmani](https://addyosmani.com/blog/code-agent-orchestra/)
-- [AI Agent Orchestration Patterns — Microsoft Azure](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
-- [Developer's guide to multi-agent patterns — Google ADK](https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/)
-- [Choosing the Right Multi-Agent Architecture — LangChain](https://blog.langchain.com/choosing-the-right-multi-agent-architecture/)
-- [obra/superpowers — GitHub](https://github.com/obra/superpowers/)
-- [Claude Code Sub-Agents: Best Practices](https://claudefa.st/blog/guide/agents/sub-agent-best-practices)
+### Official documentation
+- [Agent Teams](https://code.claude.com/docs/en/agent-teams)
+- [Custom subagents](https://code.claude.com/docs/en/sub-agents)
+- [Git worktrees](https://code.claude.com/docs/en/common-workflows)
+- [Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview)
+- [Cost management](https://code.claude.com/docs/en/costs)
+- [Plugin agents](https://code.claude.com/docs/en/plugins-reference)
+
+### Case studies
+- [Building a C compiler with parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) — 16 agents, 100K lines, $20K
+- [How Boris Uses Claude Code](https://howborisusesclaudecode.com/) — 5 parallel worktrees
+- [Building Effective AI Agents](https://resources.anthropic.com/building-effective-ai-agents)
+- [Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
+
+### Third-party tools
+- [claude-squad](https://github.com/smtg-ai/claude-squad) — TUI for parallel agent sessions
+- [claude_code_agent_farm](https://github.com/Dicklesworthstone/claude_code_agent_farm) — 20-50 parallel agents
+- [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) — Zero-config 32-agent plugin
+- [ComposioHQ/agent-orchestrator](https://github.com/ComposioHQ/agent-orchestrator) — CI-fix loop orchestration
+
+### Research
+- [Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — 79% coordination failures
+- [The Code Agent Orchestra](https://addyosmani.com/blog/code-agent-orchestra/)
+- [AI Agent Orchestration Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
+- [Multi-agent patterns in ADK](https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/)
+- [Choosing the Right Multi-Agent Architecture](https://blog.langchain.com/choosing-the-right-multi-agent-architecture/)
