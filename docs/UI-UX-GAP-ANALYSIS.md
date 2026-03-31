@@ -306,6 +306,23 @@ skills/
     references/
       landing-page-ux-guide.md                  → Visitor archetypes, hero formula, CTA, proof
       lighthouse-targets.md                     → Core Web Vitals, Lighthouse CI, budgets
-      [GAP] pricing-page-ux-guide.md            → Tier layouts, toggle, feature matrix, proof
+      pricing-page-ux-guide.md                  → Tier layouts, toggle, feature matrix, proof,
+                                                  paywall strategy patterns (soft/hard/grace),
+                                                  post-upgrade reward, limit messaging framework
       [GAP] conversion-ux-patterns.md           → Friction audit, trust signals, CTA hierarchy
 ```
+
+---
+
+## Additional Items (Real-World Validation)
+
+Items identified from real audits of harmansidhudev.com and strxp.
+
+| # | Item | Location | Status |
+|---|------|----------|--------|
+| A1 | UI/UX Review Brief template | `templates/ui-ux-review-brief.md` | Done |
+| A2 | Pre-ship state verification | `13/refs/pre-ship-state-verification.md` | Done |
+| A3 | Conversion funnel audit | `14/refs/conversion-funnel-audit.md` | Done |
+| A4 | Paywall UX patterns | `10/refs/pricing-page-ux-guide.md` (extended section 8) | Done |
+| A5 | Brand personality check | `02/refs/design-audit-workflow.md` (new section) | Done |
+| A6 | First-use walkthrough audit | `02/refs/onboarding-ux-patterns.md` (new section) | Done |

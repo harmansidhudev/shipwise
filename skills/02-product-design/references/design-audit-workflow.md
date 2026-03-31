@@ -394,6 +394,43 @@ Good: "We couldn't save your changes. Check your connection and try again."
 
 ---
 
+## Brand personality check
+
+A quick test for whether your UI conveys the right personality.
+
+### The 3-adjective test
+1. Write down 3 adjectives your product should convey (e.g., "smart, fast, trustworthy" or "warm, playful, accessible")
+2. Open each page and ask: would a stranger describe this page with any of those 3 words?
+3. If a page conveys the OPPOSITE (e.g., "slow" when you want "fast", or "corporate" when you want "playful"), that page needs redesign attention
+
+**Quick scoring:**
+
+| Page | Adjective 1 | Adjective 2 | Adjective 3 | Verdict |
+|------|-------------|-------------|-------------|---------|
+| Landing | Yes/No | Yes/No | Yes/No | Pass/Fix |
+| Dashboard | Yes/No | Yes/No | Yes/No | Pass/Fix |
+| Settings | Yes/No | Yes/No | Yes/No | Pass/Fix |
+| [Add more] | | | | |
+
+If a page scores 0/3, it's working against your brand. If it scores 1/3, it's neutral. 2/3 or 3/3 means it's aligned.
+
+### Theme parity check (if multi-theme)
+
+Open each page in every theme. For each theme, ask:
+- Does this look intentionally designed, or like an automatic inversion?
+- Are there elements that are invisible, unreadable, or jarring in this theme?
+- Would a user who ONLY uses this theme think it was the "real" design?
+
+If one theme feels like the "designed" theme and others feel like afterthoughts, either invest in making all themes equal or reduce to the one that works. Half-designed themes are worse than no theme option — they signal carelessness.
+
+**Common theme parity issues:**
+- Shadows that work in light mode but are invisible in dark mode
+- Colored backgrounds that become unreadable when inverted
+- Images and illustrations that clash with the dark palette
+- Border colors that disappear against dark surfaces
+
+---
+
 ## 2. The 3-phase audit process
 
 Don't fix everything at once. Work in three passes ordered by user impact.

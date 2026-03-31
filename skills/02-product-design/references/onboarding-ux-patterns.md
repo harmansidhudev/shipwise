@@ -421,6 +421,58 @@ const WelcomeBack: React.FC<WelcomeBackProps> = ({ userName, lastActiveDate, onD
 
 ---
 
+## First-use walkthrough audit
+
+A lightweight test you can run in 5 minutes to find first-run friction.
+
+### How to run it
+1. Open your app in an incognito/private browser window
+2. Set a timer (phone stopwatch works)
+3. Try to complete your product's core action as a brand-new user
+4. Document what you see at each checkpoint:
+
+### Checkpoint template
+
+```markdown
+# First-Use Walkthrough — [Product Name]
+**Date:** YYYY-MM-DD
+**Tester:** [Your name]
+**Browser:** Incognito / private mode
+
+| Checkpoint | Time | What I see | Friction? |
+|------------|------|-----------|-----------|
+| First paint (0-3s) | | Does something useful appear immediately? | |
+| Value proposition clear? (5s) | | Do I know what this product does and why I'd use it? | |
+| Found primary CTA? (10s) | | Can I identify the main action without searching? | |
+| First action completed? (30s-2min) | | Did I successfully do the core thing? | |
+| Signup prompt appeared? (after first action) | | Was signup triggered by value delivery or before it? | |
+| Post-signup landing (after auth) | | Did I land somewhere useful or an empty dashboard? | |
+| Second action started? (next 30s) | | Does the UI naturally suggest what to do next? | |
+```
+
+### What to look for
+
+- **Time to first value:** Can a new user get value in <60 seconds? If not, your onboarding has a problem. The fix is usually removing gates (signup, profile forms, tutorials) that stand between the user and the core action.
+
+- **Unnecessary gates:** Are you asking for signup BEFORE showing value? That's backwards. The best pattern: let users experience the product → show value → then ask for signup to keep/save their result.
+
+- **Post-signup dead end:** After signup, does the user land on an empty dashboard with no guidance? This is the #1 first-run retention killer. Fix: land them back in the flow they were in, or show a checklist of first steps.
+
+- **Feature discovery:** After the first action, does the UI naturally suggest a second action? Or does the user have to figure out what's next? Good products have a natural "and then..." flow.
+
+- **Cognitive load at each step:** Count the number of decisions the user must make at each checkpoint. More than 2 decisions at any single step = friction. Reduce choices or provide a clear default.
+
+### Benchmarks
+
+| Metric | Good | Needs work | Critical |
+|--------|------|-----------|----------|
+| Time to first value | <30s | 30s-2min | >2min |
+| Clicks to first result | 1-3 | 4-6 | 7+ |
+| Fields before first value | 0 | 1-2 | 3+ |
+| Post-signup time to second action | <15s | 15-60s | >60s or dead end |
+
+---
+
 ## Companion tools
 
 - `anthropics/claude-code` -> `frontend-design` skill -- Implement onboarding components

@@ -383,6 +383,51 @@ function FeatureLock({ featureLabel, requiredTier, upgradeHref }: { featureLabel
 
 ---
 
+### Paywall strategy patterns
+
+Not all limits should be enforced the same way. Choose based on your product's value model.
+
+**Soft paywall** — Show the result, gate the action (save, export, share).
+Best when: the product's value is in the output itself. User sees what they'd get, then must upgrade to keep it.
+Example: "Your report is ready. Upgrade to download the PDF."
+
+**Hard paywall** — Block the action entirely with explanation.
+Best when: the action consumes server resources (API calls, compute, storage). User sees a clear message with usage count + upgrade path.
+Example: "You've used all 5 free extractions this month. Upgrade for 100/month."
+
+**Grace period** — Allow the action but warn it won't persist.
+Best when: you want users to build a habit before hitting the wall.
+Example: "This result won't be saved to your history. Upgrade for permanent access."
+
+### Post-upgrade reward
+
+When a user upgrades, immediately:
+1. Unlock the action they were trying to do (don't make them repeat it)
+2. Show a confirmation: "Welcome to Pro! You now have unlimited extractions."
+3. Remove all limit-related UI (usage bars, upgrade prompts, lock icons)
+4. If they were mid-action when they hit the limit, complete that action automatically
+
+The worst post-upgrade experience: user upgrades, lands on a generic dashboard, and has to find their way back to what they were doing.
+
+### Limit message framework
+
+Structure: [What happened] + [What they'd get] + [Specific value] + [CTA]
+
+| Quality | Example |
+|---------|---------|
+| Good | "You've used all 5 free extractions. Upgrade to Pro for 100/month — that's $0.07 per extraction." |
+| Bad | "Limit reached. Please upgrade." |
+| Bad | "Error: quota exceeded." |
+| Bad | "Upgrade to Pro" (no context about what limit was hit) |
+
+Key rules:
+- Always state the specific limit that was reached (not just "limit reached")
+- Always show what they'd get by upgrading (not just "upgrade")
+- Include a per-unit cost if applicable (makes price feel small)
+- Never use error language for business logic (this isn't an error — it's a feature gate)
+
+---
+
 ## 9. Anti-Patterns
 
 | Anti-pattern | Why it hurts | Fix |
