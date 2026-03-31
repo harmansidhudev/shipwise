@@ -44,9 +44,34 @@ protection, session hardening, and password breach checking.
 # Helpful commands:
 /shipwise help                  # Show commands, skills, hooks
 /shipwise set-level senior      # Change experience level
+/shipwise pause                 # Temporarily disable (keeps state)
 /launch-audit                   # Full codebase re-scan
 /launch-checklist security      # Deep-dive a domain
 ```
+
+### Status line (optional)
+
+Show Shipwise readiness in the CLI status bar:
+
+```bash
+# Copy the status line script to your project
+cp node_modules/shipwise/scripts/statusline.sh .claude/shipwise-statusline.sh
+# Or download directly:
+curl -o .claude/shipwise-statusline.sh https://raw.githubusercontent.com/harmansidhudev/shipwise/main/scripts/statusline.sh
+chmod +x .claude/shipwise-statusline.sh
+```
+
+Then add to `.claude/settings.json`:
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": ".claude/shipwise-statusline.sh"
+  }
+}
+```
+
+Result: `opus · 25% ctx | ⛵ build ████░░░░░░ 42% · 3 P0 gaps`
 
 ## How It Works
 

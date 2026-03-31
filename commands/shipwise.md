@@ -133,6 +133,8 @@ Feedback? → github.com/harmansidhudev/shipwise/discussions"
 
 - `/shipwise help` — Show available commands, current phase, relevant skills, and hook summary
 - `/shipwise set-level [beginner|intermediate|senior]` — Change experience level
+- `/shipwise pause` — Disable Shipwise hooks and skills (plugin stays installed)
+- `/shipwise resume` — Re-enable Shipwise hooks and skills
 
 For phase subcommands, load the relevant skills for that phase and present the checklist items filtered to that phase, ordered by priority.
 
@@ -148,3 +150,13 @@ Show:
 1. Validate the argument is one of: beginner, intermediate, senior
 2. Update `experience_level` in `.claude/shipwise-state.json`
 3. Confirm: "Experience level updated to [level]. All future output will adapt accordingly."
+
+### /shipwise pause
+Temporarily disable Shipwise without uninstalling:
+1. Tell the user to run: `/plugin disable shipwise@shipwise-marketplace`
+2. Confirm: "Shipwise paused. Hooks, skills, and commands are disabled. Your state file is preserved. Run `/plugin enable shipwise@shipwise-marketplace` or `/shipwise resume` to re-enable."
+
+### /shipwise resume
+Re-enable Shipwise after pausing:
+1. Tell the user to run: `/plugin enable shipwise@shipwise-marketplace`
+2. Confirm: "Shipwise resumed. Hooks and skills are active again. Run `/shipwise status` to see where you left off."
