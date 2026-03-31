@@ -23,6 +23,11 @@ triggers:
   - "launch sequence"
   - "feature flag"
   - "go/no-go"
+  - "pre-ship check"
+  - "state verification"
+  - "state checklist"
+  - "did I test everything"
+  - "ready to ship checklist"
 ---
 
 # Launch Execution
@@ -75,6 +80,25 @@ Before any production deployment, run a full regression against staging. This is
 
 <!-- senior -->
 **Staging regression** — RC on staging. Automated suite green. Manual critical-path sweep. Cross-browser + mobile. Sentry clean. Sign off on staging checklist before proceeding.
+
+---
+
+## Pre-Ship State Verification
+
+Reference: `references/pre-ship-state-verification.md`
+
+<!-- beginner -->
+**Test every state your users will see** — Before shipping, open your app in an incognito window and check: what happens when there's no data? What happens when the network is slow? What happens when something breaks? If you haven't seen a state, your users will see it first. The pre-ship checklist walks you through every state page-by-page, then checks global things like navigation, modals, themes, and accessibility.
+> Time: ~30 min for a small app, ~1-2 hours for a larger one
+> Reference: See `references/pre-ship-state-verification.md`
+
+<!-- intermediate -->
+**Pre-ship state verification** — Binary pass/fail checklist for every UI state. Per-page: empty, loading (3G throttle), populated, error (kill API), mobile (375px), tablet (768px). Global: navigation, modals (focus trap, escape, scroll lock), auth boundaries (redirect + return), themes (parity, persistence, no flash), accessibility (reduced motion, tab order, skip link, labels), performance (first paint, layout shift, lazy loading).
+> ~30 min – 2 hours | `references/pre-ship-state-verification.md`
+
+<!-- senior -->
+**Pre-ship state verification** — Per-page state matrix (empty/loading/populated/error/mobile/tablet) + global checks (nav, modals, auth boundaries, theme parity, a11y, performance). Binary pass/fail. Different from design audit (analytical) — this is "did you TEST this?"
+> `references/pre-ship-state-verification.md`
 
 ---
 

@@ -31,6 +31,10 @@ Based on experience level:
 - **Intermediate:** Table of changes + current P0/P1 gaps
 - **Senior:** Compact diff + gap count
 
+### Visual audit follow-up
+After presenting the automated scan results, add this note:
+"The automated scan covers code-level UX (contrast, labels, landmarks, states). For a full visual and interaction review (14 dimensions including typography, spacing, navigation, content quality), ask me to run a design audit."
+
 ### Feedback nudge
 At the end of the audit output, occasionally (not every time — roughly 1 in 3 audits) include:
 "Feedback or feature ideas? → github.com/harmansidhudev/shipwise/discussions"

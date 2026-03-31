@@ -60,6 +60,12 @@ triggers:
   - "contrast ratio"
   - "contrast check"
   - "color contrast"
+  - "review my UI"
+  - "review my design"
+  - "UI review"
+  - "review brief"
+  - "brand personality"
+  - "theme parity"
 ---
 
 # Product Design
@@ -286,18 +292,22 @@ This checklist covers design-phase accessibility fundamentals. For comprehensive
 
 ### Design Audit
 
+**Before starting:** If you haven't filled out the UI/UX Review Brief (`templates/ui-ux-review-brief.md`), do that first — it captures your routes, tokens, states, and components so the audit is focused rather than random.
+
 <!-- beginner -->
 **Run a design self-review before launch** — A design audit is a structured walkthrough of your UI to catch visual, interaction, and accessibility problems before users see them. You don't need to be a designer — the audit framework gives you 14 specific things to check with 30-second quick tests for each one. Start with Phase 1 (critical issues only): check your color contrast, make sure empty pages have guidance, and test on your phone. Those three steps catch most of the problems that make an app look unfinished.
 > Time: ~1-2 hours for Phase 1
 > Reference: See `references/design-audit-workflow.md`
+> Prep: Fill `templates/ui-ux-review-brief.md` first (sections 1, 2, 3, 6, 10)
 
 <!-- intermediate -->
-**Design audit (14-dimension self-review)** — Structured UI review across visual hierarchy, typography, color/contrast, spacing, responsive behavior, interactive states, empty/loading/error states, navigation, forms, accessibility, content quality, and performance perception. Three-phase process: Critical (fix before any user sees it), Refinement (fix before stakeholders), Polish (production quality). Includes copy-paste audit template and automated checks via `/launch-audit`.
+**Design audit (14-dimension self-review)** — Structured UI review across visual hierarchy, typography, color/contrast, spacing, responsive behavior, interactive states, empty/loading/error states, navigation, forms, accessibility, content quality, and performance perception. Three-phase process: Critical (fix before any user sees it), Refinement (fix before stakeholders), Polish (production quality). Includes brand personality check (3-adjective test) and theme parity verification. Automated code-level checks via `/launch-audit`.
 > ~1-2 hours | `references/design-audit-workflow.md`
+> Prep: Fill `templates/ui-ux-review-brief.md` first
 
 <!-- senior -->
-**Design audit** — 14-dimension self-review framework. 3-phase process (critical/refinement/polish). Automated code-level checks via `/launch-audit` (contrast ratios, skip nav, focus indicators, form labels, heading hierarchy, ARIA landmarks). Manual audit template for visual/interaction quality.
-> `references/design-audit-workflow.md`
+**Design audit** — 14-dimension self-review + brand personality check + theme parity. 3-phase process (critical/refinement/polish). Automated code-level checks via `/launch-audit` (contrast ratios, skip nav, focus indicators, form labels, heading hierarchy, ARIA landmarks). Manual audit template for visual/interaction quality.
+> `references/design-audit-workflow.md` | Prep: `templates/ui-ux-review-brief.md`
 
 ---
 

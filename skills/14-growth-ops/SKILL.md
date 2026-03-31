@@ -48,6 +48,12 @@ triggers:
   - "win-back"
   - "viral coefficient"
   - "SEO content"
+  - "funnel audit"
+  - "conversion audit"
+  - "friction audit"
+  - "where are users dropping off"
+  - "conversion analysis"
+  - "paywall strategy"
 ---
 
 # Growth Ops
@@ -251,6 +257,27 @@ onTTFB(sendToAnalytics);
 
 <!-- senior -->
 **Web vitals** — `web-vitals` → analytics pipeline. Performance budgets enforced in CI. Production RUM tracked by page/device. Alert on p75 regressions.
+
+---
+
+## Conversion Funnel Audit
+
+Reference: `references/conversion-funnel-audit.md`
+
+This is the analysis counterpart to funnel instrumentation. Instrumentation adds tracking events; this doc teaches you how to look at your existing flows, score friction, and find where users are leaving.
+
+<!-- beginner -->
+**Find where users give up** — Open your product in incognito and try to go from landing page to getting real value. Can you do it in under 60 seconds without signing up? If not, that's your biggest conversion problem. The funnel audit framework walks you through 5 standard SaaS paths (visitor→value, value→signup, free→paid, user→sharer, referral→signup) and scores each step.
+> Time: ~1 hour for all 5 funnels
+> Reference: See `references/conversion-funnel-audit.md`
+
+<!-- intermediate -->
+**Conversion funnel audit** — Map 5 standard SaaS funnels, score each step across 4 dimensions (clarity, confidence, effort, reward), identify weakest steps, and prioritize fixes by impact. Includes per-funnel common friction points, missing persuasion checklists, and copy-paste audit template.
+> ~1 hour | `references/conversion-funnel-audit.md`
+
+<!-- senior -->
+**Funnel audit** — 5-funnel friction scoring (clarity × confidence × effort × reward). Per-funnel audit guides with common friction points. Prioritization: fix lowest-scoring step in highest-traffic funnel first.
+> `references/conversion-funnel-audit.md`
 
 ---
 
