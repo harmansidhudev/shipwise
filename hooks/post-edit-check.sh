@@ -9,10 +9,11 @@ STATE_FILE=".claude/shipwise-state.json"
 # Read experience level
 EXP=$(jq -r '.experience_level // "intermediate"' "$STATE_FILE" 2>/dev/null)
 
-# Session dedup file (G4)
-SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // "default"' 2>/dev/null)
-DEDUP_FILE="/tmp/shipwise-whispers-$SESSION_ID"
-touch "$DEDUP_FILE"
+# Persistent dedup file (survives session restarts)
+DEDUP_FILE=".claude/shipwise-whispers.json"
+if [ ! -f "$DEDUP_FILE" ]; then
+  echo '{"whispered":[]}' > "$DEDUP_FILE"
+fi
 
 # Determine whisper category from file path
 CATEGORY=""
@@ -32,8 +33,8 @@ fi
 
 [ -z "$CATEGORY" ] && exit 0
 
-# G4: Check if already whispered this category in this session
-if grep -q "^$CATEGORY$" "$DEDUP_FILE" 2>/dev/null; then
+# Check if already whispered this category (persists across sessions)
+if jq -e --arg cat "$CATEGORY" '.whispered | index($cat)' "$DEDUP_FILE" > /dev/null 2>&1; then
   exit 0
 fi
 
@@ -41,7 +42,7 @@ fi
 TOOL_NAME=$(echo "$HOOK_INPUT" | jq -r '.tool_name // ""' 2>/dev/null)
 if [ "$TOOL_NAME" = "Write" ]; then
   if [ "$CATEGORY" != "secrets" ]; then
-    echo "$CATEGORY" >> "$DEDUP_FILE"
+    jq --arg cat "$CATEGORY" '.whispered += [$cat]' "$DEDUP_FILE" > "${DEDUP_FILE}.tmp" && mv "${DEDUP_FILE}.tmp" "$DEDUP_FILE"
     exit 0
   fi
 fi
@@ -76,8 +77,8 @@ case "$CATEGORY:$EXP" in
     exit 0 ;;
 esac
 
-# Record whisper (G4)
-echo "$CATEGORY" >> "$DEDUP_FILE"
+# Record whisper (persistent)
+jq --arg cat "$CATEGORY" '.whispered += [$cat]' "$DEDUP_FILE" > "${DEDUP_FILE}.tmp" && mv "${DEDUP_FILE}.tmp" "$DEDUP_FILE"
 
 jq -n --arg ctx "[Shipwise] $MSG" \
   '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":$ctx}}'

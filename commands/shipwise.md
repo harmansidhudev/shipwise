@@ -64,9 +64,15 @@ Ask these 9 questions one at a time, waiting for each answer:
    3. 1K-10K
    4. 10K+
 
-### Step 2: Codebase Scan
-Before launching the scan, tell the user:
-"Scanning your codebase for launch readiness (CI/CD, security, testing, UX, SEO, legal, observability)..."
+### Step 1.5: Start Background Scan (after Q4)
+After the user answers Q4 (tech stack), you have enough context to start scanning. Spawn the `launch-readiness-auditor` agent **in the background** while continuing with Q5-Q9. This runs the audit in parallel with the remaining interview questions.
+
+If background execution is not available, fall back to the sequential approach below.
+
+### Step 2: Codebase Scan (if not already running in background)
+If the background scan from Step 1.5 is still running, wait for it. If Step 1.5 was skipped (no background support), run it now:
+
+Tell the user: "Scanning your codebase for launch readiness (CI/CD, security, testing, UX, SEO, legal, observability)..."
 
 Run the `launch-readiness-auditor` agent to scan the codebase.
 

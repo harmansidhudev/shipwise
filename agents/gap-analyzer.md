@@ -1,6 +1,8 @@
 ---
 name: gap-analyzer
 description: Takes launch readiness audit results and produces a prioritized action plan with time estimates, sequencing, and team assignments.
+model: haiku
+maxTurns: 30
 tools:
   - Read
   - Write

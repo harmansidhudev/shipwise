@@ -12,7 +12,15 @@ UPDATED=false
 check_file() {
   local pattern="$1"
   local item_id="$2"
-  if find . -path "./.git" -prune -o -path "./node_modules" -prune -o -name "$pattern" -print 2>/dev/null | grep -q .; then
+  local found_valid=false
+  while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    if [ -s "$file" ]; then  # -s checks file is non-empty
+      found_valid=true
+      break
+    fi
+  done < <(find . -path "./.git" -prune -o -path "./node_modules" -prune -o -name "$pattern" -print 2>/dev/null)
+  if [ "$found_valid" = true ]; then
     local status=$(jq -r --arg id "$item_id" '.items[] | select(.id == $id) | .status' "$STATE_FILE" 2>/dev/null)
     if [ "$status" = "todo" ]; then
       jq --arg id "$item_id" '(.items[] | select(.id == $id)).status = "done"' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"

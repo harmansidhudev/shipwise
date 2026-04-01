@@ -1,6 +1,8 @@
 ---
 name: launch-readiness-auditor
 description: Scans a codebase for launch readiness evidence across all shipwise checklist items. Returns structured JSON with item status, phase, and priority.
+model: haiku
+maxTurns: 30
 tools:
   - Read
   - Grep
