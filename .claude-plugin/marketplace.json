@@ -9,7 +9,7 @@
       "name": "shipwise",
       "source": "./",
       "description": "15-skill webapp launch lifecycle plugin with a 4-agent parallel codebase auditor, deploy gates, and experience-level calibration.",
-      "version": "0.6.5"
+      "version": "0.6.6"
     }
   ]
 }

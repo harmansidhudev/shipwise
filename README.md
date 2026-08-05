@@ -10,7 +10,7 @@ The webapp launch lifecycle plugin for Claude Code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests: 25/25](https://img.shields.io/badge/Tests-25%2F25_passing-brightgreen.svg)](#tested)
-[![Version: 0.6.5](https://img.shields.io/badge/Version-0.6.5-blue.svg)](CHANGELOG.md)
+[![Version: 0.6.6](https://img.shields.io/badge/Version-0.6.6-blue.svg)](CHANGELOG.md)
 
 [Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Audit architecture](#audit-architecture) · [Docs](https://harmansidhudev.github.io/shipwise/)
 
