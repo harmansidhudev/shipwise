@@ -17,6 +17,11 @@ jobs:
           echo "Checking plugin.json is valid JSON..."
           cat .claude-plugin/plugin.json | python3 -m json.tool > /dev/null
 
+      - name: Check version references are in sync
+        run: |
+          echo "Checking every version reference matches plugin.json..."
+          ./scripts/sync-version.py --check
+
       - name: Validate state schema
         run: |
           echo "Checking state schema is valid JSON..."
