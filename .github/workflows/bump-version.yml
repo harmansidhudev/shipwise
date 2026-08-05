@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths-ignore:
       - '.claude-plugin/plugin.json'
+      - '.claude-plugin/marketplace.json'
+      - 'README.md'
+      - 'docs/index.html'
 
 permissions:
   contents: write
@@ -12,6 +15,9 @@ permissions:
 jobs:
   bump:
     runs-on: ubuntu-latest
+    # Belt and braces: pushes made with GITHUB_TOKEN don't trigger workflows, but
+    # this makes the no-recursion guarantee explicit rather than implicit.
+    if: github.actor != 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
 
@@ -31,10 +37,16 @@ jobs:
           ")
           echo "NEW_VERSION=$VERSION" >> "$GITHUB_ENV"
 
+      # plugin.json is the source of truth; marketplace.json, the README badge
+      # and the landing page all display the version and must follow it. Without
+      # this step every bump silently re-creates version drift.
+      - name: Sync version across all references
+        run: ./scripts/sync-version.py
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/plugin.json
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json README.md docs/index.html
           git commit -m "chore: auto-bump plugin version to $NEW_VERSION"
           git push
