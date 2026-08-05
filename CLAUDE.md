@@ -6,8 +6,27 @@ Shipwise guides developers through the full webapp launch lifecycle: Design → 
 ## Architecture
 - **15 skills** (14 domain + 1 orchestrator) across 4 phases
 - **4 hooks** for automatic checkpoint gates (session context, post-edit whispers, deploy gate, stop updater)
-- **2 agents** for deep codebase scanning (launch-readiness-auditor, gap-analyzer)
+- **7 agents** for codebase scanning and planning (see below)
 - **3 commands** (/shipwise, /launch-audit, /launch-checklist)
+- **78 reference docs** across the 15 skills
+
+### Agents
+`/launch-audit` fans out to 4 domain auditors in parallel, then merges results.
+All agents run `model: haiku` with a turn cap — the fan-out is only affordable
+because of this. Preserve both fields when editing agent frontmatter.
+
+| Agent | Role |
+|-------|------|
+| `auditor-security` | Security, auth, input validation, dependencies, tests |
+| `auditor-infrastructure` | CI/CD, Docker, env, secrets, error tracking, health, monitoring. Also returns the `stack` object |
+| `auditor-ux-accessibility` | a11y, empty/loading states, contrast, labels, landmarks |
+| `auditor-compliance-quality` | Legal, SEO, billing, code quality, launch readiness |
+| `auditor-delta` | `/launch-audit quick` — scans only git-changed files |
+| `launch-readiness-auditor` | Monolithic full scan; the per-domain fallback when a parallel auditor fails |
+| `gap-analyzer` | Converts audit results into a prioritized plan |
+
+Every auditor returns `{ category, items[], summary }`. Item status is one of
+`done` | `partial` | `todo`, rendered as ✓ | ⚠ | ✗.
 
 ## State
 - Machine-readable state: `.claude/shipwise-state.json`
@@ -19,7 +38,8 @@ Shipwise guides developers through the full webapp launch lifecycle: Design → 
 1. **Scaffold** (`/shipwise`) — one-time project setup with diagnostic interview
 2. **Checkpoint Gates** — automatic hooks on session start, file edits, deploys, and session stop
 3. **Contextual Skills** — auto-trigger based on what the developer is working on
-4. **On-Demand Audit** (`/launch-audit`) — full codebase re-scan before milestones
+4. **On-Demand Audit** (`/launch-audit`) — full parallel re-scan before milestones;
+   `/launch-audit quick` for an incremental delta scan of changed files only
 
 ## Conventions
 - Skills use dual-mode output (beginner/intermediate/senior blocks in SKILL.md)

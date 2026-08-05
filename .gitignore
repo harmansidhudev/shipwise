@@ -18,3 +18,9 @@ npm-debug.log*
 
 # User project state (generated per-project, not committed)
 # These are generated in the USER's project, not in the shipwise repo itself
+.claude/shipwise-state.json
+.claude/SHIPWISE-STATUS.md
+.claude/shipwise-whispers.json
+
+# Locally installed copy of scripts/statusline.sh (source of truth is scripts/)
+.claude/shipwise-statusline.sh
