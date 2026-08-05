@@ -6,13 +6,13 @@
 
 The webapp launch lifecycle plugin for Claude Code.
 
-15 skills · 4 automatic hooks · 75+ copy-paste templates
+15 skills · 7 audit agents · 4 automatic hooks · 78 copy-paste templates
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests: 25/25](https://img.shields.io/badge/Tests-25%2F25_passing-brightgreen.svg)](#tested)
-[![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-blue.svg)](CHANGELOG.md)
+[![Version: 0.6.4](https://img.shields.io/badge/Version-0.6.4-blue.svg)](CHANGELOG.md)
 
-[Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Docs](https://harmansidhudev.github.io/shipwise/)
+[Install](#quick-start) · [How it works](#how-it-works) · [Skills](#skills) · [Audit architecture](#audit-architecture) · [Docs](https://harmansidhudev.github.io/shipwise/)
 
 </div>
 
@@ -26,8 +26,8 @@ error tracking, and tracks your launch readiness across sessions. One command to
 set up, then it works in the background.
 
 In our Before/After test, the same auth prompt scored 18/40 without Shipwise and
-36/40 with it — 24 specific security improvements including rate limiting, CSRF
-protection, session hardening, and password breach checking.
+37/40 with it — a 106% improvement covering all 11 security dimensions, including
+rate limiting, CSRF protection, session hardening, and password breach checking.
 
 ## Quick Start
 
@@ -43,9 +43,12 @@ protection, session hardening, and password breach checking.
 
 # Helpful commands:
 /shipwise help                  # Show commands, skills, hooks
+/shipwise status                # Readiness score + history
 /shipwise set-level senior      # Change experience level
 /shipwise pause                 # Temporarily disable (keeps state)
-/launch-audit                   # Full codebase re-scan
+/shipwise resume                # Re-enable hooks and skills
+/launch-audit                   # Full codebase re-scan (4 agents in parallel)
+/launch-audit quick             # Incremental scan of changed files only
 /launch-checklist security      # Deep-dive a domain
 ```
 
@@ -54,9 +57,7 @@ protection, session hardening, and password breach checking.
 Show Shipwise readiness in the CLI status bar:
 
 ```bash
-# Copy the status line script to your project
-cp node_modules/shipwise/scripts/statusline.sh .claude/shipwise-statusline.sh
-# Or download directly:
+# Download the status line script into your project
 curl -o .claude/shipwise-statusline.sh https://raw.githubusercontent.com/harmansidhudev/shipwise/main/scripts/statusline.sh
 chmod +x .claude/shipwise-statusline.sh
 ```
@@ -77,10 +78,10 @@ Result: `opus · 25% ctx | ⛵ build ████░░░░░░ 42% · 3 P0 
 
 | Mode | How it works | Your effort |
 |------|-------------|-------------|
-| **Scaffold** | `/shipwise` scans your codebase, detects your stack, shows a project profile card with readiness score and top gaps, generates a personalized checklist | Once, at project start |
-| **Checkpoint Gates** | Hooks fire on session start, file edits, and deploys. Whispers tips on auth, billing, API, CI/CD, secrets, and observability code. Warns before deploying with P0 gaps. | Zero — fully automatic |
+| **Scaffold** | `/shipwise` scans your codebase, detects your stack, shows a project profile card with readiness score and top gaps, generates a personalized checklist. The scan starts in the background after question 4, so it finishes while you're still answering. | Once, at project start |
+| **Checkpoint Gates** | Hooks fire on session start, file edits, and deploys. Whispers tips on auth, billing, API, CI/CD, secrets, and observability code — deduplicated across restarts. Warns before deploying with P0 gaps. | Zero — fully automatic |
 | **Contextual Skills** | 15 domain skills auto-load based on your task. Auth code → security patterns. Payment code → billing best practices. | Zero — Claude decides |
-| **On-Demand Audit** | `/launch-audit` does a full codebase scan. `/launch-checklist security` dives into a specific domain. | When you choose |
+| **On-Demand Audit** | `/launch-audit` fans out to 4 specialized agents in parallel. `/launch-audit quick` scans only what changed. `/launch-checklist security` dives into a specific domain. | When you choose |
 
 ### Experience calibration
 
@@ -104,7 +105,58 @@ Shipwise adjusts priority weighting based on your user scale:
 - **1K - 10K users** — Rate limiting, load testing, incident response, backup/DR.
 - **10K+ users** — Full observability, SOC 2 readiness, multi-region, cost optimization.
 
+## Audit Architecture
+
+`/launch-audit` doesn't run one big scan. It fans out to four specialized agents
+that scan different domains at the same time, then merges their findings into a
+single readiness state.
+
+```
+/launch-audit
+     │
+     ├─→ auditor-security            security headers, auth, input validation, deps, tests
+     ├─→ auditor-infrastructure      CI/CD, Docker, env, secrets, error tracking, health
+     ├─→ auditor-ux-accessibility    a11y, empty/loading states, contrast, labels, landmarks
+     └─→ auditor-compliance-quality  legal, SEO, billing, code quality, launch readiness
+                    │
+                    ▼
+          merge → state.json → SHIPWISE-STATUS.md
+```
+
+All agents run on Haiku with a turn cap, which is what makes the fan-out cheap
+enough to run often.
+
+| Mode | What it does | Time | Cost |
+|------|-------------|------|------|
+| `/launch-audit` | 4 agents in parallel across all domains | ~30-45s | ~$0.12 |
+| `/launch-audit quick` | `auditor-delta` scans only git-changed files | ~10-15s | ~$0.03 |
+| Background scan | Fires during the `/shipwise` interview after Q4 | Free (overlapped) | — |
+
+**Quick mode** returns only items whose status changed — improved or regressed.
+If it detects more than 50 changed files, it automatically falls back to a full
+parallel scan.
+
+**Fallback:** if any of the four auditors fails or times out, that domain falls
+back to the monolithic `launch-readiness-auditor`, so a partial failure never
+produces a partial audit.
+
+### The agents
+
+| Agent | Role |
+|-------|------|
+| `auditor-security` | Security and auth evidence |
+| `auditor-infrastructure` | CI/CD, containerization, env config, observability |
+| `auditor-ux-accessibility` | UX and accessibility evidence |
+| `auditor-compliance-quality` | Legal, SEO, billing, code quality |
+| `auditor-delta` | Incremental scan of `git diff` output only |
+| `launch-readiness-auditor` | Monolithic full-checklist scan — the fallback path |
+| `gap-analyzer` | Turns audit results into a prioritized plan with time estimates and sequencing |
+
 ## Skills
+
+Fourteen domain skills plus `launch-assess`, an orchestrator that detects your
+project phase and routes to the right domain skill. You never invoke these
+directly — Claude loads them when your task matches.
 
 ### Phase 1: Design
 
@@ -140,6 +192,12 @@ Shipwise adjusts priority weighting based on your user scale:
 |-------|---------------|
 | `growth-ops` | Event taxonomy, funnel instrumentation, conversion funnel audit (5-funnel friction scoring), A/B testing, retention cohorts, privacy-first analytics (Umami/Plausible/OpenPanel setup, consent-aware loading, ad-blocker bypass), revenue analytics (MRR/NRR/LTV from Stripe, SQL templates, revenue dashboard), email lifecycle campaigns (onboarding→win-back), referral program design, cost optimization, content strategy |
 
+### Orchestrator
+
+| Skill | What it covers |
+|-------|---------------|
+| `launch-assess` | Detects your project phase, assesses readiness, and routes to the right domain skill. The one skill that decides which of the other fourteen you get — it triggers on launch planning, readiness assessment, and "what do I need to ship" queries |
+
 ## Tested
 
 Shipwise was tested across 25 scenarios covering trigger accuracy, content
@@ -150,28 +208,33 @@ dashboard layouts, pricing pages, and micro-interactions.
 
 **Result: 25/25 scenarios passed.** [Full test results →](tests/)
 
-The key test: same auth prompt, same project — 18/40 without Shipwise, 36/40
-with it. 24 specific security improvements.
+The key test: same auth prompt, same project — 18/40 without Shipwise, 37/40
+with it. +19 points, 11/11 security dimensions covered.
 
 | Test category | Scenarios | Result |
 |--------------|-----------|--------|
 | Scaffold accuracy | Beginner first-run, senior codebase detection | 2/2 |
 | Skill triggering | Stack selection, API patterns, accessibility, auth hardening | 4/4 |
 | Boundary checks | Off-topic silence (4 prompts), correct skill routing | 2/2 |
-| Cross-skill flow | Architecture → fullstack transition, multi-prompt coherence | 2/2 |
+| Cross-skill flow | Architecture → fullstack transition, multi-prompt coherence | 1/1 |
 | Audit commands | `/launch-audit` full scan, `/launch-checklist security` deep dive | 2/2 |
+| Before/After | Same auth prompt, with and without Shipwise | 1/1 |
+| UX & accessibility | Forms (3), onboarding (3), dashboards (2), pricing (2), micro-interactions (3) | 13/13 |
 
 ### Before/After breakdown
 
 | Category | Without Shipwise | With Shipwise |
 |----------|-----------------|---------------|
-| Password hashing | bcrypt (default) | Argon2id (recommended) |
-| Rate limiting | None | Per-route + global |
-| CSRF protection | None | Token-based |
+| Password hashing | bcrypt (default) | Argon2id, with bcrypt fallback guidance |
+| Rate limiting | None | 3-tier (per-route, per-IP, global) |
+| CSRF protection | None | Double-submit token |
 | Session security | Default cookies | Hardened flags, rotation |
-| Breach checking | None | HaveIBeenPwned API |
+| Breach checking | None | HaveIBeenPwned (k-anonymity) |
 | Account lockout | None | Progressive delays |
-| **Total score** | **18/40** | **36/40** |
+| MFA / TOTP | None | Enrollment + verification flow |
+| Input validation | Ad hoc | Zod schemas |
+| Error handling | Raw messages | Structured errors with requestId |
+| **Total score** | **18/40** | **37/40** |
 
 ## Companion Tools
 
@@ -188,16 +251,19 @@ then points you to the best tool for the job.
 | Development workflow | `obra/superpowers` | Lifecycle context for the dev workflow |
 | Visual design | `bencium/bencium-marketplace` | Aesthetic direction + anti-generic-AI rules |
 
-## Multi-Agent Support
+## Portable to Other AI Tools
 
 Shipwise skills follow the Agent Skills open standard. Run the conversion script
-to use with other AI coding agents:
+to use them outside Claude Code:
 
 ```bash
 ./scripts/convert.sh
 ```
 
-Supported agents:
+Note: only the skills port. Hooks, commands, and the [audit agents](#audit-architecture)
+are Claude Code features and stay behind.
+
+Supported tools:
 
 - Claude Code (native)
 - Codex
@@ -233,7 +299,10 @@ Contributions welcome:
 
 Built by [Harman Sidhu](https://harmansidhudev.com)
 
-<!-- Scarf install tracking pixel — replace URL after registering at scarf.sh -->
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=REPLACE_WITH_SCARF_PIXEL_ID" alt="" />
+<!--
+  Scarf install tracking pixel — disabled until a real pixel ID exists.
+  Register at scarf.sh, then uncomment and replace the ID below.
+  <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=YOUR_PIXEL_ID" alt="" />
+-->
 
 </div>

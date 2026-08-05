@@ -8,8 +8,8 @@
     {
       "name": "shipwise",
       "source": "./",
-      "description": "15-skill webapp launch lifecycle plugin with codebase auditor, deploy gates, and experience-level calibration.",
-      "version": "1.0.0"
+      "description": "15-skill webapp launch lifecycle plugin with a 4-agent parallel codebase auditor, deploy gates, and experience-level calibration.",
+      "version": "0.6.4"
     }
   ]
 }
